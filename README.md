@@ -16,11 +16,9 @@ A high-performance PHP extension for working with 128-bit identifiers including 
 ### Requirements
 
 - PHP 8.1 or higher
-- C compiler (GCC/Clang) or Zig 0.15.2+
+- Zig 0.15.2+ ([Download from ziglang.org](https://ziglang.org/download/))
 
-### Option 1: Zig Build System (Recommended)
-
-**Fast, modern build system with better error messages:**
+### Build and Install
 
 ```bash
 git clone https://github.com/your-org/php-ext-identifier.git
@@ -28,18 +26,12 @@ cd php-ext-identifier
 zig build dev  # Build + test in one command
 ```
 
-See [ZIG_BUILD.md](ZIG_BUILD.md) for complete Zig build documentation.
-
-### Option 2: Traditional Build
-
+For production installation:
 ```bash
-git clone https://github.com/your-org/php-ext-identifier.git
-cd php-ext-identifier
-phpize
-./configure
-make
-make install
+zig build install-system  # Install to system PHP (requires sudo)
 ```
+
+See [ZIG_BUILD.md](ZIG_BUILD.md) for complete build documentation and advanced options.
 
 ### Enable Extension
 
@@ -118,15 +110,9 @@ This extension provides significant performance improvements over userland imple
 
 ## Testing
 
-### With Zig Build System
 ```bash
 zig build test      # Run all tests
 zig build dev       # Build + test
-```
-
-### With Traditional Build
-```bash
-make test
 ```
 
 ## Contributing
@@ -134,7 +120,7 @@ make test
 1. Fork the repository
 2. Create a feature branch
 3. Add tests for new functionality
-4. Ensure all tests pass (`zig build test` or `make test`)
+4. Ensure all tests pass (`zig build test`)
 5. Submit a pull request
 
 ## License

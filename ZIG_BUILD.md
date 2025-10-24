@@ -1,28 +1,17 @@
 # Zig Build System for PHP Extension
 
-This project now supports building with **Zig 0.15.2+** as an alternative to the traditional PHP extension build system.
+This project uses **Zig 0.15.2+** as its modern build system for the PHP extension.
 
 ## 🚀 **Why Zig Build System?**
 
-### ✅ **Advantages over Traditional Build**
-- **Simpler**: No need for `phpize`, `./configure`, or complex autotools
-- **Faster**: Zig's incremental compilation and caching
+### ✅ **Advantages**
+- **Simple**: Single command for build, test, and install
+- **Fast**: Zig's incremental compilation and caching
 - **Cross-compilation**: Easy builds for different platforms
 - **Better errors**: Superior diagnostics and error messages
-- **Modern toolchain**: No dependency on ancient autotools
+- **Modern toolchain**: No dependency on legacy autotools
 - **Integrated testing**: Built-in test runner
 - **Consistent**: Same commands across all platforms
-
-### 📊 **Comparison**
-
-| Feature | Traditional Build | Zig Build |
-|---------|------------------|-----------|
-| Setup | `phpize && ./configure && make` | `zig build` |
-| Testing | `make test` | `zig build test` |
-| Clean | `make clean` | `zig build clean` |
-| Dependencies | autotools, make, gcc/clang | zig only |
-| Cross-compile | Complex | `zig build -Dtarget=...` |
-| Incremental | Limited | Full support |
 
 ## 🛠 **Requirements**
 
@@ -89,21 +78,12 @@ The Zig build system uses `zig cc` as a drop-in replacement for GCC/Clang:
 3. **Testing**: Runs the same `.phpt` tests as the traditional system
 4. **Output**: Produces the same `modules/identifier.so` file
 
-## 🎯 **Migration Guide**
+## 🎯 **Quick Start**
 
-### **From Traditional Build**
-
-**Old way:**
 ```bash
-phpize
-./configure
-make
-make test
-make install
-```
-
-**New way:**
-```bash
+# Clone and build
+git clone <repository>
+cd php-ext-identifier
 zig build dev          # Build + test
 zig build install-system  # Install (if needed)
 ```

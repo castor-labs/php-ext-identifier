@@ -77,15 +77,10 @@ pub fn build(b: *std.Build) void {
     const package_cmd = b.addSystemCommand(&[_][]const u8{
         "tar", "-czf", "identifier.tar.gz",
         "--exclude=zig-cache", "--exclude=zig-out", "--exclude=.git",
-        "--exclude=modules", "--exclude=autom4te.cache",
+        "--exclude=modules",
         ".",
     });
     package_step.dependOn(&package_cmd.step);
 
-    // Stub generation step
-    const stubs_step = b.step("stubs", "Generate PHP stubs");
-    const stubs_cmd = b.addSystemCommand(&[_][]const u8{
-        "php", "build/gen_stub.php", "stubs/identifier.stub.php",
-    });
-    stubs_step.dependOn(&stubs_cmd.step);
+
 }

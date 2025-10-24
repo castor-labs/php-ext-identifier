@@ -1,35 +1,7 @@
 # Build artifacts
-*.lo
-*.la
-*.dep
 *.o
 *.so
-.libs/
-.deps/
-build/
-modules/
-autom4te.cache/
-
-# Configure files
-configure
-configure.ac
-config.log
-config.status
-config.nice
-config.h
-config.h.in
-libtool
-Makefile
-Makefile.global
-Makefile.objects
-Makefile.fragments
-acinclude.m4
-aclocal.m4
-install-sh
-ltmain.sh
-missing
-mkinstalldirs
-run-tests.php
+modules/identifier.so
 
 # IDE files
 .vscode/
@@ -51,10 +23,6 @@ tests/*.sh
 tests/*.exp
 tmp-php.ini
 
-# Package files
-package.xml.bak
-*.tgz
-
 # Temporary files
 tmp/
 temp/
@@ -62,3 +30,6 @@ temp/
 # Zig build artifacts
 .zig-cache/
 zig-out/
+
+# Keep our custom test runner
+!run-tests.php
