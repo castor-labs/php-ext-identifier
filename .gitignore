@@ -58,3 +58,7 @@ package.xml.bak
 # Temporary files
 tmp/
 temp/
+
+# Zig build artifacts
+.zig-cache/
+zig-out/
