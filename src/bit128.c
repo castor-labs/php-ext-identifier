@@ -38,6 +38,22 @@ ZEND_END_ARG_INFO()
 static zend_object_handlers php_identifier_bit128_object_handlers;
 
 /* Bit128 methods */
+
+/**
+ * Create a new 128-bit identifier from bytes
+ *
+ * Constructs a new Bit128 instance from exactly 16 bytes of binary data.
+ * This is the base class for all 128-bit identifiers in this extension.
+ *
+ * @param string $bytes Exactly 16 bytes of binary data
+ * @throws Exception If bytes is not exactly 16 bytes long
+ *
+ * @example
+ * $bytes = random_bytes(16);
+ * $bit128 = new Bit128($bytes);
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, __construct)
 {
     zend_string *bytes;
@@ -55,18 +71,66 @@ static PHP_METHOD(Php_Identifier_Bit128, __construct)
     memcpy(intern->data, ZSTR_VAL(bytes), 16);
 }
 
+/**
+ * Get the raw 16-byte binary representation
+ *
+ * Returns the internal 16-byte binary data that represents this 128-bit identifier.
+ * This is the most compact representation and is useful for storage and transmission.
+ *
+ * @return string The 16-byte binary representation
+ *
+ * @example
+ * $id = new Bit128(random_bytes(16));
+ * $bytes = $id->getBytes();
+ * echo strlen($bytes); // 16
+ * echo bin2hex($bytes); // hex representation
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, getBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     RETURN_STRINGL((char*)intern->data, 16);
 }
 
+/**
+ * Alias for getBytes() method
+ *
+ * This method is an alias for getBytes() and returns the same 16-byte binary data.
+ * Provided for API consistency and convenience.
+ *
+ * @return string The 16-byte binary representation
+ *
+ * @example
+ * $id = new Bit128(random_bytes(16));
+ * $bytes1 = $id->getBytes();
+ * $bytes2 = $id->toBytes();
+ * var_dump($bytes1 === $bytes2); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, toBytes)
 {
     /* Alias for getBytes */
     PHP_MN(Php_Identifier_Bit128_getBytes)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
+/**
+ * Check if this identifier equals another
+ *
+ * Performs a byte-by-byte comparison to determine if two 128-bit
+ * identifiers contain exactly the same data.
+ *
+ * @param Bit128 $other The identifier to compare against
+ * @return bool True if the identifiers are equal, false otherwise
+ *
+ * @example
+ * $id1 = Bit128::fromHex('550e8400e29b41d4a716446655440000');
+ * $id2 = Bit128::fromHex('550e8400e29b41d4a716446655440000');
+ * var_dump($id1->equals($id2)); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, equals)
 {
     zval *other;
@@ -81,6 +145,24 @@ static PHP_METHOD(Php_Identifier_Bit128, equals)
     RETURN_BOOL(memcmp(intern->data, other_intern->data, 16) == 0);
 }
 
+/**
+ * Compare this identifier with another for ordering
+ *
+ * Performs a lexicographic comparison of the binary data to determine
+ * the relative ordering of two 128-bit identifiers. Useful for sorting.
+ *
+ * @param Bit128 $other The identifier to compare against
+ * @return int -1 if this < other, 0 if equal, 1 if this > other
+ *
+ * @example
+ * $id1 = Bit128::fromHex('550e8400e29b41d4a716446655440000');
+ * $id2 = Bit128::fromHex('550e8400e29b41d4a716446655440001');
+ * echo $id1->compare($id2); // -1 (id1 < id2)
+ * echo $id2->compare($id1); // 1 (id2 > id1)
+ * echo $id1->compare($id1); // 0 (equal)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, compare)
 {
     zval *other;
@@ -96,6 +178,20 @@ static PHP_METHOD(Php_Identifier_Bit128, compare)
     RETURN_LONG(result < 0 ? -1 : (result > 0 ? 1 : 0));
 }
 
+/**
+ * Convert the identifier to a hexadecimal string
+ *
+ * Returns a 32-character lowercase hexadecimal representation of the
+ * 128-bit identifier. This is useful for debugging and storage.
+ *
+ * @return string 32-character hexadecimal string (lowercase)
+ *
+ * @example
+ * $id = Bit128::fromHex('550e8400e29b41d4a716446655440000');
+ * echo $id->toHex(); // "550e8400e29b41d4a716446655440000"
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, toHex)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -111,6 +207,23 @@ static PHP_METHOD(Php_Identifier_Bit128, toHex)
     RETURN_STR(result);
 }
 
+/**
+ * Create a new identifier from a hexadecimal string
+ *
+ * Parses a 32-character hexadecimal string (with or without dashes)
+ * and creates a new Bit128 instance. The hex string is case-insensitive.
+ *
+ * @param string $hex 32-character hexadecimal string (case-insensitive)
+ * @return Bit128 New identifier instance
+ * @throws Exception If hex string is invalid or wrong length
+ *
+ * @example
+ * $id = Bit128::fromHex('550e8400e29b41d4a716446655440000');
+ * $same = Bit128::fromHex('550E8400-E29B-41D4-A716-446655440000');
+ * var_dump($id->equals($same)); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, fromHex)
 {
     zend_string *hex;
@@ -147,6 +260,29 @@ static PHP_METHOD(Php_Identifier_Bit128, fromHex)
     memcpy(intern->data, bytes, 16);
 }
 
+/**
+ * Create a new identifier from binary data
+ *
+ * Creates a new Bit128 instance from exactly 16 bytes of binary data.
+ * This is useful when reading identifiers from binary storage or network protocols.
+ *
+ * @param string $bytes Exactly 16 bytes of binary data
+ * @return Bit128 New identifier instance
+ * @throws Exception If bytes is not exactly 16 bytes long
+ *
+ * @example
+ * $bytes = random_bytes(16);
+ * $id = Bit128::fromBytes($bytes);
+ * var_dump($id->getBytes() === $bytes); // bool(true)
+ *
+ * // From hex string converted to bytes
+ * $hex = '550e8400e29b41d4a716446655440000';
+ * $bytes = hex2bin($hex);
+ * $id = Bit128::fromBytes($bytes);
+ * echo $id->toHex(); // "550e8400e29b41d4a716446655440000"
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Bit128, fromBytes)
 {
     zend_string *bytes;

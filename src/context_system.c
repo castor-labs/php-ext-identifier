@@ -31,6 +31,27 @@ static zval system_context_singleton;
 static bool system_context_initialized = false;
 
 /* System context methods */
+
+/**
+ * Get the singleton system context instance
+ *
+ * Returns the shared system context that uses real system time and
+ * cryptographically secure random number generation. This is the
+ * default context used when no context is specified.
+ *
+ * @return System The singleton system context instance
+ *
+ * @example
+ * $context = System::getInstance();
+ * $uuid = Version4::generate($context);
+ * $ulid = Ulid::generate($context);
+ *
+ * // Same instance every time
+ * $context2 = System::getInstance();
+ * var_dump($context === $context2); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Context_System, getInstance)
 {
     if (!system_context_initialized) {

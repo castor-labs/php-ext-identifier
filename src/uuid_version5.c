@@ -51,6 +51,32 @@ static void simple_sha1(const unsigned char *input, size_t len, unsigned char ou
 }
 
 /* UUID Version 5 methods */
+
+/**
+ * Generate a new UUID version 5 (name-based with SHA-1)
+ *
+ * Creates a UUID version 5 by hashing a namespace UUID and name using SHA-1.
+ * The same namespace and name will always produce the same UUID. This is
+ * preferred over version 3 due to SHA-1 being more secure than MD5.
+ *
+ * @param string $namespace UUID namespace as string
+ * @param string $name Name to hash within the namespace
+ * @return Version5 A new UUID version 5 instance
+ * @throws Exception If namespace is invalid or hashing fails
+ *
+ * @example
+ * // Generate deterministic UUID from namespace and name
+ * $namespace = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+ * $uuid = Version5::generate($namespace, "example.com");
+ * echo $uuid->toString(); // Always the same for these inputs
+ *
+ * // Preferred over Version 3 for security
+ * $uuid3 = Version3::generate($namespace, "example.com");
+ * $uuid5 = Version5::generate($namespace, "example.com");
+ * // Different results due to different hash algorithms
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version5, generate)
 {
     zval *namespace_uuid;
@@ -101,6 +127,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version5, generate)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Create UUID version 5 from string representation
+ *
+ * Parses a UUID version 5 from its standard string representation.
+ * The string must be in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ * and must be a valid version 5 UUID.
+ *
+ * @param string $uuid UUID string in standard format
+ * @return Version5 A new UUID version 5 instance
+ * @throws Exception If string is invalid or not version 5
+ *
+ * @example
+ * $uuid = Version5::fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
+ * echo $uuid->getVersion(); // 5
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version5, fromString)
 {
     zend_string *uuid_str;
@@ -166,6 +209,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version5, fromString)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Create UUID version 5 from binary data
+ *
+ * Creates a UUID version 5 instance from exactly 16 bytes of binary data.
+ * The binary data must represent a valid version 5 UUID.
+ *
+ * @param string $bytes Exactly 16 bytes of binary data
+ * @return Version5 A new UUID version 5 instance
+ * @throws Exception If bytes is not exactly 16 bytes or not version 5
+ *
+ * @example
+ * $bytes = hex2bin("6ba7b8109dad11d180b400c04fd430c8");
+ * $uuid = Version5::fromBytes($bytes);
+ * echo $uuid->getVersion(); // 5
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version5, fromBytes)
 {
     zend_string *bytes;
@@ -200,6 +260,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version5, fromBytes)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Create UUID version 5 from hexadecimal string
+ *
+ * Creates a UUID version 5 instance from a 32-character hexadecimal string.
+ * The hex string can be with or without hyphens and is case-insensitive.
+ *
+ * @param string $hex 32-character hexadecimal string (with or without hyphens)
+ * @return Version5 A new UUID version 5 instance
+ * @throws Exception If hex string is invalid or not version 5
+ *
+ * @example
+ * $uuid = Version5::fromHex("6ba7b8109dad11d180b400c04fd430c8");
+ * echo $uuid->toString(); // "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version5, fromHex)
 {
     zend_string *hex;

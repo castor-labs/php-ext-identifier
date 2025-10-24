@@ -41,6 +41,31 @@ ZEND_END_ARG_INFO()
 static zend_object_handlers php_identifier_context_fixed_object_handlers;
 
 /* Fixed context methods */
+
+/**
+ * Create a new fixed context for testing
+ *
+ * Creates a context with fixed timestamp and deterministic random bytes.
+ * This is primarily useful for testing and generating reproducible identifiers.
+ *
+ * @param int $timestamp Fixed timestamp in milliseconds since Unix epoch
+ * @param string $randomBytes Fixed random bytes (16 bytes for deterministic generation)
+ * @return Fixed A new fixed context instance
+ * @throws Exception If randomBytes is not exactly 16 bytes
+ *
+ * @example
+ * // Create fixed context for testing
+ * $timestamp = 1640995200000; // 2022-01-01 00:00:00 UTC
+ * $randomBytes = str_repeat("\x00", 16); // All zeros
+ * $context = Fixed::create($timestamp, $randomBytes);
+ *
+ * // Generate reproducible identifiers
+ * $uuid1 = Version4::generate($context);
+ * $uuid2 = Version4::generate($context);
+ * var_dump($uuid1->equals($uuid2)); // bool(true) - same every time
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Context_Fixed, create)
 {
     zend_long timestamp_ms, seed;

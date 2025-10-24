@@ -34,6 +34,31 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_version7_getRandomB, 0, 0, 
 ZEND_END_ARG_INFO()
 
 /* UUID Version 7 methods */
+
+/**
+ * Generate a new UUID version 7 (Unix timestamp-based)
+ *
+ * Creates a UUID version 7 with a Unix timestamp in milliseconds followed by
+ * random data. This provides natural sorting by creation time and is the
+ * recommended UUID version for new applications.
+ *
+ * @param Context|null $context Optional context for controlling time and randomness
+ * @return Version7 A new UUID version 7 instance
+ * @throws Exception If timestamp or random generation fails
+ *
+ * @example
+ * // Generate with current timestamp
+ * $uuid = Version7::generate();
+ * echo $uuid->toString(); // "018c2e65-4b0a-7c3d-8f2e-1a4b5c6d7e8f"
+ *
+ * // UUIDs are naturally sortable by timestamp
+ * $uuid1 = Version7::generate();
+ * usleep(1000);
+ * $uuid2 = Version7::generate();
+ * var_dump($uuid1->toString() < $uuid2->toString()); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, generate)
 {
     zval *context = NULL;
@@ -127,6 +152,27 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, generate)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Get the timestamp from UUID version 7
+ *
+ * Extracts the 48-bit Unix timestamp in milliseconds from the UUID version 7.
+ * This represents the time when the UUID was generated.
+ *
+ * @return int Unix timestamp in milliseconds
+ *
+ * @example
+ * $uuid = Version7::generate();
+ * $timestamp = $uuid->getTimestamp();
+ * echo date('Y-m-d H:i:s', $timestamp / 1000); // Convert to readable date
+ *
+ * // Compare timestamps
+ * $uuid1 = Version7::generate();
+ * usleep(1000);
+ * $uuid2 = Version7::generate();
+ * var_dump($uuid1->getTimestamp() < $uuid2->getTimestamp()); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, getTimestamp)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -143,6 +189,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, getTimestamp)
     RETURN_LONG(timestamp_ms);
 }
 
+/**
+ * Create UUID version 7 from string representation
+ *
+ * Parses a UUID version 7 from its standard string representation.
+ * The string must be in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ * and must be a valid version 7 UUID.
+ *
+ * @param string $uuid UUID string in standard format
+ * @return Version7 A new UUID version 7 instance
+ * @throws Exception If string is invalid or not version 7
+ *
+ * @example
+ * $uuid = Version7::fromString("018c2e65-4b0a-7c3d-8f2e-1a4b5c6d7e8f");
+ * echo $uuid->getVersion(); // 7
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, fromString)
 {
     zend_string *uuid_str;
@@ -208,6 +271,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, fromString)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Create UUID version 7 from binary data
+ *
+ * Creates a UUID version 7 instance from exactly 16 bytes of binary data.
+ * The binary data must represent a valid version 7 UUID.
+ *
+ * @param string $bytes Exactly 16 bytes of binary data
+ * @return Version7 A new UUID version 7 instance
+ * @throws Exception If bytes is not exactly 16 bytes or not version 7
+ *
+ * @example
+ * $bytes = hex2bin("018c2e654b0a7c3d8f2e1a4b5c6d7e8f");
+ * $uuid = Version7::fromBytes($bytes);
+ * echo $uuid->getVersion(); // 7
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, fromBytes)
 {
     zend_string *bytes;
@@ -242,6 +322,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, fromBytes)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Create UUID version 7 from hexadecimal string
+ *
+ * Creates a UUID version 7 instance from a 32-character hexadecimal string.
+ * The hex string can be with or without hyphens and is case-insensitive.
+ *
+ * @param string $hex 32-character hexadecimal string (with or without hyphens)
+ * @return Version7 A new UUID version 7 instance
+ * @throws Exception If hex string is invalid or not version 7
+ *
+ * @example
+ * $uuid = Version7::fromHex("018c2e654b0a7c3d8f2e1a4b5c6d7e8f");
+ * echo $uuid->toString(); // "018c2e65-4b0a-7c3d-8f2e-1a4b5c6d7e8f"
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, fromHex)
 {
     zend_string *hex;
@@ -301,6 +397,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, fromHex)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Get all random bytes from UUID version 7
+ *
+ * Extracts the 74 bits of random data from the UUID version 7 as 10 bytes.
+ * This includes both the rand_a and rand_b fields.
+ *
+ * @return string 10 bytes of random data
+ *
+ * @example
+ * $uuid = Version7::generate();
+ * $randomBytes = $uuid->getRandomBytes();
+ * echo strlen($randomBytes); // 10
+ * echo bin2hex($randomBytes); // e.g., "3d8f2e1a4b5c6d7e8f90"
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -322,6 +434,21 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomBytes)
     RETURN_STR(random_bytes);
 }
 
+/**
+ * Get the rand_a field from UUID version 7
+ *
+ * Extracts the 12-bit rand_a field from the UUID version 7. This is the
+ * first random component after the timestamp.
+ *
+ * @return int 12-bit random value (0-4095)
+ *
+ * @example
+ * $uuid = Version7::generate();
+ * $randA = $uuid->getRandomA();
+ * echo $randA; // e.g., 3245 (0-4095)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomA)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -333,6 +460,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomA)
     RETURN_LONG(rand_a);
 }
 
+/**
+ * Get the rand_b field from UUID version 7
+ *
+ * Extracts the 62-bit rand_b field from the UUID version 7 as 8 bytes.
+ * This is the main random component providing uniqueness.
+ *
+ * @return string 8 bytes of random data (rand_b field)
+ *
+ * @example
+ * $uuid = Version7::generate();
+ * $randB = $uuid->getRandomB();
+ * echo strlen($randB); // 8
+ * echo bin2hex($randB); // e.g., "8f2e1a4b5c6d7e8f"
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomB)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());

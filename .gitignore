@@ -1,7 +1,11 @@
 # Build artifacts
 *.o
 *.so
-modules/identifier.so
+*.dep
+*.la
+*.lai
+.libs/
+modules/
 
 # IDE files
 .vscode/
@@ -31,5 +35,8 @@ temp/
 .zig-cache/
 zig-out/
 
-# Keep our custom test runner
-!run-tests.php
+# Generated stubs
+stubs/*_gen.stub.php
+
+# Generated packages
+*.tgz

@@ -31,7 +31,7 @@ For production installation:
 zig build install-system  # Install to system PHP (requires sudo)
 ```
 
-See [ZIG_BUILD.md](ZIG_BUILD.md) for complete build documentation and advanced options.
+See [docs/ZIG_BUILD.md](docs/ZIG_BUILD.md) for complete build documentation and advanced options.
 
 ### Enable Extension
 
@@ -114,6 +114,14 @@ This extension provides significant performance improvements over userland imple
 zig build test      # Run all tests
 zig build dev       # Build + test
 ```
+
+## Documentation
+
+For detailed documentation, see the [docs/](docs/) directory:
+
+- **[docs/ZIG_BUILD.md](docs/ZIG_BUILD.md)** - Complete build system guide
+- **[docs/STUB_GENERATION.md](docs/STUB_GENERATION.md)** - PHP stub generation system
+- **[docs/README.md](docs/README.md)** - Documentation index
 
 ## Contributing
 

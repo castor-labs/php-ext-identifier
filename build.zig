@@ -54,7 +54,7 @@ pub fn build(b: *std.Build) void {
     // Test step
     const test_step = b.step("test", "Run PHP tests");
     const test_cmd = b.addSystemCommand(&[_][]const u8{
-        "php", "run-tests.php", "-d", "extension=./modules/identifier.so", "tests/",
+        "php", "tools/run-tests.php", "-d", "extension=./modules/identifier.so", "tests/",
     });
     test_cmd.step.dependOn(build_step);
     test_step.dependOn(&test_cmd.step);
@@ -72,13 +72,27 @@ pub fn build(b: *std.Build) void {
     dev_step.dependOn(build_step);
     dev_step.dependOn(test_step);
 
-    // Package step
-    const package_step = b.step("package", "Create distribution package");
+    // Stub generation step (always with full documentation)
+    const stubs_step = b.step("generate-stubs", "Generate PHP stubs with full documentation");
+    const stubs_cmd = b.addSystemCommand(&[_][]const u8{
+        "php", "-d", "extension=./modules/identifier.so",
+        "tools/generate-stubs.php", "identifier", "src", "stubs/identifier_gen.stub.php",
+    });
+    stubs_cmd.step.dependOn(build_step);
+    stubs_step.dependOn(&stubs_cmd.step);
+
+    // Stub verification step (compare with manual stubs)
+    const verify_stubs_step = b.step("verify-stubs", "Verify manual stubs match extension API");
+    const verify_cmd = b.addSystemCommand(&[_][]const u8{
+        "php", "tools/verify-stubs.php", "stubs/identifier.stub.php", "stubs/identifier_gen.stub.php",
+    });
+    verify_cmd.step.dependOn(&stubs_cmd.step);
+    verify_stubs_step.dependOn(&verify_cmd.step);
+
+    // PECL package step
+    const package_step = b.step("package", "Create PECL package");
     const package_cmd = b.addSystemCommand(&[_][]const u8{
-        "tar", "-czf", "identifier.tar.gz",
-        "--exclude=zig-cache", "--exclude=zig-out", "--exclude=.git",
-        "--exclude=modules",
-        ".",
+        "pecl", "package", "package.xml",
     });
     package_step.dependOn(&package_cmd.step);
 

@@ -51,6 +51,31 @@ static void simple_md5(const unsigned char *input, size_t len, unsigned char out
 }
 
 /* UUID Version 3 methods */
+
+/**
+ * Generate a new UUID version 3 (name-based with MD5)
+ *
+ * Creates a UUID version 3 by hashing a namespace UUID and name using MD5.
+ * The same namespace and name will always produce the same UUID, making
+ * this suitable for deterministic identifier generation.
+ *
+ * @param string $namespace UUID namespace as string
+ * @param string $name Name to hash within the namespace
+ * @return Version3 A new UUID version 3 instance
+ * @throws Exception If namespace is invalid or hashing fails
+ *
+ * @example
+ * // Generate deterministic UUID from namespace and name
+ * $namespace = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+ * $uuid = Version3::generate($namespace, "example.com");
+ * echo $uuid->toString(); // Always the same for these inputs
+ *
+ * // Same inputs always produce same UUID
+ * $uuid2 = Version3::generate($namespace, "example.com");
+ * var_dump($uuid->equals($uuid2)); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version3, generate)
 {
     zval *namespace_uuid;

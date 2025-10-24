@@ -31,6 +31,31 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_version6_getClockSequence, 
 ZEND_END_ARG_INFO()
 
 /* UUID Version 6 methods */
+
+/**
+ * Generate a new UUID version 6 (reordered time-based)
+ *
+ * Creates a UUID version 6 which is like version 1 but with reordered timestamp
+ * fields for better database sorting. The timestamp is in big-endian format
+ * making UUIDs naturally sortable by creation time.
+ *
+ * @param Context|null $context Optional context for controlling time and node
+ * @return Version6 A new UUID version 6 instance
+ * @throws Exception If timestamp or node generation fails
+ *
+ * @example
+ * // Generate with system time and MAC address
+ * $uuid = Version6::generate();
+ * echo $uuid->toString(); // "1ec9414c-232a-6b00-b3c8-9e6bdeced846"
+ *
+ * // UUIDs are naturally sortable by timestamp
+ * $uuid1 = Version6::generate();
+ * usleep(1000);
+ * $uuid2 = Version6::generate();
+ * var_dump($uuid1->toString() < $uuid2->toString()); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version6, generate)
 {
     zval *context = NULL;
@@ -172,6 +197,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version6, generate)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Get the timestamp from UUID version 6
+ *
+ * Extracts the timestamp component from the UUID version 6. The timestamp
+ * represents the number of 100-nanosecond intervals since October 15, 1582.
+ *
+ * @return int Timestamp in 100-nanosecond intervals since UUID epoch
+ *
+ * @example
+ * $uuid = Version6::generate();
+ * $timestamp = $uuid->getTimestamp();
+ * // Convert to Unix timestamp (seconds)
+ * $unixTime = ($timestamp - 0x01b21dd213814000) / 10000000;
+ * echo date('Y-m-d H:i:s', $unixTime);
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version6, getTimestamp)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -202,6 +244,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version6, getTimestamp)
     RETURN_LONG(timestamp_ms);
 }
 
+/**
+ * Get the node identifier from UUID version 6
+ *
+ * Extracts the 6-byte node identifier, typically the MAC address of the
+ * network interface. If no MAC address is available, a random node ID is used.
+ *
+ * @return string 6-byte node identifier
+ *
+ * @example
+ * $uuid = Version6::generate();
+ * $node = $uuid->getNode();
+ * echo bin2hex($node); // e.g., "9e6bdeced846"
+ * echo strlen($node); // 6
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version6, getNode)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -214,6 +272,21 @@ static PHP_METHOD(Php_Identifier_Uuid_Version6, getNode)
     RETURN_STR(node);
 }
 
+/**
+ * Get the clock sequence from UUID version 6
+ *
+ * Extracts the 14-bit clock sequence used to help avoid duplicates when
+ * the clock is set backwards or the node ID changes.
+ *
+ * @return int Clock sequence value (0-16383)
+ *
+ * @example
+ * $uuid = Version6::generate();
+ * $clockSeq = $uuid->getClockSequence();
+ * echo $clockSeq; // e.g., 12345
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version6, getClockSequence)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -225,6 +298,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version6, getClockSequence)
     RETURN_LONG(clock_seq);
 }
 
+/**
+ * Create UUID version 6 from string representation
+ *
+ * Parses a UUID version 6 from its standard string representation.
+ * The string must be in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ * and must be a valid version 6 UUID.
+ *
+ * @param string $uuid UUID string in standard format
+ * @return Version6 A new UUID version 6 instance
+ * @throws Exception If string is invalid or not version 6
+ *
+ * @example
+ * $uuid = Version6::fromString("1ec9414c-232a-6b00-b3c8-9e6bdeced846");
+ * echo $uuid->getVersion(); // 6
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version6, fromString)
 {
     zend_string *uuid_str;
@@ -290,6 +380,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version6, fromString)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Create UUID version 6 from binary data
+ *
+ * Creates a UUID version 6 instance from exactly 16 bytes of binary data.
+ * The binary data must represent a valid version 6 UUID.
+ *
+ * @param string $bytes Exactly 16 bytes of binary data
+ * @return Version6 A new UUID version 6 instance
+ * @throws Exception If bytes is not exactly 16 bytes or not version 6
+ *
+ * @example
+ * $bytes = hex2bin("1ec9414c232a6b00b3c89e6bdeced846");
+ * $uuid = Version6::fromBytes($bytes);
+ * echo $uuid->getVersion(); // 6
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version6, fromBytes)
 {
     zend_string *bytes;
@@ -324,6 +431,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version6, fromBytes)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Create UUID version 6 from hexadecimal string
+ *
+ * Creates a UUID version 6 instance from a 32-character hexadecimal string.
+ * The hex string can be with or without hyphens and is case-insensitive.
+ *
+ * @param string $hex 32-character hexadecimal string (with or without hyphens)
+ * @return Version6 A new UUID version 6 instance
+ * @throws Exception If hex string is invalid or not version 6
+ *
+ * @example
+ * $uuid = Version6::fromHex("1ec9414c232a6b00b3c89e6bdeced846");
+ * echo $uuid->toString(); // "1ec9414c-232a-6b00-b3c8-9e6bdeced846"
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version6, fromHex)
 {
     zend_string *hex;

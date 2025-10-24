@@ -27,6 +27,28 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_version4_getPureRandomBytes
 ZEND_END_ARG_INFO()
 
 /* UUID Version 4 methods */
+
+/**
+ * Generate a new random UUID version 4
+ *
+ * Creates a new UUID version 4 using cryptographically secure random bytes.
+ * Version 4 UUIDs are completely random except for the version and variant bits.
+ *
+ * @param Context|null $context Optional context for controlling randomness
+ * @return Version4 A new UUID version 4 instance
+ * @throws Exception If random byte generation fails
+ *
+ * @example
+ * // Generate with system randomness
+ * $uuid = Version4::generate();
+ * echo $uuid->toString(); // e.g., "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+ *
+ * // Generate with custom context
+ * $context = new FixedContext();
+ * $uuid = Version4::generate($context);
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version4, generate)
 {
     zval *context = NULL;
@@ -244,6 +266,21 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, fromHex)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
+/**
+ * Get the random bytes from this UUID
+ *
+ * Returns all 16 bytes of the UUID, including the version and variant bits.
+ * This is the raw binary representation of the UUID.
+ *
+ * @return string The 16-byte binary representation
+ *
+ * @example
+ * $uuid = Version4::generate();
+ * $bytes = $uuid->getRandomBytes();
+ * echo strlen($bytes); // 16
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version4, getRandomBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -256,6 +293,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, getRandomBytes)
     RETURN_STR(random_bytes);
 }
 
+/**
+ * Get the pure random bytes without version/variant bits
+ *
+ * Returns the 16 bytes with the version and variant bits cleared,
+ * showing only the random data that was originally generated.
+ *
+ * @return string The 16-byte binary data with version/variant bits cleared
+ *
+ * @example
+ * $uuid = Version4::generate();
+ * $pure = $uuid->getPureRandomBytes();
+ * $raw = $uuid->getRandomBytes();
+ * // $pure has version/variant bits cleared, $raw has them set
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version4, getPureRandomBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());

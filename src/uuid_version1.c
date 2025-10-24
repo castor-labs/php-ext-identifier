@@ -30,6 +30,29 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_version1_getClockSequence, 
 ZEND_END_ARG_INFO()
 
 /* UUID Version 1 methods */
+
+/**
+ * Generate a new UUID version 1 (time-based)
+ *
+ * Creates a UUID version 1 based on the current timestamp, clock sequence,
+ * and node ID (MAC address). This provides temporal uniqueness and allows
+ * for sorting by creation time.
+ *
+ * @param Context|null $context Optional context for controlling time and node
+ * @return Version1 A new UUID version 1 instance
+ * @throws Exception If timestamp or node generation fails
+ *
+ * @example
+ * // Generate with system time and MAC address
+ * $uuid = Version1::generate();
+ * echo $uuid->toString(); // "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+ *
+ * // Generate with fixed context for testing
+ * $context = new FixedContext();
+ * $uuid = Version1::generate($context);
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid_Version1, generate)
 {
     zval *context = NULL;

@@ -113,6 +113,29 @@ static void increment_randomness(unsigned char *randomness)
 }
 
 /* ULID generation method */
+
+/**
+ * Generate a new ULID (Universally Unique Lexicographically Sortable Identifier)
+ *
+ * Creates a new ULID with a timestamp component and random component.
+ * ULIDs are lexicographically sortable and encode a timestamp, making them
+ * ideal for use as database primary keys and distributed system identifiers.
+ *
+ * @param Context|null $context Optional context for controlling time and randomness
+ * @return Ulid A new ULID instance
+ * @throws Exception If timestamp or random generation fails
+ *
+ * @example
+ * // Generate with current timestamp
+ * $ulid = Ulid::generate();
+ * echo $ulid->toString(); // e.g., "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+ *
+ * // Generate with fixed context for testing
+ * $context = new FixedContext();
+ * $ulid = Ulid::generate($context);
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Ulid, generate)
 {
     zval *context = NULL;
@@ -233,6 +256,23 @@ static void ulid_encode_base32(const unsigned char *bytes, char *output)
     output[26] = '\0';
 }
 
+/**
+ * Convert ULID to string representation
+ *
+ * Returns the ULID in its canonical 26-character Crockford Base32 encoding.
+ * This encoding is case-insensitive and excludes ambiguous characters.
+ *
+ * @return string 26-character ULID string
+ *
+ * @example
+ * $ulid = Ulid::generate();
+ * echo $ulid->toString(); // "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+ *
+ * // Can also use string casting
+ * echo (string) $ulid; // Same result
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Ulid, toString)
 {
     /* Get the bytes from parent Bit128 class */
@@ -414,6 +454,27 @@ static PHP_METHOD(Php_Identifier_Ulid, fromBytes)
     zval_dtor(&bytes_zval);
 }
 
+/**
+ * Get the timestamp component of the ULID
+ *
+ * Extracts and returns the 48-bit timestamp from the first 6 bytes of the ULID.
+ * This represents milliseconds since Unix epoch (January 1, 1970).
+ *
+ * @return int Timestamp in milliseconds since Unix epoch
+ *
+ * @example
+ * $ulid = Ulid::generate();
+ * $timestamp = $ulid->getTimestamp();
+ * echo date('Y-m-d H:i:s', $timestamp / 1000); // Convert to readable date
+ *
+ * // ULIDs are sortable by timestamp
+ * $ulid1 = Ulid::generate();
+ * usleep(1000); // Wait 1ms
+ * $ulid2 = Ulid::generate();
+ * var_dump($ulid1->getTimestamp() < $ulid2->getTimestamp()); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Ulid, getTimestamp)
 {
     /* Get the bytes from parent Bit128 class */
@@ -438,6 +499,27 @@ static PHP_METHOD(Php_Identifier_Ulid, getTimestamp)
     RETURN_LONG(timestamp);
 }
 
+/**
+ * Get the randomness component of the ULID
+ *
+ * Extracts and returns the 80-bit randomness from the last 10 bytes of the ULID.
+ * This provides uniqueness when multiple ULIDs are generated in the same millisecond.
+ *
+ * @return string 10-byte binary randomness data
+ *
+ * @example
+ * $ulid = Ulid::generate();
+ * $randomness = $ulid->getRandomness();
+ * echo strlen($randomness); // 10
+ * echo bin2hex($randomness); // 20-character hex string
+ *
+ * // Different ULIDs have different randomness
+ * $ulid1 = Ulid::generate();
+ * $ulid2 = Ulid::generate();
+ * var_dump($ulid1->getRandomness() !== $ulid2->getRandomness()); // bool(true)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Ulid, getRandomness)
 {
     /* Get the bytes from parent Bit128 class */

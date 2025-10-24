@@ -39,6 +39,24 @@ ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_max, 0, 0, Php\\Identifier\\
 ZEND_END_ARG_INFO()
 
 /* UUID methods */
+
+/**
+ * Get the UUID version number
+ *
+ * Returns the version number stored in bits 12-15 of the time_hi_and_version field.
+ * This indicates which UUID generation algorithm was used.
+ *
+ * @return int The UUID version (1, 3, 4, 5, 6, or 7)
+ *
+ * @example
+ * $uuid = Version4::generate();
+ * echo $uuid->getVersion(); // 4
+ *
+ * $uuid = Version1::generate();
+ * echo $uuid->getVersion(); // 1
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid, getVersion)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -48,6 +66,20 @@ static PHP_METHOD(Php_Identifier_Uuid, getVersion)
     RETURN_LONG(version);
 }
 
+/**
+ * Get the UUID variant
+ *
+ * Returns the variant field which indicates the layout of the UUID.
+ * For RFC 4122 UUIDs, this should always be 2 (binary 10).
+ *
+ * @return int The UUID variant (typically 2 for RFC 4122)
+ *
+ * @example
+ * $uuid = Version4::generate();
+ * echo $uuid->getVariant(); // 2 (RFC 4122 variant)
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid, getVariant)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -57,6 +89,23 @@ static PHP_METHOD(Php_Identifier_Uuid, getVariant)
     RETURN_LONG(variant);
 }
 
+/**
+ * Convert UUID to standard string representation
+ *
+ * Returns the UUID in the standard 8-4-4-4-12 hexadecimal format with hyphens.
+ * This is the canonical string representation defined by RFC 4122.
+ *
+ * @return string UUID in format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ *
+ * @example
+ * $uuid = Version4::generate();
+ * echo $uuid->toString(); // "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+ *
+ * // Can also use string casting
+ * echo (string) $uuid; // Same result
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid, toString)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
@@ -75,6 +124,21 @@ static PHP_METHOD(Php_Identifier_Uuid, toString)
     RETURN_STR(result);
 }
 
+/**
+ * Magic method for string conversion
+ *
+ * Allows the UUID to be automatically converted to a string when used in
+ * string contexts. Delegates to the toString() method.
+ *
+ * @return string UUID in standard format
+ *
+ * @example
+ * $uuid = Version4::generate();
+ * echo $uuid; // Automatically calls __toString()
+ * echo "UUID: $uuid"; // String interpolation
+ *
+ * @since 1.0.0
+ */
 static PHP_METHOD(Php_Identifier_Uuid, __toString)
 {
     /* Delegate to toString */
