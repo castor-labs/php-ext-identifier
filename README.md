@@ -16,7 +16,7 @@ A high-performance PHP extension for working with 128-bit identifiers including 
 ### Requirements
 
 - PHP 8.1 or higher
-- Zig 0.15.2+ ([Download from ziglang.org](https://ziglang.org/download/))
+- Zig 0.15.2+ ([Download from ziglang.org](https://ziglang.org/download/)) - *The amazing build system that makes this all possible*
 
 ### Build and Install
 
@@ -31,7 +31,7 @@ For production installation:
 zig build install-system  # Install to system PHP (requires sudo)
 ```
 
-See [docs/ZIG_BUILD.md](docs/ZIG_BUILD.md) for complete build documentation and advanced options.
+See [docs/README.md](docs/README.md) for complete build documentation and development tools.
 
 ### Enable Extension
 
@@ -117,11 +117,11 @@ zig build dev       # Build + test
 
 ## Documentation
 
-For detailed documentation, see the [docs/](docs/) directory:
+For detailed documentation, see the [docs/README.md](docs/README.md) which covers:
 
-- **[docs/ZIG_BUILD.md](docs/ZIG_BUILD.md)** - Complete build system guide
-- **[docs/STUB_GENERATION.md](docs/STUB_GENERATION.md)** - PHP stub generation system
-- **[docs/README.md](docs/README.md)** - Documentation index
+- **Build System** - Complete guide to Zig build commands and options
+- **Stub Generation** - Automatic PHP stub generation with rich documentation
+- **Development Workflow** - How to develop and contribute to the extension
 
 ## Contributing
 
@@ -137,6 +137,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
+- **[Zig Programming Language](https://ziglang.org/)** - This project is built using Zig's incredible embedded C compiler and build system. Zig's seamless C interop, cross-compilation capabilities, and modern build tooling make it the perfect choice for PHP extension development. Special thanks to the Zig team for creating such an outstanding development experience.
 - [RFC 4122](https://tools.ietf.org/html/rfc4122) - UUID specification
 - [RFC 9562](https://tools.ietf.org/html/rfc9562) - Updated UUID specification
 - [ULID Specification](https://github.com/ulid/spec) - ULID format specification
