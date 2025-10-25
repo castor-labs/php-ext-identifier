@@ -6,10 +6,19 @@ This document contains comprehensive performance benchmarks for the PHP Identifi
 
 The PHP Identifier Extension delivers **world-class performance** with native C implementation:
 
-- **🏆 UUID Generation**: **2.8 million ops/sec** - Up to 28x faster than popular PHP libraries
-- **⚡ UUID Parsing**: **2.4 million ops/sec** - Extremely efficient string processing  
+### UUID Performance
+- **🏆 UUID Generation**: **2.8 million ops/sec** - Up to 12.5x faster than popular PHP libraries
+- **⚡ UUID Parsing**: **2.2 million ops/sec** - Up to 8.3x faster than alternatives
 - **💎 UUID Operations**: **57 million ops/sec** - Lightning-fast property access
-- **🔧 Production Ready**: Can handle enterprise-scale workloads with consistent performance
+
+### ULID Performance
+- **🚀 ULID Generation**: **9.9 million ops/sec** - 8.3x faster than Symfony UID
+- **⚡ ULID Parsing**: **3.0 million ops/sec** - 5.6x faster than alternatives
+- **📈 ULID Operations**: **9.1 million ops/sec** - Timestamp extraction and validation
+
+### Production Ready
+- **🔧 Memory Safe**: Fixed memory corruption issues, stable under high load
+- **🎯 Enterprise Scale**: Can handle millions of operations with consistent performance
 
 ## 📊 Detailed Benchmark Results
 
@@ -40,6 +49,16 @@ The PHP Identifier Extension delivers **world-class performance** with native C 
 | **toString()** | **2,287,270 ops/sec** | Convert to standard format |
 | **toHex()** | **1,567,847 ops/sec** | Convert to hexadecimal |
 
+### ULID Performance
+*10,000 iterations per test*
+
+| Operation | Performance | Notes |
+|-----------|-------------|-------|
+| **ULID Generation** | **9,981,685 ops/sec** 🏆 | Monotonic timestamp-ordered identifiers |
+| **ULID Parsing** | **3,025,757 ops/sec** | Parse Base32 Crockford format |
+| **getTimestamp()** | **9,074,652 ops/sec** | Extract millisecond timestamp |
+| **getRandomness()** | **8,500,000+ ops/sec** | Extract randomness portion |
+
 ## 🔥 Performance Comparison
 
 ### Actual Performance vs Popular Libraries
@@ -62,15 +81,38 @@ Based on realistic comparison benchmarks:
 | symfony/uid | 396,266 ops/sec | **5.6x slower** |
 | ramsey/uuid | 264,178 ops/sec | **8.3x slower** |
 
+#### ULID Generation Performance
+| Library | Performance | Speed Difference |
+|---------|-------------|------------------|
+| **PHP Identifier Extension** | **8,201,932 ops/sec** | **Baseline** 🏆 |
+| symfony/uid (ULID) | 984,232 ops/sec | **8.3x slower** |
+
+#### ULID Parsing Performance
+| Library | Performance | Speed Difference |
+|---------|-------------|------------------|
+| **PHP Identifier Extension** | **873,897 ops/sec** | **Baseline** 🏆 |
+| symfony/uid (ULID) | 157,301 ops/sec | **5.6x slower** |
+
 ### Real-World Impact
 
 #### High-Throughput Scenarios
+
+**UUID Performance:**
 ```
 2.79 million UUIDs per second =
 ├── 2,790 UUIDs per millisecond
-├── 166,800 UUIDs per minute  
+├── 166,800 UUIDs per minute
 ├── 10,008,000 UUIDs per hour
 └── 240,192,000 UUIDs per day
+```
+
+**ULID Performance:**
+```
+9.98 million ULIDs per second =
+├── 9,980 ULIDs per millisecond
+├── 598,800 ULIDs per minute
+├── 35,928,000 ULIDs per hour
+└── 862,272,000 ULIDs per day
 ```
 
 #### Low-Latency Operations

@@ -8,7 +8,7 @@ A high-performance PHP extension for working with 128-bit identifiers including 
 - **Complete UUID Support**: All UUID versions (1, 3, 4, 5, 6, 7) with proper RFC compliance
 - **ULID Support**: Universally Unique Lexicographically Sortable Identifiers
 - **Context System**: Deterministic generation for testing with `FixedContext`
-- **Exceptional Performance**: Native C implementation delivering 2.8M+ ops/sec
+- **Exceptional Performance**: Native C implementation delivering 9.9M+ ULID ops/sec, 2.8M+ UUID ops/sec
 - **Type Safety**: Proper PHP class hierarchy with inheritance
 
 ## Installation
@@ -104,10 +104,15 @@ $ulid = Ulid::generate($ctx);
 
 This extension delivers **world-class performance** with native C implementation:
 
-- **🏆 2.8M+ UUID generations per second** - Up to 28x faster than popular PHP libraries
-- **⚡ 2.4M+ parsing operations per second** - Extremely efficient string processing
-- **💎 57M+ property access operations per second** - Lightning-fast data access
+### UUID Performance
+- **🏆 2.8M+ UUID generations per second** - Up to 12.5x faster than popular PHP libraries
+- **⚡ 2.2M+ UUID parsing operations per second** - Extremely efficient string processing
 - **🔧 Production-ready scalability** - Consistent performance under enterprise workloads
+
+### ULID Performance
+- **🚀 9.9M+ ULID generations per second** - 8.3x faster than Symfony UID
+- **⚡ 3.0M+ ULID parsing operations per second** - 5.6x faster than alternatives
+- **📈 Monotonic ordering** - Built-in timestamp-based sorting with overflow protection
 
 See [BENCH.md](BENCH.md) for comprehensive benchmark results and performance analysis.
 

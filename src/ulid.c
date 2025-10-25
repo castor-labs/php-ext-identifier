@@ -219,12 +219,15 @@ static PHP_METHOD(Php_Identifier_Ulid, generate)
     /* Copy randomness */
     memcpy(ulid_bytes + ULID_TIMESTAMP_BYTES, randomness, ULID_RANDOMNESS_BYTES);
 
-    /* Create ULID object */
-    object_init_ex(return_value, php_identifier_ulid_ce);
+    /* Create ULID object (same pattern as UUID classes) */
+    zval ulid;
+    object_init_ex(&ulid, php_identifier_ulid_ce);
 
-    /* Set the ULID bytes directly (same pattern as UUID classes) */
-    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    /* Set the ULID bytes directly */
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(&ulid);
     memcpy(intern->data, ulid_bytes, ULID_TOTAL_BYTES);
+
+    RETURN_ZVAL(&ulid, 1, 0);
 }
 
 /* Manual Base32 Crockford encoding for ULID (exactly 26 chars) */
@@ -379,12 +382,15 @@ static PHP_METHOD(Php_Identifier_Ulid, fromString)
         RETURN_THROWS();
     }
 
-    /* Create ULID object */
-    object_init_ex(return_value, php_identifier_ulid_ce);
+    /* Create ULID object (same pattern as UUID classes) */
+    zval ulid;
+    object_init_ex(&ulid, php_identifier_ulid_ce);
 
     /* Set the ULID bytes directly */
-    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(&ulid);
     memcpy(intern->data, bytes, ULID_TOTAL_BYTES);
+
+    RETURN_ZVAL(&ulid, 1, 0);
 }
 
 static PHP_METHOD(Php_Identifier_Ulid, fromHex)
@@ -428,12 +434,15 @@ static PHP_METHOD(Php_Identifier_Ulid, fromHex)
         bytes[i] = (unsigned char)strtol(hex_byte, NULL, 16);
     }
 
-    /* Create ULID object */
-    object_init_ex(return_value, php_identifier_ulid_ce);
+    /* Create ULID object (same pattern as UUID classes) */
+    zval ulid;
+    object_init_ex(&ulid, php_identifier_ulid_ce);
 
     /* Set the ULID bytes directly */
-    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(&ulid);
     memcpy(intern->data, bytes, 16);
+
+    RETURN_ZVAL(&ulid, 1, 0);
 }
 
 static PHP_METHOD(Php_Identifier_Ulid, fromBytes)
@@ -450,12 +459,15 @@ static PHP_METHOD(Php_Identifier_Ulid, fromBytes)
         RETURN_THROWS();
     }
 
-    /* Create ULID object */
-    object_init_ex(return_value, php_identifier_ulid_ce);
+    /* Create ULID object (same pattern as UUID classes) */
+    zval ulid;
+    object_init_ex(&ulid, php_identifier_ulid_ce);
 
     /* Set the ULID bytes directly */
-    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(&ulid);
     memcpy(intern->data, ZSTR_VAL(bytes), ZSTR_LEN(bytes));
+
+    RETURN_ZVAL(&ulid, 1, 0);
 }
 
 /**
