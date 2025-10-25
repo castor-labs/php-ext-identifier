@@ -101,15 +101,18 @@ static zend_string* codec_decode(zend_string *encoded, zend_string *alphabet)
 }
 
 /* Increment randomness for monotonic generation */
-static void increment_randomness(unsigned char *randomness)
+/* Returns 1 on success, 0 on overflow */
+static int increment_randomness(unsigned char *randomness)
 {
     for (int i = ULID_RANDOMNESS_BYTES - 1; i >= 0; i--) {
         if (randomness[i] < 255) {
             randomness[i]++;
-            break;
+            return 1; /* Success */
         }
         randomness[i] = 0;
     }
+    /* All bytes were 255, overflow occurred */
+    return 0;
 }
 
 /* ULID generation method */
@@ -167,7 +170,16 @@ static PHP_METHOD(Php_Identifier_Ulid, generate)
     if (current_timestamp == last_timestamp && randomness_initialized) {
         /* Same timestamp - increment randomness for monotonic ordering */
         memcpy(randomness, last_randomness, ULID_RANDOMNESS_BYTES);
-        increment_randomness(randomness);
+        if (!increment_randomness(randomness)) {
+            /* Randomness overflow - this should be extremely rare */
+            zend_class_entry *out_of_bounds_ce = zend_lookup_class(zend_string_init("OutOfBoundsException", strlen("OutOfBoundsException"), 0));
+            if (out_of_bounds_ce) {
+                zend_throw_exception(out_of_bounds_ce, "ULID randomness overflow: too many ULIDs generated in the same millisecond", 0);
+            } else {
+                zend_throw_exception(zend_ce_exception, "ULID randomness overflow: too many ULIDs generated in the same millisecond", 0);
+            }
+            RETURN_THROWS();
+        }
     } else {
         /* New timestamp - generate fresh randomness */
         if (context) {
@@ -210,11 +222,9 @@ static PHP_METHOD(Php_Identifier_Ulid, generate)
     /* Create ULID object */
     object_init_ex(return_value, php_identifier_ulid_ce);
 
-    /* Set the bytes in the Bit128 parent */
-    zval bytes_zval;
-    ZVAL_STRINGL(&bytes_zval, (char*)ulid_bytes, ULID_TOTAL_BYTES);
-    zend_call_method(Z_OBJ_P(return_value), php_identifier_bit128_ce, NULL, "__construct", 11, NULL, 1, &bytes_zval, NULL);
-    zval_dtor(&bytes_zval);
+    /* Set the ULID bytes directly (same pattern as UUID classes) */
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    memcpy(intern->data, ulid_bytes, ULID_TOTAL_BYTES);
 }
 
 /* Manual Base32 Crockford encoding for ULID (exactly 26 chars) */
@@ -372,11 +382,9 @@ static PHP_METHOD(Php_Identifier_Ulid, fromString)
     /* Create ULID object */
     object_init_ex(return_value, php_identifier_ulid_ce);
 
-    /* Set the bytes in the Bit128 parent */
-    zval bytes_zval;
-    ZVAL_STRINGL(&bytes_zval, (char*)bytes, ULID_TOTAL_BYTES);
-    zend_call_method(Z_OBJ_P(return_value), php_identifier_bit128_ce, NULL, "__construct", 11, NULL, 1, &bytes_zval, NULL);
-    zval_dtor(&bytes_zval);
+    /* Set the ULID bytes directly */
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    memcpy(intern->data, bytes, ULID_TOTAL_BYTES);
 }
 
 static PHP_METHOD(Php_Identifier_Ulid, fromHex)
@@ -423,11 +431,9 @@ static PHP_METHOD(Php_Identifier_Ulid, fromHex)
     /* Create ULID object */
     object_init_ex(return_value, php_identifier_ulid_ce);
 
-    /* Set the bytes in the Bit128 parent */
-    zval bytes_zval;
-    ZVAL_STRINGL(&bytes_zval, (char*)bytes, 16);
-    zend_call_method(Z_OBJ_P(return_value), php_identifier_bit128_ce, NULL, "__construct", 11, NULL, 1, &bytes_zval, NULL);
-    zval_dtor(&bytes_zval);
+    /* Set the ULID bytes directly */
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    memcpy(intern->data, bytes, 16);
 }
 
 static PHP_METHOD(Php_Identifier_Ulid, fromBytes)
@@ -447,11 +453,9 @@ static PHP_METHOD(Php_Identifier_Ulid, fromBytes)
     /* Create ULID object */
     object_init_ex(return_value, php_identifier_ulid_ce);
 
-    /* Set the bytes in the Bit128 parent */
-    zval bytes_zval;
-    ZVAL_STRINGL(&bytes_zval, ZSTR_VAL(bytes), ZSTR_LEN(bytes));
-    zend_call_method(Z_OBJ_P(return_value), php_identifier_bit128_ce, NULL, "__construct", 11, NULL, 1, &bytes_zval, NULL);
-    zval_dtor(&bytes_zval);
+    /* Set the ULID bytes directly */
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
+    memcpy(intern->data, ZSTR_VAL(bytes), ZSTR_LEN(bytes));
 }
 
 /**
