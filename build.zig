@@ -96,5 +96,47 @@ pub fn build(b: *std.Build) void {
     });
     package_step.dependOn(&package_cmd.step);
 
+    // Benchmark steps
+
+    // Quick benchmark (Docker-based)
+    const bench_step = b.step("bench", "Run quick performance benchmarks in Docker");
+    const bench_build_cmd = b.addSystemCommand(&[_][]const u8{
+        "docker", "build", "-f", "bench/Dockerfile", "-t", "identifier-bench", ".",
+    });
+    const bench_run_cmd = b.addSystemCommand(&[_][]const u8{
+        "docker", "run", "--rm", "-v", "./bench/results:/app/bench/results", "identifier-bench",
+    });
+    bench_build_cmd.step.dependOn(build_step);
+    bench_run_cmd.step.dependOn(&bench_build_cmd.step);
+    bench_step.dependOn(&bench_run_cmd.step);
+
+    // Full benchmark analysis (Docker-based)
+    const bench_full_step = b.step("bench-full", "Run comprehensive PHPBench analysis in Docker");
+    const bench_full_build_cmd = b.addSystemCommand(&[_][]const u8{
+        "docker", "build", "-f", "bench/Dockerfile", "-t", "identifier-bench", ".",
+    });
+    const bench_full_run_cmd = b.addSystemCommand(&[_][]const u8{
+        "docker", "run", "--rm", "-v", "./bench/results:/app/bench/results", "identifier-bench",
+        "vendor/bin/phpbench", "run", "--report=default",
+    });
+    bench_full_build_cmd.step.dependOn(build_step);
+    bench_full_run_cmd.step.dependOn(&bench_full_build_cmd.step);
+    bench_full_step.dependOn(&bench_full_run_cmd.step);
+
+    // HTML report generation (local)
+    const bench_html_step = b.step("bench-html", "Open HTML benchmark report");
+    const bench_html_cmd = b.addSystemCommand(&[_][]const u8{
+        "echo", "📊 HTML Performance Report available at: bench/results/performance_report.html",
+    });
+    bench_html_step.dependOn(&bench_html_cmd.step);
+
+    // Local benchmark (fallback)
+    const bench_local_step = b.step("bench-local", "Run local performance benchmarks");
+    const bench_local_cmd = b.addSystemCommand(&[_][]const u8{
+        "php", "-d", "extension=./modules/identifier.so", "bench/simple/realistic_comparison.php",
+    });
+    bench_local_cmd.step.dependOn(build_step);
+    bench_local_step.dependOn(&bench_local_cmd.step);
+
 
 }

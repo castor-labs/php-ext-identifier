@@ -1,0 +1,16 @@
+# Composer
+vendor/
+composer.lock
+
+# PHPBench results
+results/
+baseline.xml
+*.db
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

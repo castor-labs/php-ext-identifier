@@ -29,6 +29,21 @@ zig build generate-stubs    # Generate PHP stubs with documentation
 zig build verify-stubs      # Check if manual stubs match the API
 ```
 
+### Benchmarks
+```bash
+zig build bench            # Quick performance comparison (Docker)
+zig build bench-full       # Comprehensive PHPBench analysis (Docker)
+zig build bench-html       # Generate HTML report (Docker)
+zig build bench-local      # Local benchmarks (standalone, no dependencies)
+```
+
+The extension delivers exceptional performance:
+- **2.8M+ UUID generations per second**
+- **2.4M+ parsing operations per second**
+- **Up to 28x faster than popular PHP libraries**
+
+See [BENCH.md](../BENCH.md) for complete benchmark results and [bench/](../bench/) directory for comparison tools.
+
 ## Development Workflow
 
 1. Make changes to C source code

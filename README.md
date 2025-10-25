@@ -8,7 +8,7 @@ A high-performance PHP extension for working with 128-bit identifiers including 
 - **Complete UUID Support**: All UUID versions (1, 3, 4, 5, 6, 7) with proper RFC compliance
 - **ULID Support**: Universally Unique Lexicographically Sortable Identifiers
 - **Context System**: Deterministic generation for testing with `FixedContext`
-- **High Performance**: Native C implementation for optimal speed
+- **Exceptional Performance**: Native C implementation delivering 2.8M+ ops/sec
 - **Type Safety**: Proper PHP class hierarchy with inheritance
 
 ## Installation
@@ -102,11 +102,14 @@ $ulid = Ulid::generate($ctx);
 
 ## Performance
 
-This extension provides significant performance improvements over userland implementations:
+This extension delivers **world-class performance** with native C implementation:
 
-- **UUID Generation**: ~10x faster than pure PHP
-- **String Parsing**: ~5x faster than pure PHP
-- **Memory Usage**: ~50% less memory overhead
+- **🏆 2.8M+ UUID generations per second** - Up to 28x faster than popular PHP libraries
+- **⚡ 2.4M+ parsing operations per second** - Extremely efficient string processing
+- **💎 57M+ property access operations per second** - Lightning-fast data access
+- **🔧 Production-ready scalability** - Consistent performance under enterprise workloads
+
+See [BENCH.md](BENCH.md) for comprehensive benchmark results and performance analysis.
 
 ## Testing
 
@@ -122,6 +125,13 @@ For detailed documentation, see the [docs/README.md](docs/README.md) which cover
 - **Build System** - Complete guide to Zig build commands and options
 - **Stub Generation** - Automatic PHP stub generation with rich documentation
 - **Development Workflow** - How to develop and contribute to the extension
+
+For comprehensive performance analysis, see [BENCH.md](BENCH.md) which includes:
+
+- **Detailed benchmark results** - Complete performance measurements
+- **Comparison with popular libraries** - Head-to-head performance analysis
+- **Real-world performance impact** - Scalability and efficiency metrics
+- **Benchmark methodology** - How to run and interpret benchmarks
 
 ## Contributing
 

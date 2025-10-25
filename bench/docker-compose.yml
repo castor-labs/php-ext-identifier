@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  benchmark:
+    build:
+      context: ..
+      dockerfile: bench/Dockerfile
+    container_name: identifier-benchmark
+    volumes:
+      - ./results:/app/bench/results
+      - ../modules:/app/modules:ro
+    environment:
+      - PHP_INI_SCAN_DIR=/usr/local/etc/php/conf.d
+    working_dir: /app/bench
+    profiles:
+      - benchmark
+
+  # Quick benchmark service
+  quick:
+    extends: benchmark
+    command: php -d extension=/app/modules/identifier.so simple/quick_comparison.php
+    profiles:
+      - quick
+
+  # PHPBench service
+  phpbench:
+    extends: benchmark
+    command: vendor/bin/phpbench run --report=default
+    profiles:
+      - phpbench
+
+  # PHPBench with HTML report
+  phpbench-html:
+    extends: benchmark
+    command: vendor/bin/phpbench run --report=html --output=results/report.html
+    profiles:
+      - html
+
+  # Interactive shell for manual benchmarking
+  shell:
+    extends: benchmark
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    profiles:
+      - shell
