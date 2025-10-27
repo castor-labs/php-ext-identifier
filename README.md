@@ -79,26 +79,7 @@ $ulid = Ulid::generate($ctx);
 
 ## API Documentation
 
-### Base Classes
-
-- [`Php\Identifier\Bit128`](docs/api/Bit128.md) - Abstract base for 128-bit identifiers
-- [`Php\Identifier\Uuid`](docs/api/Uuid.md) - Base UUID class
-- [`Php\Identifier\Ulid`](docs/api/Ulid.md) - ULID implementation
-
-### UUID Versions
-
-- [`Php\Identifier\Uuid\Version1`](docs/api/Version1.md) - Time-based UUID
-- [`Php\Identifier\Uuid\Version3`](docs/api/Version3.md) - Name-based UUID (MD5)
-- [`Php\Identifier\Uuid\Version4`](docs/api/Version4.md) - Random UUID
-- [`Php\Identifier\Uuid\Version5`](docs/api/Version5.md) - Name-based UUID (SHA-1)
-- [`Php\Identifier\Uuid\Version6`](docs/api/Version6.md) - Reordered time-based UUID
-- [`Php\Identifier\Uuid\Version7`](docs/api/Version7.md) - Unix timestamp-based UUID
-
-### Context System
-
-- [`Php\Identifier\Context`](docs/api/Context.md) - Context interface
-- [`Php\Identifier\Context\System`](docs/api/SystemContext.md) - Production context
-- [`Php\Identifier\Context\Fixed`](docs/api/FixedContext.md) - Testing context
+Check the [stub file](stubs/identifier.stub.php) for a detailed API documentation.
 
 ## Performance
 
