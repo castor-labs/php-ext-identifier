@@ -44,6 +44,29 @@ fn getPhpExtensionDir(allocator: std.mem.Allocator) ![]const u8 {
     return std.mem.trim(u8, result.stdout, &std.ascii.whitespace);
 }
 
+/// Discover all .c files in a directory
+fn discoverSourceFiles(allocator: std.mem.Allocator, dir_path: []const u8) ![]const []const u8 {
+    var source_files = std.ArrayList([]const u8).initCapacity(allocator, 16) catch @panic("OOM");
+    errdefer source_files.deinit(allocator);
+
+    var dir = try std.fs.cwd().openDir(dir_path, .{ .iterate = true });
+    defer dir.close();
+
+    var iterator = dir.iterate();
+    while (try iterator.next()) |entry| {
+        if (entry.kind == .file and std.mem.endsWith(u8, entry.name, ".c")) {
+            const full_path = try std.fmt.allocPrint(
+                allocator,
+                "{s}/{s}",
+                .{ dir_path, entry.name },
+            );
+            try source_files.append(allocator, full_path);
+        }
+    }
+
+    return try source_files.toOwnedSlice(allocator);
+}
+
 pub fn build(b: *std.Build) void {
     // Build step using zig cc to compile the extension
     const build_step = b.step("build", "Build the PHP extension");
@@ -52,6 +75,12 @@ pub fn build(b: *std.Build) void {
     const php_includes = getPhpIncludes(b.allocator) catch |err| {
         std.debug.print("Error getting PHP includes: {}\n", .{err});
         std.debug.print("Make sure 'php-config' is available in your PATH\n", .{});
+        std.process.exit(1);
+    };
+
+    // Discover source files dynamically
+    const source_files = discoverSourceFiles(b.allocator, "src") catch |err| {
+        std.debug.print("Error discovering source files: {}\n", .{err});
         std.process.exit(1);
     };
 
@@ -70,24 +99,17 @@ pub fn build(b: *std.Build) void {
     // Add dynamic PHP include paths
     compile_args.appendSlice(b.allocator, php_includes) catch @panic("OOM");
 
-    // Add remaining compilation flags and source files
+    // Add remaining compilation flags
     compile_args.appendSlice(b.allocator, &[_][]const u8{
         "-Wno-unicode", // Suppress unicode warnings
         "-o", "modules/identifier.so",
-        "src/php_identifier.c",
-        "src/bit128.c",
-        "src/codec.c",
-        "src/context.c",
-        "src/context_fixed.c",
-        "src/context_system.c",
-        "src/ulid.c",
-        "src/uuid.c",
-        "src/uuid_version1.c",
-        "src/uuid_version3.c",
-        "src/uuid_version4.c",
-        "src/uuid_version5.c",
-        "src/uuid_version6.c",
-        "src/uuid_version7.c",
+    }) catch @panic("OOM");
+
+    // Add dynamically discovered source files
+    compile_args.appendSlice(b.allocator, source_files) catch @panic("OOM");
+
+    // Add linker flags
+    compile_args.appendSlice(b.allocator, &[_][]const u8{
         "-lm",
     }) catch @panic("OOM");
 
