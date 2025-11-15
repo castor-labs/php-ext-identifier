@@ -36,7 +36,7 @@ function runTest($testFile, $extensionArg = '') {
         }
         $cmd .= " $tempFile 2>&1";
 
-        $output = trim(shell_exec($cmd));
+        $output = trim(shell_exec($cmd) ?? '');
         unlink($tempFile);
 
         if (strpos($output, 'skip') === 0) {
@@ -67,7 +67,7 @@ function runTest($testFile, $extensionArg = '') {
     }
     $cmd .= " $tempFile 2>&1";
 
-    $actualOutput = trim(shell_exec($cmd));
+    $actualOutput = trim(shell_exec($cmd) ?? '');
     unlink($tempFile);
 
     $error = null;
