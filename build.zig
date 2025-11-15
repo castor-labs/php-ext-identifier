@@ -1,10 +1,63 @@
 const std = @import("std");
 
+/// Get PHP include paths from php-config at build time
+fn getPhpIncludes(allocator: std.mem.Allocator) ![]const []const u8 {
+    const result = try std.process.Child.run(.{
+        .allocator = allocator,
+        .argv = &[_][]const u8{ "php-config", "--includes" },
+    });
+    defer allocator.free(result.stdout);
+    defer allocator.free(result.stderr);
+
+    if (result.term.Exited != 0) {
+        return error.PhpConfigFailed;
+    }
+
+    // Parse the output which is in format: -I/path1 -I/path2 -I/path3
+    var includes = try std.ArrayList([]const u8).initCapacity(allocator, 6);
+    errdefer includes.deinit(allocator);
+
+    var iter = std.mem.tokenizeScalar(u8, result.stdout, ' ');
+    while (iter.next()) |token| {
+        const trimmed = std.mem.trim(u8, token, &std.ascii.whitespace);
+        if (std.mem.startsWith(u8, trimmed, "-I")) {
+            try includes.append(allocator, try allocator.dupe(u8, trimmed));
+        }
+    }
+
+    return try includes.toOwnedSlice(allocator);
+}
+
+/// Get PHP extension directory from php-config at build time
+fn getPhpExtensionDir(allocator: std.mem.Allocator) ![]const u8 {
+    const result = try std.process.Child.run(.{
+        .allocator = allocator,
+        .argv = &[_][]const u8{ "php-config", "--extension-dir" },
+    });
+    defer allocator.free(result.stderr);
+
+    if (result.term.Exited != 0) {
+        allocator.free(result.stdout);
+        return error.PhpConfigFailed;
+    }
+
+    return std.mem.trim(u8, result.stdout, &std.ascii.whitespace);
+}
+
 pub fn build(b: *std.Build) void {
     // Build step using zig cc to compile the extension
     const build_step = b.step("build", "Build the PHP extension");
 
-    const compile_cmd = b.addSystemCommand(&[_][]const u8{
+    // Get PHP include paths dynamically
+    const php_includes = getPhpIncludes(b.allocator) catch |err| {
+        std.debug.print("Error getting PHP includes: {}\n", .{err});
+        std.debug.print("Make sure 'php-config' is available in your PATH\n", .{});
+        std.process.exit(1);
+    };
+
+    // Build compilation command with dynamic includes
+    var compile_args = std.ArrayList([]const u8).initCapacity(b.allocator, 32) catch @panic("OOM");
+    compile_args.appendSlice(b.allocator, &[_][]const u8{
         "zig", "cc",
         "-shared",
         "-fPIC",
@@ -12,12 +65,13 @@ pub fn build(b: *std.Build) void {
         "-DHAVE_CONFIG_H",
         "-std=c99",
         "-I.", // Include current directory for config.h
-        "-I/usr/include/php/20210902",
-        "-I/usr/include/php/20210902/main",
-        "-I/usr/include/php/20210902/TSRM",
-        "-I/usr/include/php/20210902/Zend",
-        "-I/usr/include/php/20210902/ext",
-        "-I/usr/include/php/20210902/ext/date/lib",
+    }) catch @panic("OOM");
+
+    // Add dynamic PHP include paths
+    compile_args.appendSlice(b.allocator, php_includes) catch @panic("OOM");
+
+    // Add remaining compilation flags and source files
+    compile_args.appendSlice(b.allocator, &[_][]const u8{
         "-Wno-unicode", // Suppress unicode warnings
         "-o", "modules/identifier.so",
         "src/php_identifier.c",
@@ -35,7 +89,9 @@ pub fn build(b: *std.Build) void {
         "src/uuid_version6.c",
         "src/uuid_version7.c",
         "-lm",
-    });
+    }) catch @panic("OOM");
+
+    const compile_cmd = b.addSystemCommand(compile_args.items);
 
     // Create modules directory first
     const mkdir_cmd = b.addSystemCommand(&[_][]const u8{ "mkdir", "-p", "modules" });
@@ -61,8 +117,22 @@ pub fn build(b: *std.Build) void {
 
     // Install step for system-wide installation
     const install_system_step = b.step("install-system", "Install extension to system PHP");
+
+    // Get PHP extension directory dynamically
+    const php_ext_dir = getPhpExtensionDir(b.allocator) catch |err| {
+        std.debug.print("Error getting PHP extension directory: {}\n", .{err});
+        std.debug.print("Make sure 'php-config' is available in your PATH\n", .{});
+        std.process.exit(1);
+    };
+
+    const install_target = std.fmt.allocPrint(
+        b.allocator,
+        "{s}/identifier.so",
+        .{php_ext_dir},
+    ) catch @panic("OOM");
+
     const install_cmd = b.addSystemCommand(&[_][]const u8{
-        "cp", "modules/identifier.so", "/usr/lib/php/20210902/",
+        "cp", "modules/identifier.so", install_target,
     });
     install_cmd.step.dependOn(build_step);
     install_system_step.dependOn(&install_cmd.step);
