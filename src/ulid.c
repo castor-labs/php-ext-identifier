@@ -307,12 +307,6 @@ static PHP_METHOD(Php_Identifier_Ulid, toString)
     RETURN_STRINGL(ulid_str, ULID_STRING_LENGTH);
 }
 
-static PHP_METHOD(Php_Identifier_Ulid, __toString)
-{
-    /* Delegate to toString */
-    PHP_MN(Php_Identifier_Ulid_toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-
 /* Manual Base32 Crockford decoding for ULID */
 static int ulid_decode_base32(const char *input, unsigned char *bytes)
 {
@@ -560,7 +554,6 @@ static PHP_METHOD(Php_Identifier_Ulid, getRandomness)
 static const zend_function_entry php_identifier_ulid_methods[] = {
     PHP_ME(Php_Identifier_Ulid, generate, arginfo_ulid_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Php_Identifier_Ulid, toString, arginfo_ulid_toString, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Ulid, __toString, arginfo_ulid_toString, ZEND_ACC_PUBLIC)
     PHP_ME(Php_Identifier_Ulid, fromString, arginfo_ulid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Php_Identifier_Ulid, fromHex, arginfo_ulid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Php_Identifier_Ulid, fromBytes, arginfo_ulid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)

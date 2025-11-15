@@ -16,9 +16,14 @@ $ulid_string = $ulid->toString();
 echo "ULID string length: " . strlen($ulid_string) . "\n";
 echo "ULID string format: " . (preg_match('/^[0-9A-Z]{26}$/', $ulid_string) ? "VALID" : "INVALID") . "\n";
 
-// Test 3: __toString magic method
+// Test 3: __toString magic method (inherited from Bit128)
 $magic_string = (string) $ulid;
 echo "__toString works: " . ($magic_string === $ulid_string ? "YES" : "NO") . "\n";
+echo "__toString inherited from Bit128: " . ((new ReflectionMethod($ulid, '__toString'))->getDeclaringClass()->getName() === 'Identifier\\Bit128' ? "YES" : "NO") . "\n";
+
+// Test 3b: String interpolation works
+$interpolated = "ULID: $ulid";
+echo "String interpolation: " . ($interpolated === "ULID: $ulid_string" ? "YES" : "NO") . "\n";
 
 // Test 4: fromString method
 $ulid_from_string = Ulid::fromString($ulid_string);
@@ -81,6 +86,8 @@ ULID generated: YES
 ULID string length: 26
 ULID string format: VALID
 __toString works: YES
+__toString inherited from Bit128: YES
+String interpolation: YES
 fromString creates ULID: YES
 fromString matches: YES
 fromBytes creates ULID: YES

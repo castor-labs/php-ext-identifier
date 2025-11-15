@@ -25,6 +25,14 @@ $hex = $bit128->toHex();
 echo "toHex result: " . $hex . "\n";
 echo "toHex length: " . strlen($hex) . "\n";
 
+// Test 4b: toString method (default implementation returns hex)
+echo "toString result: " . $bit128->toString() . "\n";
+echo "toString equals toHex: " . ($bit128->toString() === $bit128->toHex() ? "YES" : "NO") . "\n";
+
+// Test 4c: __toString magic method (calls toString)
+echo "__toString result: " . (string)$bit128 . "\n";
+echo "__toString equals toString: " . ((string)$bit128 === $bit128->toString() ? "YES" : "NO") . "\n";
+
 // Test 5: fromHex factory method
 $bit128_2 = Bit128::fromHex('fedcba9876543210fedcba9876543210');
 echo "fromHex creates Bit128: " . ($bit128_2 instanceof Bit128 ? "YES" : "NO") . "\n";
@@ -80,6 +88,10 @@ getBytes matches: YES
 toBytes equals getBytes: YES
 toHex result: 0123456789abcdef0123456789abcdef
 toHex length: 32
+toString result: 0123456789abcdef0123456789abcdef
+toString equals toHex: YES
+__toString result: 0123456789abcdef0123456789abcdef
+__toString equals toString: YES
 fromHex creates Bit128: YES
 fromHex result: fedcba9876543210fedcba9876543210
 fromBytes creates Bit128: YES

@@ -1,5 +1,6 @@
 #include "php.h"
 #include "zend_exceptions.h"
+#include "zend_interfaces.h"
 #include "php_identifier.h"
 #include <string.h>
 #include <ctype.h>
@@ -32,6 +33,9 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_bit128_fromBytes, 0, 1, Identifier\\Bit128, 0)
     ZEND_ARG_TYPE_INFO(0, bytes, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_toString, 0, 0, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 /* Bit128 object handlers */
@@ -303,6 +307,53 @@ static PHP_METHOD(Php_Identifier_Bit128, fromBytes)
     memcpy(intern->data, ZSTR_VAL(bytes), 16);
 }
 
+/**
+ * Convert the identifier to a string representation
+ *
+ * Returns a string representation of the identifier. For the base Bit128 class,
+ * this returns the hexadecimal representation. Subclasses like Uuid and Ulid
+ * override this method to provide their canonical string formats.
+ *
+ * @return string String representation of the identifier
+ *
+ * @example
+ * $bit128 = Bit128::fromHex('0123456789abcdef0123456789abcdef');
+ * echo $bit128->toString(); // "0123456789abcdef0123456789abcdef"
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Php_Identifier_Bit128, toString)
+{
+    /* Default implementation: delegate to toHex */
+    PHP_MN(Php_Identifier_Bit128_toHex)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+
+/**
+ * Magic method for string conversion
+ *
+ * Allows the identifier to be automatically converted to a string when used in
+ * string contexts. Delegates to the toString() method which can be overridden by subclasses.
+ *
+ * @return string Identifier in canonical string format
+ *
+ * @example
+ * $uuid = Version4::generate();
+ * echo $uuid; // Automatically calls __toString()
+ * echo "UUID: $uuid"; // String interpolation
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Php_Identifier_Bit128, __toString)
+{
+    zval retval;
+
+    /* Call the toString() method on this object */
+    zend_call_method_with_0_params(Z_OBJ_P(getThis()), Z_OBJCE_P(getThis()), NULL, "tostring", &retval);
+
+    /* Return the result from toString() */
+    RETURN_ZVAL(&retval, 1, 1);
+}
+
 /* Bit128 method entries */
 static const zend_function_entry php_identifier_bit128_methods[] = {
     PHP_ME(Php_Identifier_Bit128, __construct, arginfo_bit128_construct, ZEND_ACC_PUBLIC)
@@ -313,6 +364,8 @@ static const zend_function_entry php_identifier_bit128_methods[] = {
     PHP_ME(Php_Identifier_Bit128, toHex, arginfo_bit128_toHex, ZEND_ACC_PUBLIC)
     PHP_ME(Php_Identifier_Bit128, fromHex, arginfo_bit128_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Php_Identifier_Bit128, fromBytes, arginfo_bit128_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Php_Identifier_Bit128, toString, arginfo_bit128_toString, ZEND_ACC_PUBLIC)
+    PHP_ME(Php_Identifier_Bit128, __toString, arginfo_bit128_toString, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -338,6 +391,9 @@ void php_identifier_bit128_register_class(void)
     INIT_NS_CLASS_ENTRY(ce, "Identifier", "Bit128", php_identifier_bit128_methods);
     php_identifier_bit128_ce = zend_register_internal_class(&ce);
     php_identifier_bit128_ce->create_object = php_identifier_bit128_create_object;
+
+    /* Implement Stringable interface */
+    zend_class_implements(php_identifier_bit128_ce, 1, zend_ce_stringable);
 
     /* Set up object handlers */
     memcpy(&php_identifier_bit128_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

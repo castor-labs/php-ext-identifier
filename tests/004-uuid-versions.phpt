@@ -44,6 +44,14 @@ echo "Version5 toString: " . (strlen($uuid5->toString()) === 36 ? "YES" : "NO") 
 echo "Version6 toString: " . (strlen($uuid6->toString()) === 36 ? "YES" : "NO") . "\n";
 echo "Version7 toString: " . (strlen($uuid7->toString()) === 36 ? "YES" : "NO") . "\n";
 
+// Test 3b: All support string casting via __toString (inherited from Bit128)
+echo "Version1 __toString: " . ((string)$uuid1 === $uuid1->toString() ? "YES" : "NO") . "\n";
+echo "Version3 __toString: " . ((string)$uuid3 === $uuid3->toString() ? "YES" : "NO") . "\n";
+echo "Version4 __toString: " . ((string)$uuid4 === $uuid4->toString() ? "YES" : "NO") . "\n";
+echo "Version5 __toString: " . ((string)$uuid5 === $uuid5->toString() ? "YES" : "NO") . "\n";
+echo "Version6 __toString: " . ((string)$uuid6 === $uuid6->toString() ? "YES" : "NO") . "\n";
+echo "Version7 __toString: " . ((string)$uuid7 === $uuid7->toString() ? "YES" : "NO") . "\n";
+
 // Test 4: fromString works for all versions
 $uuid1_from_string = Version1::fromString($uuid1->toString());
 $uuid3_from_string = Version3::fromString($uuid3->toString());
@@ -116,6 +124,12 @@ Version4 toString: YES
 Version5 toString: YES
 Version6 toString: YES
 Version7 toString: YES
+Version1 __toString: YES
+Version3 __toString: YES
+Version4 __toString: YES
+Version5 __toString: YES
+Version6 __toString: YES
+Version7 __toString: YES
 Version1 fromString: YES
 Version3 fromString: YES
 Version4 fromString: YES

@@ -124,27 +124,6 @@ static PHP_METHOD(Php_Identifier_Uuid, toString)
     RETURN_STR(result);
 }
 
-/**
- * Magic method for string conversion
- *
- * Allows the UUID to be automatically converted to a string when used in
- * string contexts. Delegates to the toString() method.
- *
- * @return string UUID in standard format
- *
- * @example
- * $uuid = Version4::generate();
- * echo $uuid; // Automatically calls __toString()
- * echo "UUID: $uuid"; // String interpolation
- *
- * @since 1.0.0
- */
-static PHP_METHOD(Php_Identifier_Uuid, __toString)
-{
-    /* Delegate to toString */
-    PHP_MN(Php_Identifier_Uuid_toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-
 static PHP_METHOD(Php_Identifier_Uuid, fromString)
 {
     zend_string *uuid_str;
@@ -427,7 +406,6 @@ static const zend_function_entry php_identifier_uuid_methods[] = {
     PHP_ME(Php_Identifier_Uuid, getVersion, arginfo_uuid_getVersion, ZEND_ACC_PUBLIC)
     PHP_ME(Php_Identifier_Uuid, getVariant, arginfo_uuid_getVariant, ZEND_ACC_PUBLIC)
     PHP_ME(Php_Identifier_Uuid, toString, arginfo_uuid_toString, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid, __toString, arginfo_uuid_toString, ZEND_ACC_PUBLIC)
     PHP_ME(Php_Identifier_Uuid, fromString, arginfo_uuid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Php_Identifier_Uuid, fromBytes, arginfo_uuid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Php_Identifier_Uuid, fromHex, arginfo_uuid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)

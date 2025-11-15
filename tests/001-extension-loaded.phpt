@@ -27,9 +27,10 @@ foreach ($classes as $class) {
     echo "Class $class: " . (class_exists($class) ? "EXISTS" : "MISSING") . "\n";
 }
 
-// Test Bit128 is now concrete (not abstract)
+// Test Bit128 is concrete and implements Stringable
 $reflection = new ReflectionClass('Identifier\\Bit128');
-echo "Bit128 is concrete: " . ($reflection->isAbstract() ? "NO" : "YES") . "\n";
+echo "Bit128 is concrete: " . (!$reflection->isAbstract() ? "YES" : "NO") . "\n";
+echo "Bit128 implements Stringable: " . ($reflection->implementsInterface('Stringable') ? "YES" : "NO") . "\n";
 
 
 ?>
@@ -47,3 +48,4 @@ Class Identifier\Ulid: EXISTS
 Class Identifier\Context\System: EXISTS
 Class Identifier\Context\Fixed: EXISTS
 Bit128 is concrete: YES
+Bit128 implements Stringable: YES
