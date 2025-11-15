@@ -16,21 +16,21 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_toBytes, 0, 0, IS_STRING,
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_equals, 0, 1, _IS_BOOL, 0)
-    ZEND_ARG_OBJ_INFO(0, other, Php\\Identifier\\Bit128, 0)
+    ZEND_ARG_OBJ_INFO(0, other, Identifier\\Bit128, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_compare, 0, 1, IS_LONG, 0)
-    ZEND_ARG_OBJ_INFO(0, other, Php\\Identifier\\Bit128, 0)
+    ZEND_ARG_OBJ_INFO(0, other, Identifier\\Bit128, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_toHex, 0, 0, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_bit128_fromHex, 0, 1, Php\\Identifier\\Bit128, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_bit128_fromHex, 0, 1, Identifier\\Bit128, 0)
     ZEND_ARG_TYPE_INFO(0, hex, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_bit128_fromBytes, 0, 1, Php\\Identifier\\Bit128, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_bit128_fromBytes, 0, 1, Identifier\\Bit128, 0)
     ZEND_ARG_TYPE_INFO(0, bytes, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -335,7 +335,7 @@ void php_identifier_bit128_register_class(void)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "Php\\Identifier", "Bit128", php_identifier_bit128_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Identifier", "Bit128", php_identifier_bit128_methods);
     php_identifier_bit128_ce = zend_register_internal_class(&ce);
     php_identifier_bit128_ce->create_object = php_identifier_bit128_create_object;
 

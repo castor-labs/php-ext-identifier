@@ -9,7 +9,7 @@
  * @generated 2025-10-24 23:12:33
  */
 
-namespace Php\Identifier
+namespace Identifier
 {
     class Context
     {
@@ -355,7 +355,7 @@ namespace Php\Identifier
 
 }
 
-namespace Php\Identifier\Context
+namespace Identifier\Context
 {
     class System implements \Php\Identifier\Context
     {
@@ -431,7 +431,7 @@ namespace Php\Identifier\Context
 
 }
 
-namespace Php\Identifier\Uuid
+namespace Identifier\Uuid
 {
     final class Version1 extends \Php\Identifier\Uuid implements \Stringable
     {
@@ -961,7 +961,7 @@ namespace Php\Identifier\Uuid
 
 }
 
-namespace Php\Encoding
+namespace Encoding
 {
     class Codec
     {

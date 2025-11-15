@@ -4,8 +4,8 @@ ULID class functionality
 <?php if (!extension_loaded("identifier")) print "skip"; ?>
 --FILE--
 <?php
-use Php\Identifier\Ulid;
-use Php\Identifier\Context\Fixed;
+use Identifier\Ulid;
+use Identifier\Context\Fixed;
 
 // Test 1: Generate ULID
 $ulid = Ulid::generate();

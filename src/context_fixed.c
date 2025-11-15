@@ -3,7 +3,7 @@
 #include "php_identifier.h"
 
 /* Arginfo declarations */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_context_fixed_create, 0, 2, Php\\Identifier\\Context\\Fixed, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_context_fixed_create, 0, 2, Identifier\\Context\\Fixed, 0)
     ZEND_ARG_TYPE_INFO(0, timestamp_ms, IS_LONG, 0)
     ZEND_ARG_TYPE_INFO(0, seed, IS_LONG, 0)
 ZEND_END_ARG_INFO()
@@ -219,7 +219,7 @@ void php_identifier_context_fixed_register_class(void)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "Php\\Identifier\\Context", "Fixed", php_identifier_context_fixed_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Identifier\\Context", "Fixed", php_identifier_context_fixed_methods);
     php_identifier_context_fixed_ce = zend_register_internal_class(&ce);
     php_identifier_context_fixed_ce->create_object = php_identifier_context_fixed_create_object;
 

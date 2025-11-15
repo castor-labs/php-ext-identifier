@@ -5,7 +5,7 @@ Codec encoding and decoding functionality
 --FILE--
 <?php
 
-use Php\Encoding\Codec;
+use Encoding\Codec;
 
 echo "=== Testing Codec Class ===\n";
 

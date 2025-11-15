@@ -4,16 +4,16 @@ UUID version classes basic functionality
 <?php if (!extension_loaded("identifier")) print "skip"; ?>
 --FILE--
 <?php
-use Php\Identifier\Uuid\Version1;
-use Php\Identifier\Uuid\Version3;
-use Php\Identifier\Uuid\Version4;
-use Php\Identifier\Uuid\Version5;
-use Php\Identifier\Uuid\Version6;
-use Php\Identifier\Uuid\Version7;
-use Php\Identifier\Context\Fixed;
+use Identifier\Uuid\Version1;
+use Identifier\Uuid\Version3;
+use Identifier\Uuid\Version4;
+use Identifier\Uuid\Version5;
+use Identifier\Uuid\Version6;
+use Identifier\Uuid\Version7;
+use Identifier\Context\Fixed;
 
 // Test 1: All version classes can generate UUIDs
-$namespace_uuid = \Php\Identifier\Uuid::fromString('6ba7b810-9dad-11d1-80b4-00c04fd430c8');
+$namespace_uuid = \Identifier\Uuid::fromString('6ba7b810-9dad-11d1-80b4-00c04fd430c8');
 $uuid1 = Version1::generate();
 $uuid3 = Version3::generate($namespace_uuid, 'example.com');
 $uuid4 = Version4::generate();

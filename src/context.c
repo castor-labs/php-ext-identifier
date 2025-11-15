@@ -16,7 +16,7 @@ void php_identifier_context_register_classes(void)
     zend_class_entry ce;
 
     /* Register Context interface */
-    INIT_NS_CLASS_ENTRY(ce, "Php\\Identifier", "Context", php_identifier_context_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Identifier", "Context", php_identifier_context_methods);
     php_identifier_context_ce = zend_register_internal_interface(&ce);
 
     /* Interface methods are defined by implementing classes */

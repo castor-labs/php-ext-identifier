@@ -9,17 +9,17 @@ echo "Extension loaded: " . (extension_loaded("identifier") ? "YES" : "NO") . "\
 
 // Test all main classes exist
 $classes = [
-    'Php\\Identifier\\Bit128',
-    'Php\\Identifier\\Uuid',
-    'Php\\Identifier\\Uuid\\Version1',
-    'Php\\Identifier\\Uuid\\Version3',
-    'Php\\Identifier\\Uuid\\Version4',
-    'Php\\Identifier\\Uuid\\Version5',
-    'Php\\Identifier\\Uuid\\Version6',
-    'Php\\Identifier\\Uuid\\Version7',
-    'Php\\Identifier\\Ulid',
-    'Php\\Identifier\\Context\\System',
-    'Php\\Identifier\\Context\\Fixed',
+    'Identifier\\Bit128',
+    'Identifier\\Uuid',
+    'Identifier\\Uuid\\Version1',
+    'Identifier\\Uuid\\Version3',
+    'Identifier\\Uuid\\Version4',
+    'Identifier\\Uuid\\Version5',
+    'Identifier\\Uuid\\Version6',
+    'Identifier\\Uuid\\Version7',
+    'Identifier\\Ulid',
+    'Identifier\\Context\\System',
+    'Identifier\\Context\\Fixed',
 
 ];
 
@@ -28,22 +28,22 @@ foreach ($classes as $class) {
 }
 
 // Test Bit128 is now concrete (not abstract)
-$reflection = new ReflectionClass('Php\\Identifier\\Bit128');
+$reflection = new ReflectionClass('Identifier\\Bit128');
 echo "Bit128 is concrete: " . ($reflection->isAbstract() ? "NO" : "YES") . "\n";
 
 
 ?>
 --EXPECT--
 Extension loaded: YES
-Class Php\Identifier\Bit128: EXISTS
-Class Php\Identifier\Uuid: EXISTS
-Class Php\Identifier\Uuid\Version1: EXISTS
-Class Php\Identifier\Uuid\Version3: EXISTS
-Class Php\Identifier\Uuid\Version4: EXISTS
-Class Php\Identifier\Uuid\Version5: EXISTS
-Class Php\Identifier\Uuid\Version6: EXISTS
-Class Php\Identifier\Uuid\Version7: EXISTS
-Class Php\Identifier\Ulid: EXISTS
-Class Php\Identifier\Context\System: EXISTS
-Class Php\Identifier\Context\Fixed: EXISTS
+Class Identifier\Bit128: EXISTS
+Class Identifier\Uuid: EXISTS
+Class Identifier\Uuid\Version1: EXISTS
+Class Identifier\Uuid\Version3: EXISTS
+Class Identifier\Uuid\Version4: EXISTS
+Class Identifier\Uuid\Version5: EXISTS
+Class Identifier\Uuid\Version6: EXISTS
+Class Identifier\Uuid\Version7: EXISTS
+Class Identifier\Ulid: EXISTS
+Class Identifier\Context\System: EXISTS
+Class Identifier\Context\Fixed: EXISTS
 Bit128 is concrete: YES

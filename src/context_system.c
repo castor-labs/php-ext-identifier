@@ -3,7 +3,7 @@
 #include "php_identifier.h"
 
 /* Arginfo declarations */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_context_system_getInstance, 0, 0, Php\\Identifier\\Context\\System, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_context_system_getInstance, 0, 0, Identifier\\Context\\System, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_context_system_getTimestampMs, 0, 0, IS_LONG, 0)
@@ -131,7 +131,7 @@ void php_identifier_context_system_register_class(void)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "Php\\Identifier\\Context", "System", php_identifier_context_system_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Identifier\\Context", "System", php_identifier_context_system_methods);
     php_identifier_context_system_ce = zend_register_internal_class(&ce);
     php_identifier_context_system_ce->create_object = php_identifier_context_system_create_object;
 

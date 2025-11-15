@@ -4,7 +4,7 @@ Bit128 class functionality
 <?php if (!extension_loaded("identifier")) print "skip"; ?>
 --FILE--
 <?php
-use Php\Identifier\Bit128;
+use Identifier\Bit128;
 
 // Test 1: Constructor with 16 bytes
 $bytes = hex2bin('0123456789abcdef0123456789abcdef');

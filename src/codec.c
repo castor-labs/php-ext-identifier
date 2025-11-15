@@ -18,7 +18,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_codec_decode, 0, 1, IS_STRING, 0
     ZEND_ARG_TYPE_INFO(0, encoded, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_codec_factory, 0, 0, Php\\Encoding\\Codec, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_codec_factory, 0, 0, Encoding\\Codec, 0)
     ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, padding, IS_STRING, 1, "null")
 ZEND_END_ARG_INFO()
 
@@ -696,7 +696,7 @@ static const zend_function_entry php_identifier_codec_methods[] = {
 void php_identifier_codec_init(void)
 {
     zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "Php\\Encoding\\Codec", php_identifier_codec_methods);
+    INIT_CLASS_ENTRY(ce, "Encoding\\Codec", php_identifier_codec_methods);
     php_identifier_codec_ce = zend_register_internal_class(&ce);
 
     /* Set up object handlers */

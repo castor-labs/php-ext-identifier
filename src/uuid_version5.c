@@ -5,20 +5,20 @@
 #include <string.h>
 
 /* Arginfo declarations */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_generate, 0, 2, Php\\Identifier\\Uuid\\Version5, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_generate, 0, 2, Identifier\\Uuid\\Version5, 0)
     ZEND_ARG_TYPE_INFO(0, namespace, IS_STRING, 0)
     ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_fromString, 0, 1, Php\\Identifier\\Uuid\\Version5, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_fromString, 0, 1, Identifier\\Uuid\\Version5, 0)
     ZEND_ARG_TYPE_INFO(0, uuid, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_fromBytes, 0, 1, Php\\Identifier\\Uuid\\Version5, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_fromBytes, 0, 1, Identifier\\Uuid\\Version5, 0)
     ZEND_ARG_TYPE_INFO(0, bytes, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_fromHex, 0, 1, Php\\Identifier\\Uuid\\Version5, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version5_fromHex, 0, 1, Identifier\\Uuid\\Version5, 0)
     ZEND_ARG_TYPE_INFO(0, hex, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -349,7 +349,7 @@ void php_identifier_uuid_version5_register_class(void)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "Php\\Identifier\\Uuid", "Version5", php_identifier_uuid_version5_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Identifier\\Uuid", "Version5", php_identifier_uuid_version5_methods);
     php_identifier_uuid_version5_ce = zend_register_internal_class_ex(&ce, php_identifier_uuid_ce);
     php_identifier_uuid_version5_ce->ce_flags |= ZEND_ACC_FINAL;
 }

@@ -4,7 +4,7 @@ UUID base class functionality
 <?php if (!extension_loaded("identifier")) print "skip"; ?>
 --FILE--
 <?php
-use Php\Identifier\Uuid;
+use Identifier\Uuid;
 
 // Test 1: fromString method with various formats
 $uuid_string = '550e8400-e29b-41d4-a716-446655440000';
@@ -72,18 +72,18 @@ try {
 ?>
 --EXPECT--
 fromString creates UUID: YES
-fromString class: Php\Identifier\Uuid\Version4
+fromString class: Identifier\Uuid\Version4
 toString result: 550e8400-e29b-41d4-a716-446655440000
 toString matches: YES
 __toString works: YES
 UUID version: 4
 Nil UUID detected: YES
 Regular UUID is nil: YES
-Version 1 detection: Php\Identifier\Uuid\Version1
-Version 3 detection: Php\Identifier\Uuid\Version3
-Version 4 detection: Php\Identifier\Uuid\Version4
-Version 5 detection: Php\Identifier\Uuid\Version5
-fromBytes detection: Php\Identifier\Uuid\Version4
+Version 1 detection: Identifier\Uuid\Version1
+Version 3 detection: Identifier\Uuid\Version3
+Version 4 detection: Identifier\Uuid\Version4
+Version 5 detection: Identifier\Uuid\Version5
+fromBytes detection: Identifier\Uuid\Version4
 toHex works: YES
 toBytes works: YES
 equals works: YES

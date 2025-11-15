@@ -5,22 +5,22 @@
 #include <string.h>
 
 /* Arginfo declarations */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_generate, 0, 0, Php\\Identifier\\Ulid, 0)
-    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, context, Php\\Identifier\\Context, 1, "null")
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_generate, 0, 0, Identifier\\Ulid, 0)
+    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, context, Identifier\\Context, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ulid_toString, 0, 0, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_fromString, 0, 1, Php\\Identifier\\Ulid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_fromString, 0, 1, Identifier\\Ulid, 0)
     ZEND_ARG_TYPE_INFO(0, ulid, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_fromHex, 0, 1, Php\\Identifier\\Ulid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_fromHex, 0, 1, Identifier\\Ulid, 0)
     ZEND_ARG_TYPE_INFO(0, hex, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_fromBytes, 0, 1, Php\\Identifier\\Ulid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_fromBytes, 0, 1, Identifier\\Ulid, 0)
     ZEND_ARG_TYPE_INFO(0, bytes, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -574,7 +574,7 @@ void php_identifier_ulid_register_class(void)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "Php\\Identifier", "Ulid", php_identifier_ulid_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Identifier", "Ulid", php_identifier_ulid_methods);
     php_identifier_ulid_ce = zend_register_internal_class_ex(&ce, php_identifier_bit128_ce);
     php_identifier_ulid_ce->ce_flags |= ZEND_ACC_FINAL;
 }

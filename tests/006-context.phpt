@@ -4,10 +4,10 @@ Context classes functionality
 <?php if (!extension_loaded("identifier")) print "skip"; ?>
 --FILE--
 <?php
-use Php\Identifier\Context\System;
-use Php\Identifier\Context\Fixed;
-use Php\Identifier\Uuid\Version4;
-use Php\Identifier\Ulid;
+use Identifier\Context\System;
+use Identifier\Context\Fixed;
+use Identifier\Uuid\Version4;
+use Identifier\Ulid;
 
 // Test 1: System context
 $system_context = new System();

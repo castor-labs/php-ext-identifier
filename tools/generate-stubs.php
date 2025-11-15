@@ -128,7 +128,7 @@ class CSourceDocParser {
 
         // Handle special case for Encoding\Codec
         if ($phpClassName === 'Php\\Identifier\\Encoding\\Codec') {
-            return 'Php\\Encoding\\Codec';
+            return 'Encoding\\Codec';
         }
 
         return $phpClassName;

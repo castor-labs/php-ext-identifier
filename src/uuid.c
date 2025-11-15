@@ -14,28 +14,28 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_toString, 0, 0, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_fromString, 0, 1, Php\\Identifier\\Uuid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_fromString, 0, 1, Identifier\\Uuid, 0)
     ZEND_ARG_TYPE_INFO(0, uuid, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_fromBytes, 0, 1, Php\\Identifier\\Uuid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_fromBytes, 0, 1, Identifier\\Uuid, 0)
     ZEND_ARG_TYPE_INFO(0, bytes, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_fromHex, 0, 1, Php\\Identifier\\Uuid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_fromHex, 0, 1, Identifier\\Uuid, 0)
     ZEND_ARG_TYPE_INFO(0, hex, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_isNil, 0, 0, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_nil, 0, 0, Php\\Identifier\\Uuid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_nil, 0, 0, Identifier\\Uuid, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_isMax, 0, 0, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_max, 0, 0, Php\\Identifier\\Uuid, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_max, 0, 0, Identifier\\Uuid, 0)
 ZEND_END_ARG_INFO()
 
 /* UUID methods */
@@ -452,7 +452,7 @@ void php_identifier_uuid_register_classes(void)
     zend_class_entry ce;
 
     /* Register base UUID class */
-    INIT_NS_CLASS_ENTRY(ce, "Php\\Identifier", "Uuid", php_identifier_uuid_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Identifier", "Uuid", php_identifier_uuid_methods);
     php_identifier_uuid_ce = zend_register_internal_class_ex(&ce, php_identifier_bit128_ce);
 
     /* Register all UUID version classes */
