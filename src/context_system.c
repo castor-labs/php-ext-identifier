@@ -16,7 +16,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_context_system_getRandomBytes, 0
     ZEND_ARG_TYPE_INFO(0, length, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-/* Try to include the random header - compatibility across PHP versions */
+/* Include random headers - compatibility across PHP versions */
 #if PHP_VERSION_ID >= 80200
 #include "ext/random/php_random.h"
 #else

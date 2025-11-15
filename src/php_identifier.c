@@ -5,15 +5,15 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
-#include "ext/standard/php_mt_rand.h"
 #include "php_identifier.h"
 #include <sys/time.h>
 #include <time.h>
 
-/* Try to include the random header - compatibility across PHP versions */
+/* Include random headers - compatibility across PHP versions */
 #if PHP_VERSION_ID >= 80200
 #include "ext/random/php_random.h"
 #else
+#include "ext/standard/php_mt_rand.h"
 #include "ext/standard/php_random.h"
 #endif
 
