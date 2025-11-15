@@ -58,7 +58,7 @@ static zend_object_handlers php_identifier_bit128_object_handlers;
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, __construct)
+static PHP_METHOD(Identifier_Bit128, __construct)
 {
     zend_string *bytes;
 
@@ -91,7 +91,7 @@ static PHP_METHOD(Php_Identifier_Bit128, __construct)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, getBytes)
+static PHP_METHOD(Identifier_Bit128, getBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     RETURN_STRINGL((char*)intern->data, 16);
@@ -113,10 +113,10 @@ static PHP_METHOD(Php_Identifier_Bit128, getBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, toBytes)
+static PHP_METHOD(Identifier_Bit128, toBytes)
 {
     /* Alias for getBytes */
-    PHP_MN(Php_Identifier_Bit128_getBytes)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+    PHP_MN(Identifier_Bit128_getBytes)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
 /**
@@ -135,7 +135,7 @@ static PHP_METHOD(Php_Identifier_Bit128, toBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, equals)
+static PHP_METHOD(Identifier_Bit128, equals)
 {
     zval *other;
 
@@ -167,7 +167,7 @@ static PHP_METHOD(Php_Identifier_Bit128, equals)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, compare)
+static PHP_METHOD(Identifier_Bit128, compare)
 {
     zval *other;
 
@@ -196,7 +196,7 @@ static PHP_METHOD(Php_Identifier_Bit128, compare)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, toHex)
+static PHP_METHOD(Identifier_Bit128, toHex)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     
@@ -228,7 +228,7 @@ static PHP_METHOD(Php_Identifier_Bit128, toHex)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, fromHex)
+static PHP_METHOD(Identifier_Bit128, fromHex)
 {
     zend_string *hex;
 
@@ -287,7 +287,7 @@ static PHP_METHOD(Php_Identifier_Bit128, fromHex)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, fromBytes)
+static PHP_METHOD(Identifier_Bit128, fromBytes)
 {
     zend_string *bytes;
 
@@ -322,10 +322,10 @@ static PHP_METHOD(Php_Identifier_Bit128, fromBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, toString)
+static PHP_METHOD(Identifier_Bit128, toString)
 {
     /* Default implementation: delegate to toHex */
-    PHP_MN(Php_Identifier_Bit128_toHex)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+    PHP_MN(Identifier_Bit128_toHex)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
 /**
@@ -343,7 +343,7 @@ static PHP_METHOD(Php_Identifier_Bit128, toString)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Bit128, __toString)
+static PHP_METHOD(Identifier_Bit128, __toString)
 {
     zval retval;
 
@@ -356,16 +356,16 @@ static PHP_METHOD(Php_Identifier_Bit128, __toString)
 
 /* Bit128 method entries */
 static const zend_function_entry php_identifier_bit128_methods[] = {
-    PHP_ME(Php_Identifier_Bit128, __construct, arginfo_bit128_construct, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Bit128, getBytes, arginfo_bit128_getBytes, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Bit128, toBytes, arginfo_bit128_toBytes, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Bit128, equals, arginfo_bit128_equals, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Bit128, compare, arginfo_bit128_compare, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Bit128, toHex, arginfo_bit128_toHex, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Bit128, fromHex, arginfo_bit128_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Bit128, fromBytes, arginfo_bit128_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Bit128, toString, arginfo_bit128_toString, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Bit128, __toString, arginfo_bit128_toString, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, __construct, arginfo_bit128_construct, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, getBytes, arginfo_bit128_getBytes, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, toBytes, arginfo_bit128_toBytes, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, equals, arginfo_bit128_equals, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, compare, arginfo_bit128_compare, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, toHex, arginfo_bit128_toHex, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, fromHex, arginfo_bit128_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Bit128, fromBytes, arginfo_bit128_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Bit128, toString, arginfo_bit128_toString, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, __toString, arginfo_bit128_toString, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

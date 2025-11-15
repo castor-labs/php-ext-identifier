@@ -66,7 +66,7 @@ static zend_object_handlers php_identifier_context_fixed_object_handlers;
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Context_Fixed, create)
+static PHP_METHOD(Identifier_Context_Fixed, create)
 {
     zend_long timestamp_ms, seed;
 
@@ -87,7 +87,29 @@ static PHP_METHOD(Php_Identifier_Context_Fixed, create)
     RETURN_ZVAL(&context, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Context_Fixed, advanceTime)
+/**
+ * Advance the context time by milliseconds
+ *
+ * Increments the internal timestamp by the specified number of milliseconds.
+ * This is useful for testing time-based identifiers and simulating the
+ * passage of time.
+ *
+ * @param int $milliseconds Number of milliseconds to advance
+ * @return Fixed Returns $this for method chaining
+ *
+ * @example
+ * $context = Fixed::create(1640995200000, 12345);
+ * $ulid1 = Ulid::generate($context);
+ *
+ * // Advance time by 1 second
+ * $context->advanceTime(1000);
+ * $ulid2 = Ulid::generate($context);
+ *
+ * var_dump($ulid1->getTimestamp() < $ulid2->getTimestamp()); // bool(true)
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_Fixed, advanceTime)
 {
     zend_long milliseconds;
 
@@ -101,7 +123,27 @@ static PHP_METHOD(Php_Identifier_Context_Fixed, advanceTime)
     RETURN_ZVAL(getThis(), 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Context_Fixed, advanceTimeSeconds)
+/**
+ * Advance the context time by seconds
+ *
+ * Increments the internal timestamp by the specified number of seconds.
+ * This is a convenience method equivalent to calling advanceTime($seconds * 1000).
+ *
+ * @param int $seconds Number of seconds to advance
+ * @return Fixed Returns $this for method chaining
+ *
+ * @example
+ * $context = Fixed::create(1640995200000, 12345);
+ *
+ * // Advance time by 1 hour
+ * $context->advanceTimeSeconds(3600);
+ *
+ * // Method chaining
+ * $context->advanceTimeSeconds(60)->advanceTime(500);
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_Fixed, advanceTimeSeconds)
 {
     zend_long seconds;
 
@@ -115,7 +157,27 @@ static PHP_METHOD(Php_Identifier_Context_Fixed, advanceTimeSeconds)
     RETURN_ZVAL(getThis(), 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Context_Fixed, setTimestamp)
+/**
+ * Set the context timestamp to a specific value
+ *
+ * Sets the internal timestamp to an exact value in milliseconds since Unix epoch.
+ * This allows jumping to any point in time for testing purposes.
+ *
+ * @param int $timestamp_ms Timestamp in milliseconds since Unix epoch
+ * @return Fixed Returns $this for method chaining
+ *
+ * @example
+ * $context = Fixed::create(1640995200000, 12345);
+ *
+ * // Jump to a specific date (2023-01-01 00:00:00 UTC)
+ * $context->setTimestamp(1672531200000);
+ *
+ * $uuid = Version7::generate($context);
+ * // UUID will have timestamp from 2023-01-01
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_Fixed, setTimestamp)
 {
     zend_long timestamp_ms;
 
@@ -129,13 +191,45 @@ static PHP_METHOD(Php_Identifier_Context_Fixed, setTimestamp)
     RETURN_ZVAL(getThis(), 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Context_Fixed, getTimestampMs)
+/**
+ * Get the current fixed timestamp in milliseconds
+ *
+ * Returns the internal fixed timestamp value in milliseconds since Unix epoch.
+ * This value can be modified using advanceTime(), advanceTimeSeconds(), or setTimestamp().
+ *
+ * @return int Timestamp in milliseconds since Unix epoch
+ *
+ * @example
+ * $context = Fixed::create(1640995200000, 12345);
+ * echo $context->getTimestampMs(); // 1640995200000
+ *
+ * $context->advanceTime(5000);
+ * echo $context->getTimestampMs(); // 1640995205000
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_Fixed, getTimestampMs)
 {
     php_identifier_context_fixed_obj *intern = PHP_IDENTIFIER_CONTEXT_FIXED_OBJ_P(getThis());
     RETURN_LONG((zend_long)intern->timestamp_ms);
 }
 
-static PHP_METHOD(Php_Identifier_Context_Fixed, getGregorianEpochTime)
+/**
+ * Get the fixed timestamp as Gregorian epoch time
+ *
+ * Converts the internal timestamp to 100-nanosecond intervals since the
+ * Gregorian epoch (October 15, 1582). This is used for UUID v1 and v6 timestamps.
+ *
+ * @return int Timestamp in 100-nanosecond intervals since Gregorian epoch
+ *
+ * @example
+ * $context = Fixed::create(1640995200000, 12345);
+ * $gregorian = $context->getGregorianEpochTime();
+ * // Returns timestamp suitable for UUID v1/v6
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_Fixed, getGregorianEpochTime)
 {
     php_identifier_context_fixed_obj *intern = PHP_IDENTIFIER_CONTEXT_FIXED_OBJ_P(getThis());
 
@@ -151,7 +245,31 @@ static PHP_METHOD(Php_Identifier_Context_Fixed, getGregorianEpochTime)
     RETURN_LONG((zend_long)gregorian_100ns);
 }
 
-static PHP_METHOD(Php_Identifier_Context_Fixed, getRandomBytes)
+/**
+ * Generate deterministic pseudo-random bytes
+ *
+ * Returns a string of pseudo-random bytes using a seeded Mersenne Twister
+ * generator. The output is deterministic based on the seed provided during
+ * context creation. This is useful for testing and generating reproducible identifiers.
+ *
+ * @param int $length Number of random bytes to generate (1-1024)
+ * @return string Binary string of pseudo-random bytes
+ * @throws Exception If length is out of valid range
+ *
+ * @example
+ * $context = Fixed::create(1640995200000, 12345);
+ * $bytes1 = $context->getRandomBytes(16);
+ * $bytes2 = $context->getRandomBytes(16);
+ * // bytes1 and bytes2 will be different but deterministic
+ *
+ * // Same seed produces same sequence
+ * $context2 = Fixed::create(1640995200000, 12345);
+ * $bytes3 = $context2->getRandomBytes(16);
+ * var_dump($bytes1 === $bytes3); // bool(true)
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_Fixed, getRandomBytes)
 {
     zend_long length;
 
@@ -188,13 +306,13 @@ static PHP_METHOD(Php_Identifier_Context_Fixed, getRandomBytes)
 
 /* Fixed context method entries */
 static const zend_function_entry php_identifier_context_fixed_methods[] = {
-    PHP_ME(Php_Identifier_Context_Fixed, create, arginfo_context_fixed_create, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Context_Fixed, advanceTime, arginfo_context_fixed_advanceTime, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Context_Fixed, advanceTimeSeconds, arginfo_context_fixed_advanceTimeSeconds, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Context_Fixed, setTimestamp, arginfo_context_fixed_setTimestamp, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Context_Fixed, getTimestampMs, arginfo_context_fixed_getTimestampMs, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Context_Fixed, getGregorianEpochTime, arginfo_context_fixed_getGregorianEpochTime, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Context_Fixed, getRandomBytes, arginfo_context_fixed_getRandomBytes, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_Fixed, create, arginfo_context_fixed_create, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Context_Fixed, advanceTime, arginfo_context_fixed_advanceTime, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_Fixed, advanceTimeSeconds, arginfo_context_fixed_advanceTimeSeconds, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_Fixed, setTimestamp, arginfo_context_fixed_setTimestamp, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_Fixed, getTimestampMs, arginfo_context_fixed_getTimestampMs, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_Fixed, getGregorianEpochTime, arginfo_context_fixed_getGregorianEpochTime, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_Fixed, getRandomBytes, arginfo_context_fixed_getRandomBytes, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

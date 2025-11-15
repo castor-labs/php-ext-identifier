@@ -49,7 +49,7 @@ ZEND_END_ARG_INFO()
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version4, generate)
+static PHP_METHOD(Identifier_Uuid_Version4, generate)
 {
     zval *context = NULL;
 
@@ -108,7 +108,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, generate)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version4, fromString)
+/**
+ * Create a Version 4 UUID from a string representation
+ *
+ * Parses a UUID string in the standard format (8-4-4-4-12) and validates that
+ * it is a valid Version 4 UUID before creating the object.
+ *
+ * @param string $uuid UUID string in format "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+ * @return Version4 Version 4 UUID instance
+ * @throws Exception If the string format is invalid or not version 4
+ *
+ * @example
+ * $uuid = Version4::fromString('f47ac10b-58cc-4372-a567-0e02b2c3d479');
+ * echo $uuid->getVersion(); // 4
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid_Version4, fromString)
 {
     zend_string *uuid_str;
 
@@ -173,7 +189,26 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, fromString)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version4, fromBytes)
+/**
+ * Create a Version 4 UUID from raw bytes
+ *
+ * Creates a Version 4 UUID from a 16-byte binary string. Validates that the
+ * bytes represent a valid Version 4 UUID.
+ *
+ * @param string $bytes Binary string of exactly 16 bytes
+ * @return Version4 Version 4 UUID instance
+ * @throws Exception If the byte string is not exactly 16 bytes or not version 4
+ *
+ * @example
+ * $bytes = random_bytes(16);
+ * // Manually set version and variant bits
+ * $bytes[6] = chr((ord($bytes[6]) & 0x0F) | 0x40);
+ * $bytes[8] = chr((ord($bytes[8]) & 0x3F) | 0x80);
+ * $uuid = Version4::fromBytes($bytes);
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid_Version4, fromBytes)
 {
     zend_string *bytes;
 
@@ -207,7 +242,26 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, fromBytes)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version4, fromHex)
+/**
+ * Create a Version 4 UUID from a hexadecimal string
+ *
+ * Parses a 32-character hexadecimal string (with or without dashes) and validates
+ * that it represents a valid Version 4 UUID.
+ *
+ * @param string $hex Hexadecimal string (32 characters, optionally with dashes)
+ * @return Version4 Version 4 UUID instance
+ * @throws Exception If the hex string is invalid or not version 4
+ *
+ * @example
+ * // Parse hex without dashes
+ * $uuid = Version4::fromHex('f47ac10b58cc4372a5670e02b2c3d479');
+ *
+ * // Parse hex with dashes
+ * $uuid = Version4::fromHex('f47ac10b-58cc-4372-a567-0e02b2c3d479');
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid_Version4, fromHex)
 {
     zend_string *hex;
 
@@ -281,7 +335,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, fromHex)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version4, getRandomBytes)
+static PHP_METHOD(Identifier_Uuid_Version4, getRandomBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -309,7 +363,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, getRandomBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version4, getPureRandomBytes)
+static PHP_METHOD(Identifier_Uuid_Version4, getPureRandomBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -330,12 +384,12 @@ static PHP_METHOD(Php_Identifier_Uuid_Version4, getPureRandomBytes)
 
 /* UUID Version 4 method entries */
 static const zend_function_entry php_identifier_uuid_version4_methods[] = {
-    PHP_ME(Php_Identifier_Uuid_Version4, generate, arginfo_uuid_version4_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version4, fromString, arginfo_uuid_version4_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version4, fromBytes, arginfo_uuid_version4_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version4, fromHex, arginfo_uuid_version4_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version4, getRandomBytes, arginfo_uuid_version4_getRandomBytes, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid_Version4, getPureRandomBytes, arginfo_uuid_version4_getPureRandomBytes, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version4, generate, arginfo_uuid_version4_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version4, fromString, arginfo_uuid_version4_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version4, fromBytes, arginfo_uuid_version4_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version4, fromHex, arginfo_uuid_version4_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version4, getRandomBytes, arginfo_uuid_version4_getRandomBytes, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version4, getPureRandomBytes, arginfo_uuid_version4_getPureRandomBytes, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

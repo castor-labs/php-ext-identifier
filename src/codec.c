@@ -114,7 +114,7 @@ static void php_identifier_codec_free_object(zend_object *object)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, __construct)
+static PHP_METHOD(Identifier_Encoding_Codec, __construct)
 {
     zend_string *alphabet;
     zend_string *padding = NULL;
@@ -173,7 +173,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, __construct)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, encode)
+static PHP_METHOD(Identifier_Encoding_Codec, encode)
 {
     zend_string *data;
 
@@ -301,7 +301,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, encode)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, decode)
+static PHP_METHOD(Identifier_Encoding_Codec, decode)
 {
     zend_string *encoded;
 
@@ -429,7 +429,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, decode)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, base32Rfc4648)
+static PHP_METHOD(Identifier_Encoding_Codec, base32Rfc4648)
 {
     zend_string *padding = NULL;
 
@@ -473,7 +473,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, base32Rfc4648)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, base32Crockford)
+static PHP_METHOD(Identifier_Encoding_Codec, base32Crockford)
 {
     zend_string *padding = NULL;
 
@@ -517,7 +517,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, base32Crockford)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, base58Bitcoin)
+static PHP_METHOD(Identifier_Encoding_Codec, base58Bitcoin)
 {
     zend_string *padding = NULL;
 
@@ -562,7 +562,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, base58Bitcoin)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, base64Standard)
+static PHP_METHOD(Identifier_Encoding_Codec, base64Standard)
 {
     zend_string *padding = NULL;
 
@@ -607,7 +607,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, base64Standard)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, base64UrlSafe)
+static PHP_METHOD(Identifier_Encoding_Codec, base64UrlSafe)
 {
     zend_string *padding = NULL;
 
@@ -653,7 +653,7 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, base64UrlSafe)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Encoding_Codec, base64Mime)
+static PHP_METHOD(Identifier_Encoding_Codec, base64Mime)
 {
     zend_string *padding = NULL;
 
@@ -680,15 +680,15 @@ static PHP_METHOD(Php_Identifier_Encoding_Codec, base64Mime)
 
 /* Codec method entries */
 static const zend_function_entry php_identifier_codec_methods[] = {
-    PHP_ME(Php_Identifier_Encoding_Codec, __construct, arginfo_codec_construct, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, encode, arginfo_codec_encode, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, decode, arginfo_codec_decode, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, base32Rfc4648, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, base32Crockford, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, base58Bitcoin, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, base64Standard, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, base64UrlSafe, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Encoding_Codec, base64Mime, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Encoding_Codec, __construct, arginfo_codec_construct, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Encoding_Codec, encode, arginfo_codec_encode, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Encoding_Codec, decode, arginfo_codec_decode, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Encoding_Codec, base32Rfc4648, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Encoding_Codec, base32Crockford, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Encoding_Codec, base58Bitcoin, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Encoding_Codec, base64Standard, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Encoding_Codec, base64UrlSafe, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Encoding_Codec, base64Mime, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
 

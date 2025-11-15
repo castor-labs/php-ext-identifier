@@ -53,7 +53,7 @@ ZEND_END_ARG_INFO()
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version1, generate)
+static PHP_METHOD(Identifier_Uuid_Version1, generate)
 {
     zval *context = NULL;
 
@@ -175,7 +175,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version1, generate)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version1, getTimestamp)
+/**
+ * Get the timestamp from the UUID
+ *
+ * Extracts the 60-bit timestamp from the UUID version 1 and converts it
+ * to milliseconds since Unix epoch.
+ *
+ * @return int Timestamp in milliseconds since Unix epoch
+ *
+ * @example
+ * $uuid = Version1::generate();
+ * $timestamp = $uuid->getTimestamp();
+ * echo date('Y-m-d H:i:s', $timestamp / 1000);
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid_Version1, getTimestamp)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -200,7 +215,22 @@ static PHP_METHOD(Php_Identifier_Uuid_Version1, getTimestamp)
     RETURN_LONG(timestamp_ms);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version1, getNode)
+/**
+ * Get the node (MAC address) from the UUID
+ *
+ * Extracts the 48-bit node identifier from the UUID version 1.
+ * This is typically derived from the network card's MAC address.
+ *
+ * @return string 6-byte binary node identifier
+ *
+ * @example
+ * $uuid = Version1::generate();
+ * $node = $uuid->getNode();
+ * echo bin2hex($node); // e.g., "00c04fd430c8"
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid_Version1, getNode)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -212,7 +242,23 @@ static PHP_METHOD(Php_Identifier_Uuid_Version1, getNode)
     RETURN_STR(node);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version1, getClockSequence)
+/**
+ * Get the clock sequence from the UUID
+ *
+ * Extracts the 14-bit clock sequence from the UUID version 1.
+ * The clock sequence helps ensure uniqueness when the timestamp goes backwards
+ * or when the node ID changes.
+ *
+ * @return int Clock sequence value (0-16383)
+ *
+ * @example
+ * $uuid = Version1::generate();
+ * $clockSeq = $uuid->getClockSequence();
+ * echo $clockSeq; // e.g., 12345
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid_Version1, getClockSequence)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -223,7 +269,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version1, getClockSequence)
     RETURN_LONG(clock_seq);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version1, fromString)
+static PHP_METHOD(Identifier_Uuid_Version1, fromString)
 {
     zend_string *uuid_str;
 
@@ -288,7 +334,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version1, fromString)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version1, fromBytes)
+static PHP_METHOD(Identifier_Uuid_Version1, fromBytes)
 {
     zend_string *bytes;
 
@@ -318,7 +364,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version1, fromBytes)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version1, fromHex)
+static PHP_METHOD(Identifier_Uuid_Version1, fromHex)
 {
     zend_string *hex;
 
@@ -379,13 +425,13 @@ static PHP_METHOD(Php_Identifier_Uuid_Version1, fromHex)
 
 /* UUID Version 1 method entries */
 static const zend_function_entry php_identifier_uuid_version1_methods[] = {
-    PHP_ME(Php_Identifier_Uuid_Version1, generate, arginfo_uuid_version1_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version1, fromString, arginfo_uuid_version1_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version1, fromBytes, arginfo_uuid_version1_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version1, fromHex, arginfo_uuid_version1_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version1, getTimestamp, arginfo_uuid_version1_getTimestamp, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid_Version1, getNode, arginfo_uuid_version1_getNode, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid_Version1, getClockSequence, arginfo_uuid_version1_getClockSequence, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version1, generate, arginfo_uuid_version1_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version1, fromString, arginfo_uuid_version1_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version1, fromBytes, arginfo_uuid_version1_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version1, fromHex, arginfo_uuid_version1_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version1, getTimestamp, arginfo_uuid_version1_getTimestamp, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version1, getNode, arginfo_uuid_version1_getNode, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version1, getClockSequence, arginfo_uuid_version1_getClockSequence, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

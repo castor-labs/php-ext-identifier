@@ -59,7 +59,7 @@ ZEND_END_ARG_INFO()
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, generate)
+static PHP_METHOD(Identifier_Uuid_Version7, generate)
 {
     zval *context = NULL;
 
@@ -173,7 +173,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, generate)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, getTimestamp)
+static PHP_METHOD(Identifier_Uuid_Version7, getTimestamp)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -206,7 +206,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, getTimestamp)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, fromString)
+static PHP_METHOD(Identifier_Uuid_Version7, fromString)
 {
     zend_string *uuid_str;
 
@@ -288,7 +288,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, fromString)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, fromBytes)
+static PHP_METHOD(Identifier_Uuid_Version7, fromBytes)
 {
     zend_string *bytes;
 
@@ -338,7 +338,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, fromBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, fromHex)
+static PHP_METHOD(Identifier_Uuid_Version7, fromHex)
 {
     zend_string *hex;
 
@@ -413,7 +413,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, fromHex)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomBytes)
+static PHP_METHOD(Identifier_Uuid_Version7, getRandomBytes)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -449,7 +449,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomA)
+static PHP_METHOD(Identifier_Uuid_Version7, getRandomA)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -476,7 +476,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomA)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomB)
+static PHP_METHOD(Identifier_Uuid_Version7, getRandomB)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
@@ -496,14 +496,14 @@ static PHP_METHOD(Php_Identifier_Uuid_Version7, getRandomB)
 
 /* UUID Version 7 method entries */
 static const zend_function_entry php_identifier_uuid_version7_methods[] = {
-    PHP_ME(Php_Identifier_Uuid_Version7, generate, arginfo_uuid_version7_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version7, fromString, arginfo_uuid_version7_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version7, fromBytes, arginfo_uuid_version7_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version7, fromHex, arginfo_uuid_version7_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version7, getTimestamp, arginfo_uuid_version7_getTimestamp, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid_Version7, getRandomBytes, arginfo_uuid_version7_getRandomBytes, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid_Version7, getRandomA, arginfo_uuid_version7_getRandomA, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid_Version7, getRandomB, arginfo_uuid_version7_getRandomB, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version7, generate, arginfo_uuid_version7_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version7, fromString, arginfo_uuid_version7_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version7, fromBytes, arginfo_uuid_version7_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version7, fromHex, arginfo_uuid_version7_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version7, getTimestamp, arginfo_uuid_version7_getTimestamp, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version7, getRandomBytes, arginfo_uuid_version7_getRandomBytes, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version7, getRandomA, arginfo_uuid_version7_getRandomA, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid_Version7, getRandomB, arginfo_uuid_version7_getRandomB, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

@@ -52,7 +52,7 @@ static bool system_context_initialized = false;
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Context_System, getInstance)
+static PHP_METHOD(Identifier_Context_System, getInstance)
 {
     if (!system_context_initialized) {
         /* Create singleton instance */
@@ -66,17 +66,66 @@ static PHP_METHOD(Php_Identifier_Context_System, getInstance)
     RETURN_ZVAL(&system_context_singleton, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Context_System, getTimestampMs)
+/**
+ * Get the current system time in milliseconds
+ *
+ * Returns the current Unix timestamp in milliseconds. This is used for
+ * generating time-based identifiers like UUIDs v1, v6, v7 and ULIDs.
+ *
+ * @return int Current timestamp in milliseconds since Unix epoch
+ *
+ * @example
+ * $context = System::getInstance();
+ * $timestamp = $context->getTimestampMs();
+ * echo date('Y-m-d H:i:s.', $timestamp / 1000) . ($timestamp % 1000);
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_System, getTimestampMs)
 {
     RETURN_LONG(php_identifier_get_timestamp_ms());
 }
 
-static PHP_METHOD(Php_Identifier_Context_System, getGregorianEpochTime)
+/**
+ * Get the current time as Gregorian epoch time
+ *
+ * Returns the current time in 100-nanosecond intervals since the Gregorian
+ * epoch (October 15, 1582). This is used for UUID v1 and v6 timestamps.
+ *
+ * @return int Timestamp in 100-nanosecond intervals since Gregorian epoch
+ *
+ * @example
+ * $context = System::getInstance();
+ * $gregorian = $context->getGregorianEpochTime();
+ * // Convert back to Unix timestamp
+ * $unix_ns = ($gregorian - 122192928000000000) * 100;
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_System, getGregorianEpochTime)
 {
     RETURN_LONG(php_identifier_get_gregorian_epoch_time());
 }
 
-static PHP_METHOD(Php_Identifier_Context_System, getRandomBytes)
+/**
+ * Generate cryptographically secure random bytes
+ *
+ * Returns a string of random bytes using the system's cryptographically
+ * secure random number generator (CSPRNG). This is used for generating
+ * random components of identifiers.
+ *
+ * @param int $length Number of random bytes to generate (1-1024)
+ * @return string Binary string of random bytes
+ * @throws Exception If length is out of valid range
+ *
+ * @example
+ * $context = System::getInstance();
+ * $randomBytes = $context->getRandomBytes(16);
+ * echo bin2hex($randomBytes); // 32-character hex string
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Context_System, getRandomBytes)
 {
     zend_long length;
 
@@ -106,10 +155,10 @@ static PHP_METHOD(Php_Identifier_Context_System, getRandomBytes)
 
 /* System context method entries */
 static const zend_function_entry php_identifier_context_system_methods[] = {
-    PHP_ME(Php_Identifier_Context_System, getInstance, arginfo_context_system_getInstance, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Context_System, getTimestampMs, arginfo_context_system_getTimestampMs, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Context_System, getGregorianEpochTime, arginfo_context_system_getGregorianEpochTime, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Context_System, getRandomBytes, arginfo_context_system_getRandomBytes, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_System, getInstance, arginfo_context_system_getInstance, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Context_System, getTimestampMs, arginfo_context_system_getTimestampMs, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_System, getGregorianEpochTime, arginfo_context_system_getGregorianEpochTime, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Context_System, getRandomBytes, arginfo_context_system_getRandomBytes, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

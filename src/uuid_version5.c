@@ -77,7 +77,7 @@ static void simple_sha1(const unsigned char *input, size_t len, unsigned char ou
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version5, generate)
+static PHP_METHOD(Identifier_Uuid_Version5, generate)
 {
     zval *namespace_uuid;
     zend_string *name;
@@ -144,7 +144,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version5, generate)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version5, fromString)
+static PHP_METHOD(Identifier_Uuid_Version5, fromString)
 {
     zend_string *uuid_str;
 
@@ -226,7 +226,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version5, fromString)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version5, fromBytes)
+static PHP_METHOD(Identifier_Uuid_Version5, fromBytes)
 {
     zend_string *bytes;
 
@@ -276,7 +276,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version5, fromBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version5, fromHex)
+static PHP_METHOD(Identifier_Uuid_Version5, fromHex)
 {
     zend_string *hex;
 
@@ -337,10 +337,10 @@ static PHP_METHOD(Php_Identifier_Uuid_Version5, fromHex)
 
 /* UUID Version 5 method entries */
 static const zend_function_entry php_identifier_uuid_version5_methods[] = {
-    PHP_ME(Php_Identifier_Uuid_Version5, generate, arginfo_uuid_version5_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version5, fromString, arginfo_uuid_version5_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version5, fromBytes, arginfo_uuid_version5_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version5, fromHex, arginfo_uuid_version5_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version5, generate, arginfo_uuid_version5_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version5, fromString, arginfo_uuid_version5_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version5, fromBytes, arginfo_uuid_version5_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version5, fromHex, arginfo_uuid_version5_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
 

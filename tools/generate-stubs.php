@@ -47,12 +47,10 @@ class CSourceDocParser {
         if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $docComment = $this->parseDocComment($match[1]);
+                // Convert Identifier_Uuid_Version4 to Identifier\Uuid\Version4
                 $className = str_replace('_', '\\', $match[2]);
                 $methodName = $match[3];
-                
-                // Convert C class name to PHP namespace
-                $className = $this->convertCClassNameToPhp($className);
-                
+
                 $this->methodDocs[$className][$methodName] = $docComment;
             }
         }
@@ -121,19 +119,7 @@ class CSourceDocParser {
         $doc['description'] = implode("\n", $descriptionLines);
         return $doc;
     }
-    
-    private function convertCClassNameToPhp(string $cClassName): string {
-        // Convert Php_Identifier_Uuid_Version4 to Php\Identifier\Uuid\Version4
-        $phpClassName = str_replace('_', '\\', $cClassName);
 
-        // Handle special case for Encoding\Codec
-        if ($phpClassName === 'Php\\Identifier\\Encoding\\Codec') {
-            return 'Encoding\\Codec';
-        }
-
-        return $phpClassName;
-    }
-    
     public function getMethodDoc(string $className, string $methodName): ?array {
         return $this->methodDocs[$className][$methodName] ?? null;
     }

@@ -76,7 +76,7 @@ static void simple_md5(const unsigned char *input, size_t len, unsigned char out
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid_Version3, generate)
+static PHP_METHOD(Identifier_Uuid_Version3, generate)
 {
     zval *namespace_uuid;
     zend_string *name;
@@ -126,7 +126,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version3, generate)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version3, fromString)
+static PHP_METHOD(Identifier_Uuid_Version3, fromString)
 {
     zend_string *uuid_str;
 
@@ -191,7 +191,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version3, fromString)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version3, fromBytes)
+static PHP_METHOD(Identifier_Uuid_Version3, fromBytes)
 {
     zend_string *bytes;
 
@@ -225,7 +225,7 @@ static PHP_METHOD(Php_Identifier_Uuid_Version3, fromBytes)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid_Version3, fromHex)
+static PHP_METHOD(Identifier_Uuid_Version3, fromHex)
 {
     zend_string *hex;
 
@@ -286,10 +286,10 @@ static PHP_METHOD(Php_Identifier_Uuid_Version3, fromHex)
 
 /* UUID Version 3 method entries */
 static const zend_function_entry php_identifier_uuid_version3_methods[] = {
-    PHP_ME(Php_Identifier_Uuid_Version3, generate, arginfo_uuid_version3_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version3, fromString, arginfo_uuid_version3_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version3, fromBytes, arginfo_uuid_version3_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid_Version3, fromHex, arginfo_uuid_version3_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version3, generate, arginfo_uuid_version3_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version3, fromString, arginfo_uuid_version3_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version3, fromBytes, arginfo_uuid_version3_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid_Version3, fromHex, arginfo_uuid_version3_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
 

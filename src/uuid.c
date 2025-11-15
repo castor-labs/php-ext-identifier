@@ -57,7 +57,7 @@ ZEND_END_ARG_INFO()
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid, getVersion)
+static PHP_METHOD(Identifier_Uuid, getVersion)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     
@@ -80,7 +80,7 @@ static PHP_METHOD(Php_Identifier_Uuid, getVersion)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid, getVariant)
+static PHP_METHOD(Identifier_Uuid, getVariant)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     
@@ -106,7 +106,7 @@ static PHP_METHOD(Php_Identifier_Uuid, getVariant)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Uuid, toString)
+static PHP_METHOD(Identifier_Uuid, toString)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     
@@ -124,7 +124,25 @@ static PHP_METHOD(Php_Identifier_Uuid, toString)
     RETURN_STR(result);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid, fromString)
+/**
+ * Create a UUID from a string representation
+ *
+ * Parses a UUID string in the standard format (8-4-4-4-12) and returns
+ * the appropriate UUID version object. Automatically detects the version
+ * and returns the correct subclass (Version1, Version3, Version4, etc.).
+ *
+ * @param string $uuid UUID string in format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ * @return Uuid UUID instance of the appropriate version
+ * @throws Exception If the string format is invalid
+ *
+ * @example
+ * $uuid = Uuid::fromString('550e8400-e29b-41d4-a716-446655440000');
+ * echo $uuid->getVersion(); // 4
+ * echo get_class($uuid); // Identifier\Uuid\Version4
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid, fromString)
 {
     zend_string *uuid_str;
 
@@ -212,7 +230,27 @@ static PHP_METHOD(Php_Identifier_Uuid, fromString)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid, fromBytes)
+/**
+ * Create a UUID from binary bytes
+ *
+ * Creates a UUID from exactly 16 bytes of binary data. Automatically
+ * detects the UUID version from the bytes and returns the appropriate
+ * version-specific subclass.
+ *
+ * @param string $bytes Exactly 16 bytes of binary data
+ * @return Uuid UUID instance of the appropriate version
+ * @throws Exception If bytes is not exactly 16 bytes
+ *
+ * @example
+ * $bytes = random_bytes(16);
+ * $bytes[6] = chr((ord($bytes[6]) & 0x0F) | 0x40); // Set version 4
+ * $bytes[8] = chr((ord($bytes[8]) & 0x3F) | 0x80); // Set variant
+ * $uuid = Uuid::fromBytes($bytes);
+ * echo $uuid->getVersion(); // 4
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid, fromBytes)
 {
     zend_string *bytes;
 
@@ -269,7 +307,26 @@ static PHP_METHOD(Php_Identifier_Uuid, fromBytes)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid, fromHex)
+/**
+ * Create a UUID from a hexadecimal string
+ *
+ * Parses a 32-character hexadecimal string (with or without hyphens) and
+ * creates a UUID. Automatically detects the version and returns the appropriate
+ * version-specific subclass. Case-insensitive.
+ *
+ * @param string $hex 32-character hexadecimal string (with or without hyphens)
+ * @return Uuid UUID instance of the appropriate version
+ * @throws Exception If hex string is invalid
+ *
+ * @example
+ * $uuid = Uuid::fromHex('550e8400e29b41d4a716446655440000');
+ * echo $uuid->toString(); // "550e8400-e29b-41d4-a716-446655440000"
+ * // Also works with hyphens
+ * $uuid2 = Uuid::fromHex('550e8400-e29b-41d4-a716-446655440000');
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid, fromHex)
 {
     zend_string *hex;
 
@@ -351,7 +408,24 @@ static PHP_METHOD(Php_Identifier_Uuid, fromHex)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid, isNil)
+/**
+ * Check if this UUID is the nil UUID
+ *
+ * Returns true if all 128 bits are zero (00000000-0000-0000-0000-000000000000).
+ * The nil UUID is defined in RFC 4122 and represents a special "null" value.
+ *
+ * @return bool True if this is the nil UUID, false otherwise
+ *
+ * @example
+ * $nil = Uuid::nil();
+ * var_dump($nil->isNil()); // bool(true)
+ *
+ * $uuid = Version4::generate();
+ * var_dump($uuid->isNil()); // bool(false)
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid, isNil)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     
@@ -363,7 +437,22 @@ static PHP_METHOD(Php_Identifier_Uuid, isNil)
     RETURN_TRUE;
 }
 
-static PHP_METHOD(Php_Identifier_Uuid, nil)
+/**
+ * Create the nil UUID
+ *
+ * Returns a UUID with all bits set to zero (00000000-0000-0000-0000-000000000000).
+ * This is a special UUID defined in RFC 4122 that represents a null or empty value.
+ *
+ * @return Uuid The nil UUID instance
+ *
+ * @example
+ * $nil = Uuid::nil();
+ * echo $nil->toString(); // "00000000-0000-0000-0000-000000000000"
+ * var_dump($nil->isNil()); // bool(true)
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid, nil)
 {
     /* Create nil UUID (all zeros) */
     zval uuid;
@@ -376,7 +465,24 @@ static PHP_METHOD(Php_Identifier_Uuid, nil)
     RETURN_ZVAL(&uuid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Uuid, isMax)
+/**
+ * Check if this UUID is the max UUID
+ *
+ * Returns true if all 128 bits are set to 1 (ffffffff-ffff-ffff-ffff-ffffffffffff).
+ * The max UUID is defined in RFC 4122 and represents the maximum possible UUID value.
+ *
+ * @return bool True if this is the max UUID, false otherwise
+ *
+ * @example
+ * $max = Uuid::max();
+ * var_dump($max->isMax()); // bool(true)
+ *
+ * $uuid = Version4::generate();
+ * var_dump($uuid->isMax()); // bool(false)
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid, isMax)
 {
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
     
@@ -388,7 +494,22 @@ static PHP_METHOD(Php_Identifier_Uuid, isMax)
     RETURN_TRUE;
 }
 
-static PHP_METHOD(Php_Identifier_Uuid, max)
+/**
+ * Create the max UUID
+ *
+ * Returns a UUID with all bits set to 1 (ffffffff-ffff-ffff-ffff-ffffffffffff).
+ * This is a special UUID defined in RFC 4122 that represents the maximum possible UUID value.
+ *
+ * @return Uuid The max UUID instance
+ *
+ * @example
+ * $max = Uuid::max();
+ * echo $max->toString(); // "ffffffff-ffff-ffff-ffff-ffffffffffff"
+ * var_dump($max->isMax()); // bool(true)
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Uuid, max)
 {
     /* Create max UUID (all ones) */
     zval uuid;
@@ -403,16 +524,16 @@ static PHP_METHOD(Php_Identifier_Uuid, max)
 
 /* UUID method entries */
 static const zend_function_entry php_identifier_uuid_methods[] = {
-    PHP_ME(Php_Identifier_Uuid, getVersion, arginfo_uuid_getVersion, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid, getVariant, arginfo_uuid_getVariant, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid, toString, arginfo_uuid_toString, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid, fromString, arginfo_uuid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid, fromBytes, arginfo_uuid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid, fromHex, arginfo_uuid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid, isNil, arginfo_uuid_isNil, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid, nil, arginfo_uuid_nil, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Uuid, isMax, arginfo_uuid_isMax, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Uuid, max, arginfo_uuid_max, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid, getVersion, arginfo_uuid_getVersion, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid, getVariant, arginfo_uuid_getVariant, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid, toString, arginfo_uuid_toString, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid, fromString, arginfo_uuid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid, fromBytes, arginfo_uuid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid, fromHex, arginfo_uuid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid, isNil, arginfo_uuid_isNil, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid, nil, arginfo_uuid_nil, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Uuid, isMax, arginfo_uuid_isMax, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Uuid, max, arginfo_uuid_max, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
 

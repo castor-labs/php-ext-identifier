@@ -139,7 +139,7 @@ static int increment_randomness(unsigned char *randomness)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Ulid, generate)
+static PHP_METHOD(Identifier_Ulid, generate)
 {
     zval *context = NULL;
 
@@ -286,7 +286,7 @@ static void ulid_encode_base32(const unsigned char *bytes, char *output)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Ulid, toString)
+static PHP_METHOD(Identifier_Ulid, toString)
 {
     /* Get the bytes from parent Bit128 class */
     zval bytes_result;
@@ -355,7 +355,27 @@ static int ulid_decode_base32(const char *input, unsigned char *bytes)
     return 1; /* Success */
 }
 
-static PHP_METHOD(Php_Identifier_Ulid, fromString)
+/**
+ * Create a ULID from a string representation
+ *
+ * Parses a 26-character ULID string in Crockford Base32 encoding and returns
+ * a ULID object. The string must be exactly 26 characters and contain only
+ * valid Crockford Base32 characters (0-9, A-Z excluding I, L, O, U).
+ *
+ * @param string $ulid ULID string in Crockford Base32 format (26 characters)
+ * @return Ulid ULID instance
+ * @throws Exception If the string format is invalid or contains invalid characters
+ *
+ * @example
+ * $ulid = Ulid::fromString('01ARZ3NDEKTSV4RRFFQ69G5FAV');
+ * echo $ulid->toString(); // "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+ *
+ * // Case-insensitive parsing
+ * $ulid = Ulid::fromString('01arz3ndektsv4rrffq69g5fav');
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Ulid, fromString)
 {
     zend_string *ulid_str;
 
@@ -387,7 +407,28 @@ static PHP_METHOD(Php_Identifier_Ulid, fromString)
     RETURN_ZVAL(&ulid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Ulid, fromHex)
+/**
+ * Create a ULID from a hexadecimal string
+ *
+ * Parses a 32-character hexadecimal string (with or without dashes) and returns
+ * a ULID object. This is useful for working with ULIDs in their raw hex form.
+ *
+ * @param string $hex Hexadecimal string (32 characters, optionally with dashes)
+ * @return Ulid ULID instance
+ * @throws Exception If the hex string is invalid or has incorrect length
+ *
+ * @example
+ * // Parse hex string without dashes
+ * $ulid = Ulid::fromHex('0188bac7b8de4c4aaa5f8c3e0cd5e5e3');
+ *
+ * // Parse hex string with dashes
+ * $ulid = Ulid::fromHex('0188bac7-b8de-4c4a-aa5f-8c3e0cd5e5e3');
+ *
+ * echo $ulid->toString(); // Crockford Base32 representation
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Ulid, fromHex)
 {
     zend_string *hex;
 
@@ -439,7 +480,29 @@ static PHP_METHOD(Php_Identifier_Ulid, fromHex)
     RETURN_ZVAL(&ulid, 1, 0);
 }
 
-static PHP_METHOD(Php_Identifier_Ulid, fromBytes)
+/**
+ * Create a ULID from raw bytes
+ *
+ * Creates a ULID from a 16-byte binary string. This is the most direct way
+ * to construct a ULID from its binary representation.
+ *
+ * @param string $bytes Binary string of exactly 16 bytes
+ * @return Ulid ULID instance
+ * @throws Exception If the byte string is not exactly 16 bytes
+ *
+ * @example
+ * // Create from binary data
+ * $bytes = random_bytes(16);
+ * $ulid = Ulid::fromBytes($bytes);
+ *
+ * // Round-trip conversion
+ * $ulid1 = Ulid::generate();
+ * $ulid2 = Ulid::fromBytes($ulid1->getBytes());
+ * var_dump($ulid1->toString() === $ulid2->toString()); // bool(true)
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Ulid, fromBytes)
 {
     zend_string *bytes;
 
@@ -485,7 +548,7 @@ static PHP_METHOD(Php_Identifier_Ulid, fromBytes)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Ulid, getTimestamp)
+static PHP_METHOD(Identifier_Ulid, getTimestamp)
 {
     /* Get the bytes from parent Bit128 class */
     zval bytes_result;
@@ -530,7 +593,7 @@ static PHP_METHOD(Php_Identifier_Ulid, getTimestamp)
  *
  * @since 1.0.0
  */
-static PHP_METHOD(Php_Identifier_Ulid, getRandomness)
+static PHP_METHOD(Identifier_Ulid, getRandomness)
 {
     /* Get the bytes from parent Bit128 class */
     zval bytes_result;
@@ -552,13 +615,13 @@ static PHP_METHOD(Php_Identifier_Ulid, getRandomness)
 
 /* ULID method entries */
 static const zend_function_entry php_identifier_ulid_methods[] = {
-    PHP_ME(Php_Identifier_Ulid, generate, arginfo_ulid_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Ulid, toString, arginfo_ulid_toString, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Ulid, fromString, arginfo_ulid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Ulid, fromHex, arginfo_ulid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Ulid, fromBytes, arginfo_ulid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Php_Identifier_Ulid, getTimestamp, arginfo_ulid_getTimestamp, ZEND_ACC_PUBLIC)
-    PHP_ME(Php_Identifier_Ulid, getRandomness, arginfo_ulid_getRandomness, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Ulid, generate, arginfo_ulid_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Ulid, toString, arginfo_ulid_toString, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Ulid, fromString, arginfo_ulid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Ulid, fromHex, arginfo_ulid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Ulid, fromBytes, arginfo_ulid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Ulid, getTimestamp, arginfo_ulid_getTimestamp, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Ulid, getRandomness, arginfo_ulid_getRandomness, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
