@@ -1,10 +1,10 @@
-# PHP Identifier Extension
+# Extension Identifier
 
 A high-performance PHP extension for working with 128-bit identifiers including UUIDs and ULIDs.
 
 ## Features
 
-- **128-bit Base Class**: `Php\Identifier\Bit128` for all 128-bit identifiers
+- **128-bit Base Class**: `Identifier\Bit128` for all 128-bit identifiers
 - **Complete UUID Support**: All UUID versions (1, 3, 4, 5, 6, 7) with proper RFC compliance
 - **ULID Support**: Universally Unique Lexicographically Sortable Identifiers
 - **Context System**: Deterministic generation for testing with `FixedContext`
@@ -43,9 +43,9 @@ extension=identifier
 ## Quick Start
 
 ```php
-use Php\Identifier\Uuid\Version4;
-use Php\Identifier\Uuid\Version7;
-use Php\Identifier\Ulid;
+use Identifier\Uuid\Version4;
+use Identifier\Uuid\Version7;
+use Identifier\Ulid;
 
 // Generate random UUID v4
 $uuid = Version4::generate();
@@ -63,8 +63,8 @@ echo $ulid->toString(); // e.g., "01ARZ3NDEKTSV4RRFFQ69G5FAV"
 ## Testing with Fixed Context
 
 ```php
-use Php\Identifier\Context\Fixed;
-use Php\Identifier\Uuid\Version4;
+use Identifier\Context\Fixed;
+use Identifier\Uuid\Version4;
 
 // Create deterministic context for testing
 $ctx = Fixed::create(1640995200000, 12345);
@@ -80,22 +80,6 @@ $ulid = Ulid::generate($ctx);
 ## API Documentation
 
 Check the [stub file](stubs/identifier.stub.php) for a detailed API documentation.
-
-## Performance
-
-This extension delivers **world-class performance** with native C implementation:
-
-### UUID Performance
-- **🏆 2.8M+ UUID generations per second** - Up to 12.5x faster than popular PHP libraries
-- **⚡ 2.2M+ UUID parsing operations per second** - Extremely efficient string processing
-- **🔧 Production-ready scalability** - Consistent performance under enterprise workloads
-
-### ULID Performance
-- **🚀 9.9M+ ULID generations per second** - 8.3x faster than Symfony UID
-- **⚡ 3.0M+ ULID parsing operations per second** - 5.6x faster than alternatives
-- **📈 Monotonic ordering** - Built-in timestamp-based sorting with overflow protection
-
-See [BENCH.md](BENCH.md) for comprehensive benchmark results and performance analysis.
 
 ## Testing
 
@@ -114,10 +98,8 @@ For detailed documentation, see the [docs/README.md](docs/README.md) which cover
 
 For comprehensive performance analysis, see [BENCH.md](BENCH.md) which includes:
 
-- **Detailed benchmark results** - Complete performance measurements
 - **Comparison with popular libraries** - Head-to-head performance analysis
 - **Real-world performance impact** - Scalability and efficiency metrics
-- **Benchmark methodology** - How to run and interpret benchmarks
 
 ## Contributing
 

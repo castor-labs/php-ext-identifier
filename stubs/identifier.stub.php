@@ -86,7 +86,7 @@ namespace Identifier
          * ```
          * @since 1.0.0
          */
-        public function equals(\Php\Identifier\Bit128 $other): bool {}
+        public function equals(\Identifier\Bit128 $other): bool {}
 
         /**
          * Compare this identifier with another for ordering
@@ -106,7 +106,7 @@ namespace Identifier
          * ```
          * @since 1.0.0
          */
-        public function compare(\Php\Identifier\Bit128 $other): int {}
+        public function compare(\Identifier\Bit128 $other): int {}
 
         /**
          * Convert the identifier to a hexadecimal string
@@ -141,7 +141,7 @@ namespace Identifier
          * ```
          * @since 1.0.0
          */
-        public static function fromHex(string $hex): \Php\Identifier\Bit128 {}
+        public static function fromHex(string $hex): \Identifier\Bit128 {}
 
         /**
          * Create a new identifier from binary data
@@ -165,11 +165,11 @@ namespace Identifier
          * ```
          * @since 1.0.0
          */
-        public static function fromBytes(string $bytes): \Php\Identifier\Bit128 {}
+        public static function fromBytes(string $bytes): \Identifier\Bit128 {}
 
     }
 
-    class Uuid extends \Php\Identifier\Bit128 implements \Stringable
+    class Uuid extends \Identifier\Bit128 implements \Stringable
     {
         /**
          * Get the UUID version number
@@ -240,23 +240,23 @@ namespace Identifier
          */
         public function __toString(): string {}
 
-        public static function fromString(string $uuid): \Php\Identifier\Uuid {}
+        public static function fromString(string $uuid): \Identifier\Uuid {}
 
-        public static function fromBytes(string $bytes): \Php\Identifier\Uuid {}
+        public static function fromBytes(string $bytes): \Identifier\Uuid {}
 
-        public static function fromHex(string $hex): \Php\Identifier\Uuid {}
+        public static function fromHex(string $hex): \Identifier\Uuid {}
 
         public function isNil(): bool {}
 
-        public static function nil(): \Php\Identifier\Uuid {}
+        public static function nil(): \Identifier\Uuid {}
 
         public function isMax(): bool {}
 
-        public static function max(): \Php\Identifier\Uuid {}
+        public static function max(): \Identifier\Uuid {}
 
     }
 
-    final class Ulid extends \Php\Identifier\Bit128 implements \Stringable
+    final class Ulid extends \Identifier\Bit128 implements \Stringable
     {
         /**
          * Generate a new ULID (Universally Unique Lexicographically Sortable Identifier)
@@ -279,7 +279,7 @@ namespace Identifier
          * ```
          * @since 1.0.0
          */
-        public static function generate(?\Php\Identifier\Context $context = NULL): \Php\Identifier\Ulid {}
+        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Ulid {}
 
         /**
          * Convert ULID to string representation
@@ -301,11 +301,11 @@ namespace Identifier
 
         public function __toString(): string {}
 
-        public static function fromString(string $ulid): \Php\Identifier\Ulid {}
+        public static function fromString(string $ulid): \Identifier\Ulid {}
 
-        public static function fromHex(string $hex): \Php\Identifier\Ulid {}
+        public static function fromHex(string $hex): \Identifier\Ulid {}
 
-        public static function fromBytes(string $bytes): \Php\Identifier\Ulid {}
+        public static function fromBytes(string $bytes): \Identifier\Ulid {}
 
         /**
          * Get the timestamp component of the ULID
@@ -357,7 +357,7 @@ namespace Identifier
 
 namespace Identifier\Context
 {
-    class System implements \Php\Identifier\Context
+    class System implements \Identifier\Context
     {
         /**
          * Get the singleton system context instance
@@ -378,7 +378,7 @@ namespace Identifier\Context
          * ```
          * @since 1.0.0
          */
-        public static function getInstance(): \Php\Identifier\Context\System {}
+        public static function getInstance(): \Identifier\Context\System {}
 
         public function getTimestampMs(): int {}
 
@@ -388,7 +388,7 @@ namespace Identifier\Context
 
     }
 
-    class Fixed implements \Php\Identifier\Context
+    class Fixed implements \Identifier\Context
     {
         /**
          * Create a new fixed context for testing
@@ -413,7 +413,7 @@ namespace Identifier\Context
          * ```
          * @since 1.0.0
          */
-        public static function create(int $timestamp_ms, int $seed): \Php\Identifier\Context\Fixed {}
+        public static function create(int $timestamp_ms, int $seed): \Identifier\Context\Fixed {}
 
         public function advanceTime(int $milliseconds): void {}
 
@@ -433,7 +433,7 @@ namespace Identifier\Context
 
 namespace Identifier\Uuid
 {
-    final class Version1 extends \Php\Identifier\Uuid implements \Stringable
+    final class Version1 extends \Identifier\Uuid implements \Stringable
     {
         /**
          * Generate a new UUID version 1 (time-based)
@@ -456,13 +456,13 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function generate(?\Php\Identifier\Context $context = NULL): \Php\Identifier\Uuid\Version1 {}
+        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version1 {}
 
-        public static function fromString(string $uuid): \Php\Identifier\Uuid\Version1 {}
+        public static function fromString(string $uuid): \Identifier\Uuid\Version1 {}
 
-        public static function fromBytes(string $bytes): \Php\Identifier\Uuid\Version1 {}
+        public static function fromBytes(string $bytes): \Identifier\Uuid\Version1 {}
 
-        public static function fromHex(string $hex): \Php\Identifier\Uuid\Version1 {}
+        public static function fromHex(string $hex): \Identifier\Uuid\Version1 {}
 
         public function getTimestamp(): int {}
 
@@ -472,7 +472,7 @@ namespace Identifier\Uuid
 
     }
 
-    final class Version3 extends \Php\Identifier\Uuid implements \Stringable
+    final class Version3 extends \Identifier\Uuid implements \Stringable
     {
         /**
          * Generate a new UUID version 3 (name-based with MD5)
@@ -497,17 +497,17 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function generate(string $namespace, string $name): \Php\Identifier\Uuid\Version3 {}
+        public static function generate(string $namespace, string $name): \Identifier\Uuid\Version3 {}
 
-        public static function fromString(string $uuid): \Php\Identifier\Uuid\Version3 {}
+        public static function fromString(string $uuid): \Identifier\Uuid\Version3 {}
 
-        public static function fromBytes(string $bytes): \Php\Identifier\Uuid\Version3 {}
+        public static function fromBytes(string $bytes): \Identifier\Uuid\Version3 {}
 
-        public static function fromHex(string $hex): \Php\Identifier\Uuid\Version3 {}
+        public static function fromHex(string $hex): \Identifier\Uuid\Version3 {}
 
     }
 
-    final class Version4 extends \Php\Identifier\Uuid implements \Stringable
+    final class Version4 extends \Identifier\Uuid implements \Stringable
     {
         /**
          * Generate a new random UUID version 4
@@ -529,13 +529,13 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function generate(?\Php\Identifier\Context $context = NULL): \Php\Identifier\Uuid\Version4 {}
+        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version4 {}
 
-        public static function fromString(string $uuid): \Php\Identifier\Uuid\Version4 {}
+        public static function fromString(string $uuid): \Identifier\Uuid\Version4 {}
 
-        public static function fromBytes(string $bytes): \Php\Identifier\Uuid\Version4 {}
+        public static function fromBytes(string $bytes): \Identifier\Uuid\Version4 {}
 
-        public static function fromHex(string $hex): \Php\Identifier\Uuid\Version4 {}
+        public static function fromHex(string $hex): \Identifier\Uuid\Version4 {}
 
         /**
          * Get the random bytes from this UUID
@@ -574,7 +574,7 @@ namespace Identifier\Uuid
 
     }
 
-    final class Version5 extends \Php\Identifier\Uuid implements \Stringable
+    final class Version5 extends \Identifier\Uuid implements \Stringable
     {
         /**
          * Generate a new UUID version 5 (name-based with SHA-1)
@@ -600,7 +600,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function generate(string $namespace, string $name): \Php\Identifier\Uuid\Version5 {}
+        public static function generate(string $namespace, string $name): \Identifier\Uuid\Version5 {}
 
         /**
          * Create UUID version 5 from string representation
@@ -619,7 +619,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromString(string $uuid): \Php\Identifier\Uuid\Version5 {}
+        public static function fromString(string $uuid): \Identifier\Uuid\Version5 {}
 
         /**
          * Create UUID version 5 from binary data
@@ -638,7 +638,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromBytes(string $bytes): \Php\Identifier\Uuid\Version5 {}
+        public static function fromBytes(string $bytes): \Identifier\Uuid\Version5 {}
 
         /**
          * Create UUID version 5 from hexadecimal string
@@ -656,11 +656,11 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromHex(string $hex): \Php\Identifier\Uuid\Version5 {}
+        public static function fromHex(string $hex): \Identifier\Uuid\Version5 {}
 
     }
 
-    final class Version6 extends \Php\Identifier\Uuid implements \Stringable
+    final class Version6 extends \Identifier\Uuid implements \Stringable
     {
         /**
          * Generate a new UUID version 6 (reordered time-based)
@@ -685,7 +685,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function generate(?\Php\Identifier\Context $context = NULL): \Php\Identifier\Uuid\Version6 {}
+        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version6 {}
 
         /**
          * Create UUID version 6 from string representation
@@ -704,7 +704,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromString(string $uuid): \Php\Identifier\Uuid\Version6 {}
+        public static function fromString(string $uuid): \Identifier\Uuid\Version6 {}
 
         /**
          * Create UUID version 6 from binary data
@@ -723,7 +723,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromBytes(string $bytes): \Php\Identifier\Uuid\Version6 {}
+        public static function fromBytes(string $bytes): \Identifier\Uuid\Version6 {}
 
         /**
          * Create UUID version 6 from hexadecimal string
@@ -741,7 +741,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromHex(string $hex): \Php\Identifier\Uuid\Version6 {}
+        public static function fromHex(string $hex): \Identifier\Uuid\Version6 {}
 
         /**
          * Get the timestamp from UUID version 6
@@ -799,7 +799,7 @@ namespace Identifier\Uuid
 
     }
 
-    final class Version7 extends \Php\Identifier\Uuid implements \Stringable
+    final class Version7 extends \Identifier\Uuid implements \Stringable
     {
         /**
          * Generate a new UUID version 7 (Unix timestamp-based)
@@ -824,7 +824,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function generate(?\Php\Identifier\Context $context = NULL): \Php\Identifier\Uuid\Version7 {}
+        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version7 {}
 
         /**
          * Create UUID version 7 from string representation
@@ -843,7 +843,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromString(string $uuid): \Php\Identifier\Uuid\Version7 {}
+        public static function fromString(string $uuid): \Identifier\Uuid\Version7 {}
 
         /**
          * Create UUID version 7 from binary data
@@ -862,7 +862,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromBytes(string $bytes): \Php\Identifier\Uuid\Version7 {}
+        public static function fromBytes(string $bytes): \Identifier\Uuid\Version7 {}
 
         /**
          * Create UUID version 7 from hexadecimal string
@@ -880,7 +880,7 @@ namespace Identifier\Uuid
          * ```
          * @since 1.0.0
          */
-        public static function fromHex(string $hex): \Php\Identifier\Uuid\Version7 {}
+        public static function fromHex(string $hex): \Identifier\Uuid\Version7 {}
 
         /**
          * Get the timestamp from UUID version 7
@@ -1063,7 +1063,7 @@ namespace Encoding
          * ```
          * @since 1.0.0
          */
-        public static function base32Rfc4648(?string $padding = NULL): \Php\Encoding\Codec {}
+        public static function base32Rfc4648(?string $padding = NULL): \Encoding\Codec {}
 
         /**
          * Create a Base32 codec using Crockford alphabet
@@ -1085,7 +1085,7 @@ namespace Encoding
          * ```
          * @since 1.0.0
          */
-        public static function base32Crockford(?string $padding = NULL): \Php\Encoding\Codec {}
+        public static function base32Crockford(?string $padding = NULL): \Encoding\Codec {}
 
         /**
          * Create a Base58 codec using Bitcoin alphabet
@@ -1107,7 +1107,7 @@ namespace Encoding
          * ```
          * @since 1.0.0
          */
-        public static function base58Bitcoin(?string $padding = NULL): \Php\Encoding\Codec {}
+        public static function base58Bitcoin(?string $padding = NULL): \Encoding\Codec {}
 
         /**
          * Create a Base64 codec using standard alphabet
@@ -1130,7 +1130,7 @@ namespace Encoding
          * ```
          * @since 1.0.0
          */
-        public static function base64Standard(?string $padding = NULL): \Php\Encoding\Codec {}
+        public static function base64Standard(?string $padding = NULL): \Encoding\Codec {}
 
         /**
          * Create a Base64 codec using URL-safe alphabet
@@ -1153,7 +1153,7 @@ namespace Encoding
          * ```
          * @since 1.0.0
          */
-        public static function base64UrlSafe(?string $padding = NULL): \Php\Encoding\Codec {}
+        public static function base64UrlSafe(?string $padding = NULL): \Encoding\Codec {}
 
         /**
          * Create a Base64 codec using MIME alphabet with line breaks
@@ -1177,7 +1177,7 @@ namespace Encoding
          * ```
          * @since 1.0.0
          */
-        public static function base64Mime(?string $padding = NULL): \Php\Encoding\Codec {}
+        public static function base64Mime(?string $padding = NULL): \Encoding\Codec {}
 
     }
 
