@@ -6,7 +6,7 @@
  * Generated from extension reflection with full C source documentation.
  * 
  * @version 1.0.0
- * @generated 2025-11-16 07:06:45
+ * @generated 2025-11-16 07:28:37
  */
 
 namespace Identifier
@@ -1496,6 +1496,10 @@ namespace Encoding
      */
     class Codec
     {
+        /** Binary alphabet (0-1) for base-2 encoding */
+        public const BINARY = '01';
+        /** Hexadecimal alphabet (0-9, A-F) for base-16 encoding */
+        public const HEXADECIMAL = '0123456789ABCDEF';
         /** Standard Base32 alphabet as defined in RFC 4648 (A-Z, 2-7) */
         public const BASE32_RFC4648 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         /** Crockford Base32 alphabet (0-9, A-Z excluding I, L, O, U) - used by ULIDs */
@@ -1585,6 +1589,46 @@ namespace Encoding
          * @since 1.0.0
          */
         public function decode(string $encoded): string {}
+
+        /**
+         * Create a Binary codec
+         * Returns a codec configured for Binary encoding using the alphabet "01".
+         * This encoding represents data in base-2 format, the most fundamental
+         * numerical representation.
+         * 
+         * @return Codec Binary codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::binary();
+         * $encoded = $codec->encode("Hi");
+         * echo $encoded; // "0100100001101001"
+         * $decoded = $codec->decode("0100100001101001");
+         * echo $decoded; // "Hi"
+         * ```
+         * @since 1.0.0
+         */
+        public static function binary(?string $padding = NULL): \Encoding\Codec {}
+
+        /**
+         * Create a Hexadecimal codec
+         * Returns a codec configured for Hexadecimal (base-16) encoding using the
+         * alphabet "0123456789ABCDEF". This is one of the most common encodings
+         * for representing binary data in a human-readable format.
+         * 
+         * @return Codec Hexadecimal codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::hexadecimal();
+         * $encoded = $codec->encode("Hello");
+         * echo $encoded; // "48656C6C6F"
+         * $decoded = $codec->decode("48656C6C6F");
+         * echo $decoded; // "Hello"
+         * ```
+         * @since 1.0.0
+         */
+        public static function hexadecimal(?string $padding = NULL): \Encoding\Codec {}
 
         /**
          * Create a Base32 codec using RFC 4648 alphabet
