@@ -196,6 +196,66 @@ if (some_error_condition) {
 - Update stubs if API changes
 - Keep commits focused and atomic
 
+### Pull Request Title Format
+
+Pull request titles **must** follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for automated release management:
+
+**Format**: `<type>: <description>` or `<type>(#issue): <description>`
+
+**Allowed types**:
+- `feat` - New feature (triggers minor version bump)
+- `fix` - Bug fix (triggers patch version bump)
+- `perf` - Performance improvement (triggers patch version bump)
+- `refactor` - Code refactoring (triggers patch version bump)
+- `docs` - Documentation changes only
+- `style` - Code style changes (formatting, etc.)
+- `test` - Adding or updating tests
+- `build` - Build system changes
+- `ci` - CI/CD changes
+- `chore` - Other changes that don't modify src or test files
+- `revert` - Reverts a previous commit
+
+**Examples**:
+- `feat: add support for UUID v8`
+- `feat(#12): implement automated releases`
+- `fix: resolve memory leak in ULID generation`
+- `fix(#45): correct timestamp calculation`
+- `perf: optimize Base32 encoding`
+- `docs: update installation instructions`
+
+**Important**: The PR title will be used to generate the release notes and determine version bumps, so make it descriptive and accurate.
+
+## Release Process
+
+This project uses automated releases based on semantic versioning:
+
+### How Releases Work
+
+1. **Automated Release Management**: When changes are merged to `main`, the semantic-release workflow analyzes PR titles to determine the version bump
+2. **Version Determination**:
+   - `feat` - Bumps minor version (e.g., 0.1.0 → 0.2.0)
+   - `fix`, `perf`, `refactor`, `revert` - Bumps patch version (e.g., 0.1.0 → 0.1.1)
+   - `BREAKING CHANGE` in PR body - Bumps major version (e.g., 0.1.0 → 1.0.0)
+3. **Release Artifacts**: When a release is published:
+   - Source archives are created in PIE-compliant formats
+   - Binary artifacts are built for multiple platforms:
+     - **Linux**: x86_64, aarch64
+     - **macOS**: x86_64 (Intel), arm64 (Apple Silicon)
+     - **Windows**: x64, arm64 (both TS and NTS)
+   - All artifacts follow [PIE naming conventions](https://github.com/php/pie/blob/main/docs/extension-maintainers.md)
+4. **CHANGELOG**: Automatically generated and updated with each release
+
+### For Maintainers
+
+Releases are **fully automated** - no manual intervention required:
+
+- Merging a PR to `main` triggers the release workflow
+- The workflow creates a GitHub release with proper version tag
+- Build artifacts are automatically uploaded to the release
+- The CHANGELOG.md is updated automatically
+
+The first release will start at version `0.1.0` based on the initial feature commits.
+
 ## Reporting Issues
 
 When reporting issues, please include:
