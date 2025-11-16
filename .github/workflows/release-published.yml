@@ -77,8 +77,30 @@ jobs:
             dist/php_identifier-${{ steps.version.outputs.VERSION }}-src.zip
 
   build-binaries:
-    name: Build All Binary Artifacts
-    runs-on: ubuntu-latest
+    name: Build Binary - PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - php: '8.1'
+            os: linux
+            arch: x86_64
+            runner: ubuntu-latest
+          - php: '8.2'
+            os: linux
+            arch: x86_64
+            runner: ubuntu-latest
+          - php: '8.3'
+            os: linux
+            arch: x86_64
+            runner: ubuntu-latest
+          - php: '8.4'
+            os: linux
+            arch: x86_64
+            runner: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -93,6 +115,13 @@ jobs:
             exit 1
           fi
 
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: php-config
+          coverage: none
+
       - name: Setup Zig
         uses: goto-bus-stop/setup-zig@v2
         with:
@@ -102,11 +131,26 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build all platforms and architectures
-        run: ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}"
+      - name: Verify PHP installation
+        run: |
+          php -v
+          php-config --version
+          php-config --includes
 
-      - name: Upload all binary artifacts to release
+      - name: Build extension
+        run: zig build
+
+      - name: Create archive
+        run: |
+          mkdir -p dist
+          mkdir -p "identifier-${{ steps.version.outputs.VERSION }}"
+          cp modules/identifier.so "identifier-${{ steps.version.outputs.VERSION }}/"
+          tar -czf "dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php }}-nts-${{ matrix.os }}-${{ matrix.arch }}.tar.gz" "identifier-${{ steps.version.outputs.VERSION }}"
+          rm -rf "identifier-${{ steps.version.outputs.VERSION }}"
+
+      - name: Upload artifact to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ steps.version.outputs.VERSION }} dist/*
+          gh release upload ${{ steps.version.outputs.VERSION }} \
+            dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php }}-nts-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
