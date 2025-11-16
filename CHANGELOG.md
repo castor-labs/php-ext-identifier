@@ -1,3 +1,12 @@
+# Changelog
+
+## [1.0.1](https://github.com/castor-labs/php-ext-identifier/compare/1.0.0...v1.0.1) (2025-11-16)
+
+
+### Bug Fixes
+
+* migrate from semantic-release to release-please ([#14](https://github.com/castor-labs/php-ext-identifier/issues/14)) ([ffef8ff](https://github.com/castor-labs/php-ext-identifier/commit/ffef8ffdd859ca1e33bffca04377635d1821c097))
+
 ## 1.0.0 (2025-11-16)
 
 ### ⚠ BREAKING CHANGES
