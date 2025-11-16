@@ -180,11 +180,4 @@ pub fn build(b: *std.Build) void {
     });
     verify_cmd.step.dependOn(&stubs_cmd.step);
     verify_stubs_step.dependOn(&verify_cmd.step);
-
-    // PECL package step
-    const package_step = b.step("package", "Create PECL package");
-    const package_cmd = b.addSystemCommand(&[_][]const u8{
-        "pecl", "package", "package.xml",
-    });
-    package_step.dependOn(&package_cmd.step);
 }
