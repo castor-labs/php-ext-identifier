@@ -32,9 +32,15 @@ zend_class_entry *php_identifier_uuid_version7_ce;
 zend_class_entry *php_identifier_ulid_ce;
 zend_class_entry *php_identifier_codec_ce;
 
+/* Forward declaration for globals initialization */
+static void php_identifier_init_globals(zend_identifier_globals *identifier_globals);
+
 /* {{{ PHP_MINIT_FUNCTION */
 PHP_MINIT_FUNCTION(identifier)
 {
+    /* Initialize globals */
+    ZEND_INIT_MODULE_GLOBALS(identifier, php_identifier_init_globals, NULL);
+
     /* Register all classes */
     php_identifier_context_register_classes();
     php_identifier_bit128_register_class();
@@ -77,6 +83,24 @@ zend_module_entry identifier_module_entry = {
     STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
+
+/* Initialize global state */
+#ifdef ZTS
+int identifier_globals_id;
+#else
+zend_identifier_globals identifier_globals;
+#endif
+
+ZEND_DECLARE_MODULE_GLOBALS(identifier)
+
+/* Globals initialization function */
+static void php_identifier_init_globals(zend_identifier_globals *identifier_globals)
+{
+    memset(identifier_globals, 0, sizeof(zend_identifier_globals));
+    identifier_globals->ulid_last_timestamp = 0;
+    memset(identifier_globals->ulid_last_randomness, 0, 10);
+    identifier_globals->ulid_randomness_initialized = 0;
+}
 
 #ifdef COMPILE_DL_IDENTIFIER
 #ifdef ZTS
