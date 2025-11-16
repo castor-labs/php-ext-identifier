@@ -6,119 +6,217 @@ Thank you for your interest in contributing to the PHP Identifier Extension! Thi
 
 ### Prerequisites
 
-- PHP 8.1 or higher with development headers
-- GCC or compatible C compiler
-- Make
+- PHP 8.1 or higher with development headers (`php-config` must be available)
+- Zig 0.15.2+ ([Download from ziglang.org](https://ziglang.org/download/))
 - Git
 
 ### Setting Up the Development Environment
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-org/php-ext-identifier.git
+git clone https://github.com/castor-labs/php-ext-identifier.git
 cd php-ext-identifier
 ```
 
-2. Set up the development environment:
+2. Build and test the extension:
 ```bash
-make dev-setup
+zig build dev  # Build + test in one command
 ```
 
-3. Build the extension:
+3. Verify the extension loads:
 ```bash
-make build
+php -d extension=./modules/identifier.so -m | grep identifier
 ```
 
-4. Run tests:
+## Understanding the Build System
+
+This project uses **Zig's build system** instead of traditional PHP extension build tools (phpize/autoconf). The build system:
+
+- Automatically discovers all `.c` files in the `src/` directory
+- Uses `php-config` to get PHP include paths and extension directories
+- Compiles everything into `modules/identifier.so`
+
+Key build commands:
 ```bash
-make test
+zig build              # Build the extension
+zig build test         # Run tests
+zig build dev          # Build + test
+zig build clean        # Clean build artifacts
+zig build generate-stubs     # Generate PHP stubs
+zig build verify-stubs       # Verify stubs match API
+```
+
+## Code Architecture
+
+### File Organization
+
+The codebase follows a **one-file-per-class** pattern:
+
+- `src/php_identifier.h` - Main header with all declarations
+- `src/php_identifier.c` - Extension initialization and utility functions
+- `src/bit128.c` - Base `Bit128` class implementation
+- `src/context.c` - Context interface registration
+- `src/context_system.c` - System context (uses real time/randomness)
+- `src/context_fixed.c` - Fixed context (deterministic for testing)
+- `src/uuid.c` - Base UUID class
+- `src/uuid_version{1,3,4,5,6,7}.c` - Individual UUID implementations
+- `src/ulid.c` - ULID implementation
+- `src/codec.c` - Base32 encoding/decoding
+
+### Class Hierarchy
+
+```
+Identifier\Context (interface)
+  ├── Identifier\Context\System
+  └── Identifier\Context\Fixed
+
+Identifier\Bit128 (implements Stringable)
+  ├── Identifier\Uuid (abstract)
+  │   ├── Version1, Version3, Version4, Version5, Version6, Version7
+  └── Identifier\Ulid
+
+Identifier\Codec (static utility class)
+```
+
+## Development Workflow
+
+### Adding a New Feature
+
+1. **Implement in C**: Add your implementation to the appropriate `.c` file (or create a new one in `src/`)
+2. **Add arginfo**: Define `ZEND_BEGIN_ARG_INFO` declarations for proper type hints
+3. **Register methods**: Add methods to the class's `zend_function_entry` array
+4. **Write tests**: Create `.phpt` test files in `tests/`
+5. **Build and test**: Run `zig build dev`
+6. **Generate stubs**: Run `zig build generate-stubs`
+7. **Verify stubs**: Run `zig build verify-stubs`
+8. **Update stubs**: Copy `stubs/identifier_gen.stub.php` to `stubs/identifier.stub.php`
+
+### Writing Tests
+
+Tests use the PHPT format:
+
+```phpt
+--TEST--
+Description of what this test does
+--SKIPIF--
+<?php if (!extension_loaded("identifier")) print "skip"; ?>
+--FILE--
+<?php
+// Your test code here
+?>
+--EXPECT--
+Expected output
+```
+
+Place test files in `tests/` and run with:
+```bash
+zig build test  # Run all tests
+php tools/run-tests.php -d extension=./modules/identifier.so tests/002-bit128.phpt  # Run single test
 ```
 
 ## Code Style
 
-- Follow PHP extension coding standards
-- Use consistent indentation (4 spaces for C code)
-- Add appropriate comments for complex logic
-- Format code with clang-format if available: `make format`
+### C Code Style
 
-## Testing
+- Follow standard PHP extension conventions
+- Use 4 spaces for indentation (not tabs)
+- Add descriptive comments for complex logic
+- Use PHP's memory allocators (`emalloc`, `efree`, etc.) - **never** use `malloc`/`free`
 
-- All new features must include tests
-- Tests should be written in PHP Test (PHPT) format
-- Place test files in the `tests/` directory
-- Run tests with `make test`
-- Check for memory leaks with `make valgrind` (if valgrind is available)
+### Common Patterns
+
+**Object structure** (always embed `zend_object` as last member):
+```c
+typedef struct _php_identifier_myclass_obj {
+    // Your data fields here
+    unsigned char data[16];
+    // zend_object MUST be last
+    zend_object std;
+} php_identifier_myclass_obj;
+```
+
+**Method implementation**:
+```c
+static PHP_METHOD(Identifier_MyClass, myMethod)
+{
+    zend_string *input;
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_STR(input)
+    ZEND_PARSE_PARAMETERS_END();
+
+    // Your implementation
+}
+```
+
+**Error handling**:
+```c
+if (some_error_condition) {
+    zend_throw_exception(zend_ce_exception, "Error message", 0);
+    RETURN_THROWS();
+}
+```
+
+### Important Guidelines
+
+**Memory Management**:
+- Always use `emalloc()`, `efree()`, `ecalloc()`, `erealloc()`
+- Never mix PHP allocators with system allocators
+- Handle reference counting properly for zval objects
+
+**Random Number Generation**:
+- Use `php_identifier_generate_random_bytes()` for cryptographic randomness
+- Never use OS functions directly (like `/dev/urandom` or `getrandom()`)
+
+**Timestamps**:
+- Use `php_identifier_get_timestamp_ms()` for millisecond timestamps
+- Use `php_identifier_get_gregorian_epoch_time()` for UUID v1/v6
+
+**Context System**:
+- All generator methods should accept optional `Context` parameter
+- Use `Context\System` for real randomness
+- Use `Context\Fixed` for deterministic testing
 
 ## Submitting Changes
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass: `make test`
-6. Commit your changes with descriptive messages
-7. Push to your fork: `git push origin feature/your-feature-name`
-8. Submit a pull request
+3. Make your changes following the workflow above
+4. Ensure all tests pass: `zig build dev`
+5. Commit with clear, descriptive messages
+6. Push to your fork: `git push origin feature/your-feature-name`
+7. Submit a pull request
 
-## Pull Request Guidelines
+### Pull Request Guidelines
 
 - Provide a clear description of the changes
 - Reference any related issues
 - Ensure all tests pass
-- Include documentation updates if needed
+- Include new tests for new functionality
+- Update stubs if API changes
 - Keep commits focused and atomic
 
 ## Reporting Issues
 
 When reporting issues, please include:
 
-- PHP version and extension version
-- Operating system and compiler information
+- PHP version (`php -v`)
+- Extension version
+- Zig version (`zig version`)
+- Operating system
 - Minimal code example that reproduces the issue
 - Expected vs actual behavior
 - Any error messages or stack traces
 
-## Development Guidelines
+## Getting Help
 
-### Adding New Features
-
-1. Update the stub file (`stubs/identifier.stub.php`) first
-2. Implement the C code
-3. Add comprehensive tests
-4. Update documentation
-
-### Code Organization
-
-- **Header files**: `src/php_identifier.h` - Main header with declarations
-- **Core files**: `src/php_identifier.c` - Extension initialization
-- **Class implementations**: `src/*.c` - Individual class implementations
-- **Tests**: `tests/*.phpt` - PHP test files
-- **Documentation**: `docs/` - API documentation
-
-### Memory Management
-
-- Always use PHP's memory management functions (`emalloc`, `efree`, etc.)
-- Check for memory leaks with valgrind
-- Properly handle reference counting for zval objects
-- Clean up resources in object destructors
-
-### Error Handling
-
-- Use appropriate PHP exception classes
-- Provide meaningful error messages
-- Validate input parameters thoroughly
-- Handle edge cases gracefully
+- Check the [stub file](stubs/identifier.stub.php) for API documentation
+- Review existing test files in `tests/` for usage examples
+- Look at existing implementations in `src/` for code patterns
+- Open an issue for questions or discussions
 
 ## License
 
 By contributing to this project, you agree that your contributions will be licensed under the MIT License.
-
-## Questions?
-
-If you have questions about contributing, please:
-
-1. Check existing issues and documentation
-2. Open a new issue for discussion
-3. Join our community discussions
 
 Thank you for contributing!

@@ -31,8 +31,6 @@ For production installation:
 zig build install-system  # Install to system PHP (requires sudo)
 ```
 
-See [docs/README.md](docs/README.md) for complete build documentation and development tools.
-
 ### Enable Extension
 
 Add to your `php.ini`:
@@ -87,19 +85,6 @@ Check the [stub file](stubs/identifier.stub.php) for a detailed API documentatio
 zig build test      # Run all tests
 zig build dev       # Build + test
 ```
-
-## Documentation
-
-For detailed documentation, see the [docs/README.md](docs/README.md) which covers:
-
-- **Build System** - Complete guide to Zig build commands and options
-- **Stub Generation** - Automatic PHP stub generation with rich documentation
-- **Development Workflow** - How to develop and contribute to the extension
-
-For comprehensive performance analysis, see [BENCH.md](BENCH.md) which includes:
-
-- **Comparison with popular libraries** - Head-to-head performance analysis
-- **Real-world performance impact** - Scalability and efficiency metrics
 
 ## Contributing
 
