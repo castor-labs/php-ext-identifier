@@ -1,0 +1,32 @@
+# Git attributes for PIE-compliant release archives
+# Files and directories marked with export-ignore will be excluded from release packages
+
+# Development and CI files
+.github export-ignore
+.claude export-ignore
+.local export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.releaserc.json export-ignore
+
+# Development documentation
+CLAUDE.md export-ignore
+CONTRIBUTING.md export-ignore
+
+# Test files and tools
+tests export-ignore
+tools export-ignore
+
+# Build artifacts and cache
+modules export-ignore
+.zig-cache export-ignore
+zig-cache export-ignore
+zig-out export-ignore
+
+# Development-only configuration
+mise.toml export-ignore
+
+# Old package files (if any)
+*.tgz export-ignore
+*.tar.gz export-ignore
+*.zip export-ignore

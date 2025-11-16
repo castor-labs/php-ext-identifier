@@ -1,0 +1,34 @@
+// config.w32 for extension identifier
+
+ARG_ENABLE("identifier", "enable identifier support", "no");
+
+if (PHP_IDENTIFIER != "no") {
+  // Check PHP version
+  if (PHP_VERSION < 8.1) {
+    ERROR("identifier requires PHP 8.1 or later");
+  }
+
+  // Source files to compile
+  EXTENSION("identifier",
+    "src\\php_identifier.c " +
+    "src\\bit128.c " +
+    "src\\codec.c " +
+    "src\\context.c " +
+    "src\\context_fixed.c " +
+    "src\\context_system.c " +
+    "src\\ulid.c " +
+    "src\\uuid.c " +
+    "src\\uuid_version1.c " +
+    "src\\uuid_version3.c " +
+    "src\\uuid_version4.c " +
+    "src\\uuid_version5.c " +
+    "src\\uuid_version6.c " +
+    "src\\uuid_version7.c"
+  );
+
+  // Add include paths
+  ADD_FLAG("CFLAGS_IDENTIFIER", "/I " + configure_module_dirname);
+  ADD_FLAG("CFLAGS_IDENTIFIER", "/I " + configure_module_dirname + "\\src");
+
+  AC_DEFINE('HAVE_IDENTIFIER', 1, 'Have identifier extension');
+}

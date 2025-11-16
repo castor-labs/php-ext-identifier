@@ -1,0 +1,43 @@
+# Build artifacts
+*.o
+*.so
+*.dep
+*.la
+*.lai
+.libs/
+modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+tests/*.diff
+tests/*.out
+tests/*.php
+tests/*.log
+tests/*.sh
+tests/*.exp
+tmp-php.ini
+
+# Temporary files
+tmp/
+temp/
+
+# Zig build artifacts
+.zig-cache/
+zig-out/
+
+# Generated stubs
+stubs/*_gen.stub.php
+
+# Generated packages
+*.tgz
+dist/
