@@ -3,6 +3,7 @@ name: Release Published
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   build-source:
@@ -12,6 +13,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Validate ref is a tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [[ ! "$GITHUB_REF" =~ ^refs/tags/ ]]; then
+            echo "Error: This workflow can only be manually triggered on a tag"
+            echo "Current ref: $GITHUB_REF"
+            exit 1
+          fi
 
       - name: Get release version
         id: version
@@ -73,6 +83,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Validate ref is a tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [[ ! "$GITHUB_REF" =~ ^refs/tags/ ]]; then
+            echo "Error: This workflow can only be manually triggered on a tag"
+            echo "Current ref: $GITHUB_REF"
+            exit 1
+          fi
 
       - name: Setup Zig
         uses: goto-bus-stop/setup-zig@v2
