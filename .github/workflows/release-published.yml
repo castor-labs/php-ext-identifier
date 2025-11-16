@@ -67,25 +67,12 @@ jobs:
             dist/php_identifier-${{ steps.version.outputs.VERSION }}-src.zip
 
   build-linux:
-    name: Build Linux (${{ matrix.php-version }}, ${{ matrix.arch }})
+    name: Build Linux (All Architectures)
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version: ['8.1', '8.2', '8.3', '8.4']
-        arch: ['x86_64', 'aarch64']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: none
-          coverage: none
 
       - name: Setup Zig
         uses: goto-bus-stop/setup-zig@v2
@@ -96,52 +83,26 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build extension
+      - name: Build for all PHP versions and architectures
         run: |
-          if [ "${{ matrix.arch }}" = "x86_64" ]; then
-            zig build -Doptimize=ReleaseFast
-          else
-            zig build -Doptimize=ReleaseFast -Dtarget=aarch64-linux-gnu
-          fi
-
-      - name: Create distribution directory
-        run: mkdir -p dist
-
-      - name: Package extension (Linux)
-        run: |
-          mkdir -p "identifier-${{ steps.version.outputs.VERSION }}"
-          cp modules/identifier.so "identifier-${{ steps.version.outputs.VERSION }}/"
-          tar -czf "dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php-version }}-nts-linux-${{ matrix.arch }}.tar.gz" \
-                   "identifier-${{ steps.version.outputs.VERSION }}"
-          rm -rf "identifier-${{ steps.version.outputs.VERSION }}"
+          for PHP_VERSION in 8.1 8.2 8.3 8.4; do
+            echo "Building for PHP $PHP_VERSION..."
+            ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}" linux "$PHP_VERSION"
+          done
 
       - name: Upload Linux artifacts to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ steps.version.outputs.VERSION }} \
-            dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php-version }}-nts-linux-${{ matrix.arch }}.tar.gz
+          gh release upload ${{ steps.version.outputs.VERSION }} dist/php_identifier-${{ steps.version.outputs.VERSION }}-*-linux-*.tar.gz
 
   build-macos:
-    name: Build macOS (${{ matrix.php-version }}, ${{ matrix.arch }})
+    name: Build macOS (All Architectures)
     runs-on: macos-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version: ['8.1', '8.2', '8.3', '8.4']
-        arch: ['x86_64', 'arm64']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: none
-          coverage: none
 
       - name: Setup Zig
         uses: goto-bus-stop/setup-zig@v2
@@ -152,54 +113,26 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build extension
+      - name: Build for all PHP versions and architectures
         run: |
-          if [ "${{ matrix.arch }}" = "x86_64" ]; then
-            zig build -Doptimize=ReleaseFast -Dtarget=x86_64-macos
-          else
-            zig build -Doptimize=ReleaseFast -Dtarget=aarch64-macos
-          fi
-
-      - name: Create distribution directory
-        run: mkdir -p dist
-
-      - name: Package extension (macOS)
-        run: |
-          mkdir -p "identifier-${{ steps.version.outputs.VERSION }}"
-          cp modules/identifier.so "identifier-${{ steps.version.outputs.VERSION }}/"
-          tar -czf "dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php-version }}-nts-macos-${{ matrix.arch }}.tar.gz" \
-                   "identifier-${{ steps.version.outputs.VERSION }}"
-          rm -rf "identifier-${{ steps.version.outputs.VERSION }}"
+          for PHP_VERSION in 8.1 8.2 8.3 8.4; do
+            echo "Building for PHP $PHP_VERSION..."
+            ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}" macos "$PHP_VERSION"
+          done
 
       - name: Upload macOS artifacts to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ steps.version.outputs.VERSION }} \
-            dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php-version }}-nts-macos-${{ matrix.arch }}.tar.gz
+          gh release upload ${{ steps.version.outputs.VERSION }} dist/php_identifier-${{ steps.version.outputs.VERSION }}-*-macos-*.tar.gz
 
   build-windows:
-    name: Build Windows (${{ matrix.php-version }}, ${{ matrix.arch }}, ${{ matrix.ts }})
+    name: Build Windows (All Architectures)
     runs-on: windows-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version: ['8.1', '8.2', '8.3', '8.4']
-        arch: ['x64', 'arm64']
-        ts: ['ts', 'nts']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: none
-          coverage: none
-          ts: ${{ matrix.ts }}
 
       - name: Setup Zig
         uses: goto-bus-stop/setup-zig@v2
@@ -211,71 +144,17 @@ jobs:
         shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Normalize architecture
-        id: norm_arch
+      - name: Build for all PHP versions and architectures
         shell: bash
         run: |
-          if [ "${{ matrix.arch }}" = "x64" ]; then
-            echo "NORM_ARCH=x86_64" >> $GITHUB_OUTPUT
-            echo "ZIG_ARCH=x86_64" >> $GITHUB_OUTPUT
-          else
-            echo "NORM_ARCH=arm64" >> $GITHUB_OUTPUT
-            echo "ZIG_ARCH=aarch64" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Build extension
-        shell: bash
-        run: |
-          if [ "${{ steps.norm_arch.outputs.ZIG_ARCH }}" = "x86_64" ]; then
-            zig build -Doptimize=ReleaseFast
-          else
-            zig build -Doptimize=ReleaseFast -Dtarget=aarch64-windows
-          fi
-
-      - name: Create distribution directory
-        shell: bash
-        run: mkdir -p dist
-
-      - name: Detect Visual Studio version
-        id: vs_version
-        shell: pwsh
-        run: |
-          $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsPath = & $vsWhere -latest -property installationPath
-          $vsVersion = & $vsWhere -latest -property installationVersion
-          $vsMajor = $vsVersion.Split('.')[0]
-
-          # Map VS version to compiler identifier
-          $compiler = switch ($vsMajor) {
-            "17" { "vs17" }
-            "16" { "vs16" }
-            "15" { "vs15" }
-            default { "vs16" }
-          }
-
-          echo "COMPILER=$compiler" >> $env:GITHUB_OUTPUT
-
-      - name: Package extension (Windows)
-        shell: bash
-        run: |
-          # Create PIE-compliant ZIP package
-          # Format: php_identifier-{version}-{php-version}-{ts|nts}-{compiler}-{arch}.zip
-          FILENAME="php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php-version }}-${{ matrix.ts }}-${{ steps.vs_version.outputs.COMPILER }}-${{ steps.norm_arch.outputs.NORM_ARCH }}"
-
-          mkdir -p "${FILENAME}"
-
-          # Copy the DLL with PIE-compliant naming
-          cp modules/identifier.dll "${FILENAME}/${FILENAME}.dll"
-
-          # Create ZIP
-          7z a "dist/${FILENAME}.zip" "${FILENAME}/"
-
-          rm -rf "${FILENAME}"
+          for PHP_VERSION in 8.1 8.2 8.3 8.4; do
+            echo "Building for PHP $PHP_VERSION..."
+            ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}" windows "$PHP_VERSION"
+          done
 
       - name: Upload Windows artifacts to release
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FILENAME="php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php-version }}-${{ matrix.ts }}-${{ steps.vs_version.outputs.COMPILER }}-${{ steps.norm_arch.outputs.NORM_ARCH }}"
-          gh release upload ${{ steps.version.outputs.VERSION }} "dist/${FILENAME}.zip"
+          gh release upload ${{ steps.version.outputs.VERSION }} dist/*.zip
