@@ -1,0 +1,68 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  validate:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check PR title format
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Allowed types (must match semantic-release config)
+          types: |
+            feat
+            fix
+            perf
+            revert
+            docs
+            style
+            refactor
+            test
+            build
+            ci
+            chore
+
+          # Allow issue references after type: feat(#11): description
+          subjectPattern: ^(?:\(#\d+\))?\s*.+$
+
+          # Validate the entire title matches conventional commit format
+          # Examples:
+          #   feat: add new feature
+          #   feat(#11): add new feature
+          #   fix: resolve bug
+          #   fix(#12): resolve critical bug
+          headerPattern: '^(\w+)(?:\(#\d+\))?: (.+)$'
+          headerPatternCorrespondence: type, subject
+
+          # Require lowercase types
+          requireScope: false
+
+          # Validate subject (description) is not empty
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            doesn't match the configured pattern.
+
+            Please ensure your PR title follows this format:
+              <type>: <description>
+              <type>(#issue): <description>
+
+            Examples:
+              feat: implement new feature
+              feat(#11): implement new feature
+              fix: resolve authentication bug
+              fix(#12): resolve critical bug
+
+          # Ignore merge commits
+          ignoreLabels: |
+            ignore-semantic-check
