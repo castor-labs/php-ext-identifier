@@ -1,0 +1,31 @@
+{
+  "name": "castor-labs/identifier",
+  "type": "php-ext",
+  "description": "High-performance 128-bit identifier extension for PHP (UUIDs and ULIDs)",
+  "keywords": [
+    "uuid",
+    "ulid",
+    "identifier",
+    "guid",
+    "php-extension",
+    "128-bit",
+    "rfc4122",
+    "rfc9562"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Matias Navarro-Carter",
+      "email": "mnavarrocarter@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.1"
+  },
+  "php-ext": {
+    "extension-name": "identifier",
+    "support-zts": true,
+    "support-nts": true,
+    "configure-options": []
+  }
+}
