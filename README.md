@@ -6,7 +6,8 @@ A high-performance PHP extension for working with 128-bit identifiers including 
 
 - **128-bit Base Class**: `Identifier\Bit128` for all 128-bit identifiers
 - **Complete UUID Support**: All UUID versions (1, 3, 4, 5, 6, 7) with proper RFC compliance
-- **ULID Support**: Universally Unique Lexicographically Sortable Identifiers
+- **ULID Support**: Universally Unique Lexicographically Sortable Identifiers with monotonic ordering
+- **Thread Safety**: Full thread safety for ULID monotonic generation using TSRM (Thread Safe Resource Manager)
 - **Context System**: Deterministic generation for testing with `FixedContext`
 - **Exceptional Performance**: Native C implementation delivering 9.9M+ ULID ops/sec, 2.8M+ UUID ops/sec
 - **Type Safety**: Proper PHP class hierarchy with inheritance
@@ -74,6 +75,37 @@ $ulid = Ulid::generate($ctx);
 
 // Both calls with same context will produce same results
 ```
+
+## Thread Safety
+
+This extension is **fully thread-safe** for ULID monotonic generation in multi-threaded PHP environments (ZTS builds). The implementation uses PHP's TSRM (Thread Safe Resource Manager) to ensure proper thread isolation.
+
+### How Thread Safety Works
+
+- **Thread Isolation**: Each thread maintains its own monotonic state (last timestamp and randomness)
+- **Zero Contention**: No locks or synchronization required - each thread operates independently
+- **Monotonic Ordering**: ULIDs generated within a single thread are guaranteed to be monotonically increasing
+- **Performance**: Thread safety comes with zero performance overhead
+
+### Compatibility
+
+- ✅ **Apache mod_php** (both threaded and non-threaded)
+- ✅ **Apache mod_worker** (requires ZTS PHP build)
+- ✅ **Windows IIS** (requires ZTS PHP build)
+- ✅ **PHP-FPM** (process-based, inherently thread-safe)
+- ✅ **CLI** (single-threaded by default)
+
+### Build Considerations
+
+The same extension binary works for both ZTS (thread-safe) and non-ZTS PHP builds:
+
+```bash
+# Check if your PHP build supports threading
+php -m | grep -i zts
+php-config --configure-options | grep -i zts
+```
+
+For web servers that use threading (like Apache mod_worker or IIS), ensure you're using a ZTS PHP build to get full thread safety benefits.
 
 ## API Documentation
 

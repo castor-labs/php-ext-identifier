@@ -36,10 +36,7 @@ ZEND_END_ARG_INFO()
 #define ULID_TOTAL_BYTES 16
 #define ULID_STRING_LENGTH 26
 
-/* Static variables for monotonic generation */
-static uint64_t last_timestamp = 0;
-static unsigned char last_randomness[ULID_RANDOMNESS_BYTES];
-static int randomness_initialized = 0;
+/* Thread-safe monotonic state is now stored in module globals (see php_identifier.h) */
 
 /* Forward declarations */
 extern zend_class_entry *php_identifier_codec_ce;
@@ -167,9 +164,9 @@ static PHP_METHOD(Identifier_Ulid, generate)
     /* Generate randomness */
     unsigned char randomness[ULID_RANDOMNESS_BYTES];
 
-    if (current_timestamp == last_timestamp && randomness_initialized) {
+    if (current_timestamp == IDENTIFIER_G(ulid_last_timestamp) && IDENTIFIER_G(ulid_randomness_initialized)) {
         /* Same timestamp - increment randomness for monotonic ordering */
-        memcpy(randomness, last_randomness, ULID_RANDOMNESS_BYTES);
+        memcpy(randomness, IDENTIFIER_G(ulid_last_randomness), ULID_RANDOMNESS_BYTES);
         if (!increment_randomness(randomness)) {
             /* Randomness overflow - this should be extremely rare */
             zend_class_entry *out_of_bounds_ce = zend_lookup_class(zend_string_init("OutOfBoundsException", strlen("OutOfBoundsException"), 0));
@@ -200,10 +197,10 @@ static PHP_METHOD(Identifier_Ulid, generate)
         }
     }
 
-    /* Update static state for monotonic generation */
-    last_timestamp = current_timestamp;
-    memcpy(last_randomness, randomness, ULID_RANDOMNESS_BYTES);
-    randomness_initialized = 1;
+    /* Update thread-local state for monotonic generation */
+    IDENTIFIER_G(ulid_last_timestamp) = current_timestamp;
+    memcpy(IDENTIFIER_G(ulid_last_randomness), randomness, ULID_RANDOMNESS_BYTES);
+    IDENTIFIER_G(ulid_randomness_initialized) = 1;
 
     /* Create ULID bytes: 6 bytes timestamp + 10 bytes randomness */
     unsigned char ulid_bytes[ULID_TOTAL_BYTES];

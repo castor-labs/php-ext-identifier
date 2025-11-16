@@ -18,6 +18,21 @@ extern zend_module_entry identifier_module_entry;
 #include "TSRM.h"
 #endif
 
+/* Thread-safe globals for ULID monotonic state */
+ZEND_BEGIN_MODULE_GLOBALS(identifier)
+    uint64_t ulid_last_timestamp;
+    unsigned char ulid_last_randomness[10]; /* ULID_RANDOMNESS_BYTES */
+    int ulid_randomness_initialized;
+ZEND_END_MODULE_GLOBALS(identifier)
+
+#ifdef ZTS
+#define IDENTIFIER_G(v) TSRMG(identifier_globals_id, zend_identifier_globals *, v)
+extern int identifier_globals_id;
+#else
+#define IDENTIFIER_G(v) (identifier_globals.v)
+extern zend_identifier_globals identifier_globals;
+#endif
+
 /* Class entries */
 extern zend_class_entry *php_identifier_context_ce;
 extern zend_class_entry *php_identifier_context_system_ce;
