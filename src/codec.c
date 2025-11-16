@@ -4,6 +4,33 @@
 #include <ctype.h>
 #include <math.h>
 
+/**
+ * Codec class for encoding and decoding binary data
+ *
+ * Provides flexible encoding/decoding functionality with support for various
+ * alphabets including Base32, Base58, and Base64 variants. This is primarily
+ * used for ULID string encoding (Crockford Base32) but can be used with any
+ * custom alphabet.
+ *
+ * Common use cases:
+ * - Base32 RFC4648 encoding (standard Base32)
+ * - Base32 Crockford encoding (used by ULIDs, excludes ambiguous characters)
+ * - Base58 Bitcoin encoding (no 0, O, I, l to avoid confusion)
+ * - Base64 variants (standard, URL-safe, MIME)
+ *
+ * @example
+ * // Use predefined Crockford Base32 (for ULIDs)
+ * $codec = Codec::base32Crockford();
+ * $encoded = $codec->encode(random_bytes(16));
+ * $decoded = $codec->decode($encoded);
+ *
+ * // Create custom alphabet
+ * $codec = new Codec('0123456789ABCDEF', null); // Hex encoding
+ * $hex = $codec->encode($binaryData);
+ *
+ * @since 1.0.0
+ */
+
 /* Arginfo declarations */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_codec_construct, 0, 0, 1)
     ZEND_ARG_TYPE_INFO(0, alphabet, IS_STRING, 0)
@@ -696,7 +723,7 @@ static const zend_function_entry php_identifier_codec_methods[] = {
 void php_identifier_codec_init(void)
 {
     zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "Encoding\\Codec", php_identifier_codec_methods);
+    INIT_NS_CLASS_ENTRY(ce, "Encoding", "Codec", php_identifier_codec_methods);
     php_identifier_codec_ce = zend_register_internal_class(&ce);
 
     /* Set up object handlers */
@@ -706,10 +733,16 @@ void php_identifier_codec_init(void)
     php_identifier_codec_ce->create_object = php_identifier_codec_create_object;
 
     /* Register alphabet constants */
+    /** Standard Base32 alphabet as defined in RFC 4648 (A-Z, 2-7) */
     zend_declare_class_constant_string(php_identifier_codec_ce, "BASE32_RFC4648", sizeof("BASE32_RFC4648")-1, BASE32_RFC4648_ALPHABET);
+    /** Crockford Base32 alphabet (0-9, A-Z excluding I, L, O, U) - used by ULIDs */
     zend_declare_class_constant_string(php_identifier_codec_ce, "BASE32_CROCKFORD", sizeof("BASE32_CROCKFORD")-1, BASE32_CROCKFORD_ALPHABET);
+    /** Bitcoin Base58 alphabet (excludes 0, O, I, l to avoid confusion) */
     zend_declare_class_constant_string(php_identifier_codec_ce, "BASE58_BITCOIN", sizeof("BASE58_BITCOIN")-1, BASE58_BITCOIN_ALPHABET);
+    /** Standard Base64 alphabet (A-Z, a-z, 0-9, +, /) as defined in RFC 4648 */
     zend_declare_class_constant_string(php_identifier_codec_ce, "BASE64_STANDARD", sizeof("BASE64_STANDARD")-1, BASE64_STANDARD_ALPHABET);
+    /** URL-safe Base64 alphabet (A-Z, a-z, 0-9, -, _) for use in URLs and filenames */
     zend_declare_class_constant_string(php_identifier_codec_ce, "BASE64_URLSAFE", sizeof("BASE64_URLSAFE")-1, BASE64_URLSAFE_ALPHABET);
+    /** MIME Base64 alphabet (same as standard but with line breaks every 76 characters) */
     zend_declare_class_constant_string(php_identifier_codec_ce, "BASE64_MIME", sizeof("BASE64_MIME")-1, BASE64_MIME_ALPHABET);
 }

@@ -6,15 +6,66 @@
  * Generated from extension reflection with full C source documentation.
  * 
  * @version 1.0.0
- * @generated 2025-11-15 22:19:58
+ * @generated 2025-11-16 07:06:45
  */
 
 namespace Identifier
 {
-    class Context
+    /**
+     * Context interface for identifier generation
+     * Defines the interface for controlling time and randomness sources during
+     * identifier generation. Contexts allow you to customize how timestamps and
+     * random bytes are generated, which is particularly useful for testing
+     * with deterministic values or for using alternative time sources.
+     * Two implementations are provided:
+     * - Context\System - Uses real system time and cryptographically secure randomness
+     * - Context\Fixed - Uses fixed/deterministic values for reproducible testing
+     * 
+     * @since 1.0.0
+     */
+    interface Context
     {
+        /**
+         * Get the current timestamp in milliseconds
+         * Returns the timestamp in milliseconds since Unix epoch (January 1, 1970).
+         * This is used for generating time-based identifiers like UUIDs v7 and ULIDs.
+         * 
+         * @return int Timestamp in milliseconds since Unix epoch
+         * @since 1.0.0
+         */
+        public function getTimestampMs(): int {}
+
+        /**
+         * Get the current time as Gregorian epoch time
+         * Returns the current time in 100-nanosecond intervals since the Gregorian
+         * epoch (October 15, 1582). This is used for UUID v1 and v6 timestamps.
+         * 
+         * @return int Timestamp in 100-nanosecond intervals since Gregorian epoch
+         * @since 1.0.0
+         */
+        public function getGregorianEpochTime(): int {}
+
+        /**
+         * Generate random bytes
+         * Returns a string of random bytes. The implementation determines whether
+         * these are cryptographically secure (System) or deterministic (Fixed).
+         * 
+         * @param int $length Number of random bytes to generate (1-1024)
+         * @return string Binary string of random bytes
+         * @throws Exception If length is out of valid range
+         * @since 1.0.0
+         */
+        public function getRandomBytes(int $length): string {}
+
     }
 
+    /**
+     * Create a new 128-bit identifier from bytes
+     * Constructs a new Bit128 instance from exactly 16 bytes of binary data.
+     * This is the base class for all 128-bit identifiers in this extension.
+     * 
+     * @since 1.0.0
+     */
     class Bit128 implements \Stringable
     {
         /**
@@ -203,6 +254,13 @@ namespace Identifier
 
     }
 
+    /**
+     * Get the UUID version number
+     * Returns the version number stored in bits 12-15 of the time_hi_and_version field.
+     * This indicates which UUID generation algorithm was used.
+     * 
+     * @since 1.0.0
+     */
     class Uuid extends \Identifier\Bit128 implements \Stringable
     {
         /**
@@ -392,6 +450,14 @@ namespace Identifier
 
     }
 
+    /**
+     * Generate a new ULID (Universally Unique Lexicographically Sortable Identifier)
+     * Creates a new ULID with a timestamp component and random component.
+     * ULIDs are lexicographically sortable and encode a timestamp, making them
+     * ideal for use as database primary keys and distributed system identifiers.
+     * 
+     * @since 1.0.0
+     */
     final class Ulid extends \Identifier\Bit128 implements \Stringable
     {
         /**
@@ -1414,31 +1480,244 @@ namespace Identifier\Uuid
 
 namespace Encoding
 {
+    /**
+     * Codec class for encoding and decoding binary data
+     * Provides flexible encoding/decoding functionality with support for various
+     * alphabets including Base32, Base58, and Base64 variants. This is primarily
+     * used for ULID string encoding (Crockford Base32) but can be used with any
+     * custom alphabet.
+     * Common use cases:
+     * - Base32 RFC4648 encoding (standard Base32)
+     * - Base32 Crockford encoding (used by ULIDs, excludes ambiguous characters)
+     * - Base58 Bitcoin encoding (no 0, O, I, l to avoid confusion)
+     * - Base64 variants (standard, URL-safe, MIME)
+     * 
+     * @since 1.0.0
+     */
     class Codec
     {
+        /** Standard Base32 alphabet as defined in RFC 4648 (A-Z, 2-7) */
         public const BASE32_RFC4648 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        /** Crockford Base32 alphabet (0-9, A-Z excluding I, L, O, U) - used by ULIDs */
         public const BASE32_CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+        /** Bitcoin Base58 alphabet (excludes 0, O, I, l to avoid confusion) */
         public const BASE58_BITCOIN = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        /** Standard Base64 alphabet (A-Z, a-z, 0-9, +, /) as defined in RFC 4648 */
         public const BASE64_STANDARD = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        /** URL-safe Base64 alphabet (A-Z, a-z, 0-9, -, _) for use in URLs and filenames */
         public const BASE64_URLSAFE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+        /** MIME Base64 alphabet (same as standard but with line breaks every 76 characters) */
         public const BASE64_MIME = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
+        /**
+         * Codec class for encoding and decoding binary data
+         * Provides flexible encoding/decoding functionality with support for various
+         * alphabets including Base32, Base58, and Base64 variants. This is primarily
+         * used for ULID string encoding (Crockford Base32) but can be used with any
+         * custom alphabet.
+         * Common use cases:
+         * - Base32 RFC4648 encoding (standard Base32)
+         * - Base32 Crockford encoding (used by ULIDs, excludes ambiguous characters)
+         * - Base58 Bitcoin encoding (no 0, O, I, l to avoid confusion)
+         * - Base64 variants (standard, URL-safe, MIME)
+         * 
+         * 
+         * @example
+         * ```php
+         * // Use predefined Crockford Base32 (for ULIDs)
+         * $codec = Codec::base32Crockford();
+         * $encoded = $codec->encode(random_bytes(16));
+         * $decoded = $codec->decode($encoded);
+         * // Create custom alphabet
+         * $codec = new Codec('0123456789ABCDEF', null); // Hex encoding
+         * $hex = $codec->encode($binaryData);
+         * ```
+         * @since 1.0.0
+         */
         public function __construct(string $alphabet, ?string $padding = NULL) {}
 
+        /**
+         * Encode binary data using the codec's alphabet
+         * Converts binary data into a string representation using the codec's
+         * character alphabet. The encoding is reversible using the decode() method.
+         * 
+         * @param string $data Binary data to encode
+         * @return string Encoded string using the codec's alphabet
+         * @throws Exception If encoding fails
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base32Crockford();
+         * $data = random_bytes(16);
+         * $encoded = $codec->encode($data);
+         * echo $encoded; // e.g., "91JPRV3F5GG7EVVG91IMKM"
+         * // Verify round-trip encoding
+         * $decoded = $codec->decode($encoded);
+         * var_dump($data === $decoded); // bool(true)
+         * ```
+         * @since 1.0.0
+         */
         public function encode(string $data): string {}
 
+        /**
+         * Decode string data back to binary using the codec's alphabet
+         * Converts a string encoded with this codec back to its original binary form.
+         * The string must contain only characters from the codec's alphabet and
+         * optional padding characters.
+         * 
+         * @param string $encoded Encoded string to decode
+         * @return string Original binary data
+         * @throws Exception If string contains invalid characters or decoding fails
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base64Standard();
+         * $encoded = "SGVsbG8gV29ybGQ="; // "Hello World" in Base64
+         * $decoded = $codec->decode($encoded);
+         * echo $decoded; // "Hello World"
+         * // Handle invalid input
+         * try {
+         * $codec->decode("Invalid@Characters!");
+         * } catch (Exception $e) {
+         * echo "Decoding failed: " . $e->getMessage();
+         * }
+         * ```
+         * @since 1.0.0
+         */
         public function decode(string $encoded): string {}
 
+        /**
+         * Create a Base32 codec using RFC 4648 alphabet
+         * Returns a codec configured for standard Base32 encoding as defined in RFC 4648.
+         * Uses the alphabet A-Z and 2-7 with '=' padding. This is the standard Base32
+         * encoding used in many applications.
+         * 
+         * @return Codec Base32 RFC 4648 codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base32Rfc4648();
+         * $encoded = $codec->encode("Hello World");
+         * echo $encoded; // "JBSWY3DPEBLW64TMMQQQ===="
+         * $decoded = $codec->decode("JBSWY3DPEBLW64TMMQQQ====");
+         * echo $decoded; // "Hello World"
+         * ```
+         * @since 1.0.0
+         */
         public static function base32Rfc4648(?string $padding = NULL): \Encoding\Codec {}
 
+        /**
+         * Create a Base32 codec using Crockford alphabet
+         * Returns a codec configured for Crockford Base32 encoding. This encoding
+         * excludes ambiguous characters (0, 1, I, L, O, U) and is case-insensitive.
+         * It's designed to be human-readable and error-resistant.
+         * 
+         * @return Codec Base32 Crockford codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base32Crockford();
+         * $encoded = $codec->encode("Hello World");
+         * echo $encoded; // "91JPRV3F5GG7EVVG91IMKM"
+         * // Case-insensitive decoding
+         * $decoded1 = $codec->decode("91JPRV3F5GG7EVVG91IMKM");
+         * $decoded2 = $codec->decode("91jprv3f5gg7evvg91imkm");
+         * var_dump($decoded1 === $decoded2); // bool(true)
+         * ```
+         * @since 1.0.0
+         */
         public static function base32Crockford(?string $padding = NULL): \Encoding\Codec {}
 
+        /**
+         * Create a Base58 codec using Bitcoin alphabet
+         * Returns a codec configured for Base58 encoding as used by Bitcoin.
+         * This encoding excludes confusing characters (0, O, I, l) and produces
+         * shorter strings than Base64 while remaining human-readable.
+         * 
+         * @return Codec Base58 Bitcoin codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base58Bitcoin();
+         * $encoded = $codec->encode("Hello World");
+         * echo $encoded; // "JxF12TrwUP45BMd"
+         * // Commonly used for Bitcoin addresses and keys
+         * $hash = hash('sha256', 'some data', true);
+         * $encoded = $codec->encode($hash);
+         * echo strlen($encoded); // Shorter than Base64
+         * ```
+         * @since 1.0.0
+         */
         public static function base58Bitcoin(?string $padding = NULL): \Encoding\Codec {}
 
+        /**
+         * Create a Base64 codec using standard alphabet
+         * Returns a codec configured for standard Base64 encoding as defined in RFC 4648.
+         * Uses A-Z, a-z, 0-9, +, / with '=' padding. This is the most common Base64
+         * encoding used in email, web, and data storage applications.
+         * 
+         * @return Codec Base64 standard codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base64Standard();
+         * $encoded = $codec->encode("Hello World");
+         * echo $encoded; // "SGVsbG8gV29ybGQ="
+         * // Same as PHP's built-in base64_encode
+         * $data = "Any binary data";
+         * $encoded1 = $codec->encode($data);
+         * $encoded2 = base64_encode($data);
+         * var_dump($encoded1 === $encoded2); // bool(true)
+         * ```
+         * @since 1.0.0
+         */
         public static function base64Standard(?string $padding = NULL): \Encoding\Codec {}
 
+        /**
+         * Create a Base64 codec using URL-safe alphabet
+         * Returns a codec configured for URL-safe Base64 encoding. Uses A-Z, a-z, 0-9,
+         * -, _ instead of +, / to avoid issues in URLs and filenames. Padding may be
+         * omitted in some applications.
+         * 
+         * @return Codec Base64 URL-safe codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base64UrlSafe();
+         * $encoded = $codec->encode("Hello World");
+         * echo $encoded; // "SGVsbG8gV29ybGQ="
+         * // Safe for use in URLs and filenames
+         * $data = random_bytes(16);
+         * $encoded = $codec->encode($data);
+         * $url = "https://example.com/data/" . $encoded;
+         * // No need to URL-encode the result
+         * ```
+         * @since 1.0.0
+         */
         public static function base64UrlSafe(?string $padding = NULL): \Encoding\Codec {}
 
+        /**
+         * Create a Base64 codec using MIME alphabet with line breaks
+         * Returns a codec configured for MIME Base64 encoding. Uses the same alphabet
+         * as standard Base64 but adds line breaks every 76 characters as required
+         * by MIME specifications for email attachments.
+         * 
+         * @return Codec Base64 MIME codec instance
+         * 
+         * @example
+         * ```php
+         * $codec = Codec::base64Mime();
+         * $longData = str_repeat("Hello World! ", 20);
+         * $encoded = $codec->encode($longData);
+         * // Output will have line breaks every 76 characters
+         * echo $encoded;
+         * // Suitable for email attachments
+         * $fileData = file_get_contents('document.pdf');
+         * $mimeEncoded = $codec->encode($fileData);
+         * // Can be safely included in email body
+         * ```
+         * @since 1.0.0
+         */
         public static function base64Mime(?string $padding = NULL): \Encoding\Codec {}
 
     }

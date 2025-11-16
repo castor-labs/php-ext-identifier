@@ -10,33 +10,53 @@
 class CSourceDocParser {
     private array $methodDocs = [];
     private array $classDocs = [];
-    
+    private array $constantDocs = [];
+
     public function parseSourceDirectory(string $sourceDir): void {
         $files = glob($sourceDir . '/*.c');
         foreach ($files as $file) {
             $this->parseSourceFile($file);
         }
     }
-    
+
     private function parseSourceFile(string $filename): void {
         $content = file_get_contents($filename);
         if (!$content) return;
-        
+
         // Parse class documentation
         $this->parseClassDocs($content);
-        
+
         // Parse method documentation
         $this->parseMethodDocs($content);
+
+        // Parse constant documentation
+        $this->parseConstantDocs($content);
     }
     
     private function parseClassDocs(string $content): void {
-        // Look for class documentation comments before class registration
-        $pattern = '/\/\*\*\s*\n(.*?)\*\/\s*.*?register.*?class.*?(\w+)/s';
-        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+        // Look for class/interface documentation comments before INIT_NS_CLASS_ENTRY
+        // Pattern: /** doc */ ... INIT_NS_CLASS_ENTRY(ce, "Namespace", "ClassName", ...)
+        $pattern1 = '/\/\*\*\s*\n(.*?)\*\/\s*.*?INIT_NS_CLASS_ENTRY\s*\(\s*\w+,\s*"([^"]*)",\s*"([^"]*)"[^)]*\)/s';
+        if (preg_match_all($pattern1, $content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $docComment = $this->parseDocComment($match[1]);
-                $className = $match[2];
-                $this->classDocs[$className] = $docComment;
+                $namespace = $match[2];
+                $className = $match[3];
+                // Build full class name like "Identifier\Context"
+                $fullName = $namespace ? $namespace . '\\' . $className : $className;
+                $this->classDocs[$fullName] = $docComment;
+            }
+        }
+
+        // Also look for INIT_CLASS_ENTRY with fully qualified name
+        // Pattern: /** doc */ [whitespace only] zend_class_entry ce; INIT_CLASS_ENTRY(ce, "Namespace\\ClassName", ...)
+        // Only match whitespace (spaces, tabs, newlines) between */ and zend_class_entry
+        $pattern2 = '/\/\*\*\s*\n(.*?)\*\/\s+zend_class_entry\s+ce;\s*INIT_CLASS_ENTRY\s*\(\s*ce,\s*"([^"]*)"[^)]*\)/s';
+        if (preg_match_all($pattern2, $content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $docComment = $this->parseDocComment($match[1]);
+                $fullName = $match[2];
+                $this->classDocs[$fullName] = $docComment;
             }
         }
     }
@@ -50,6 +70,28 @@ class CSourceDocParser {
                 // Convert Identifier_Uuid_Version4 to Identifier\Uuid\Version4
                 $className = str_replace('_', '\\', $match[2]);
                 $methodName = $match[3];
+
+                // Store both with and without Identifier\ prefix to handle both cases
+                // E.g., Identifier\Encoding\Codec -> also store as Encoding\Codec
+                $this->methodDocs[$className][$methodName] = $docComment;
+
+                // Also store without Identifier\ prefix if present
+                if (str_starts_with($className, 'Identifier\\')) {
+                    $classNameWithoutPrefix = substr($className, strlen('Identifier\\'));
+                    $this->methodDocs[$classNameWithoutPrefix][$methodName] = $docComment;
+                }
+            }
+        }
+
+        // Also look for documentation before ZEND_ABSTRACT_ME_WITH_FLAGS (for interface methods)
+        // Use negative lookahead to prevent matching across multiple doc comments
+        $pattern2 = '/\/\*\*\s*\n((?:(?!\/\*\*).)*?)\*\/\s*ZEND_ABSTRACT_ME(?:_WITH_FLAGS)?\s*\(\s*([^,]+),\s*([^,]+)/s';
+        if (preg_match_all($pattern2, $content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $docComment = $this->parseDocComment($match[1]);
+                // Convert Identifier_Context to Identifier\Context
+                $className = str_replace('_', '\\', $match[2]);
+                $methodName = trim($match[3]);
 
                 $this->methodDocs[$className][$methodName] = $docComment;
             }
@@ -120,12 +162,41 @@ class CSourceDocParser {
         return $doc;
     }
 
+    private function parseConstantDocs(string $content): void {
+        // Look for single-line documentation comments before zend_declare_class_constant_string
+        // Pattern: /** doc */ zend_declare_class_constant_string(class_ce, "CONST_NAME", ...)
+        // Only match single-line /** ... */ comments (no newlines inside)
+        $pattern = '/\/\*\*\s*([^\n]*?)\s*\*\/\s*zend_declare_class_constant_string\s*\(\s*(\w+),\s*"([^"]+)"/';
+        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $docText = trim($match[1]);
+                $classCe = $match[2];  // e.g., php_identifier_codec_ce
+                $constantName = $match[3];
+
+                // Map class CE variable names to class names
+                // This is a simple mapping - could be enhanced if needed
+                $classNameMap = [
+                    'php_identifier_codec_ce' => 'Encoding\\Codec',
+                ];
+
+                if (isset($classNameMap[$classCe])) {
+                    $className = $classNameMap[$classCe];
+                    $this->constantDocs[$className][$constantName] = $docText;
+                }
+            }
+        }
+    }
+
     public function getMethodDoc(string $className, string $methodName): ?array {
         return $this->methodDocs[$className][$methodName] ?? null;
     }
-    
+
     public function getClassDoc(string $className): ?array {
         return $this->classDocs[$className] ?? null;
+    }
+
+    public function getConstantDoc(string $className, string $constantName): ?string {
+        return $this->constantDocs[$className][$constantName] ?? null;
     }
 }
 
@@ -149,35 +220,46 @@ function generateEnhancedClassStub(ReflectionClass $class, CSourceDocParser $doc
         $output .= $indentStr . " */\n";
     }
     
-    // Class declaration
+    // Class/Interface declaration
     $classDecl = $indentStr;
-    if ($class->isAbstract()) {
-        $classDecl .= 'abstract ';
+    if ($class->isInterface()) {
+        $classDecl .= 'interface ' . $class->getShortName();
+    } else {
+        if ($class->isAbstract()) {
+            $classDecl .= 'abstract ';
+        }
+        if ($class->isFinal()) {
+            $classDecl .= 'final ';
+        }
+        $classDecl .= 'class ' . $class->getShortName();
     }
-    if ($class->isFinal()) {
-        $classDecl .= 'final ';
-    }
-    $classDecl .= 'class ' . $class->getShortName();
     
-    // Parent class
+    // Parent class/interface
     if ($parent = $class->getParentClass()) {
         $classDecl .= ' extends \\' . $parent->getName();
     }
-    
-    // Interfaces
-    $interfaces = $class->getInterfaceNames();
-    if (!empty($interfaces)) {
-        $classDecl .= ' implements ' . implode(', ', array_map(fn($i) => '\\' . $i, $interfaces));
+
+    // Interfaces (only for classes, not interfaces)
+    if (!$class->isInterface()) {
+        $interfaces = $class->getInterfaceNames();
+        if (!empty($interfaces)) {
+            $classDecl .= ' implements ' . implode(', ', array_map(fn($i) => '\\' . $i, $interfaces));
+        }
     }
     
     $output .= $classDecl . "\n" . $indentStr . "{\n";
     
     // Constants
     foreach ($class->getConstants() as $name => $value) {
+        // Get constant documentation if available
+        $constantDoc = $docParser->getConstantDoc($class->getName(), $name);
+        if ($constantDoc) {
+            $output .= $indentStr . "    /** " . $constantDoc . " */\n";
+        }
         $output .= $indentStr . "    public const " . $name . " = ";
         $output .= var_export($value, true) . ";\n";
     }
-    
+
     if ($class->getConstants()) {
         $output .= "\n";
     }
