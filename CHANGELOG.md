@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/castor-labs/php-ext-identifier/compare/v1.0.2...v1.1.0) (2025-11-16)
+
+
+### Features
+
+* add Alpine Linux (musl) support for PHP extensions ([95d2ba6](https://github.com/castor-labs/php-ext-identifier/commit/95d2ba6b2df902f7ef817125297d95845dc7c693))
+
+
+### Bug Fixes
+
+* use PHP version matrix for correct extension builds ([3993fed](https://github.com/castor-labs/php-ext-identifier/commit/3993fed9b98192d9a743afa49df67c9df6199cdb))
+
 ## [1.0.2](https://github.com/castor-labs/php-ext-identifier/compare/v1.0.1...v1.0.2) (2025-11-16)
 
 
