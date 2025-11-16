@@ -52,6 +52,8 @@ ZEND_END_ARG_INFO()
 
 
 /* Alphabet constants */
+#define BINARY_ALPHABET "01"
+#define HEXADECIMAL_ALPHABET "0123456789ABCDEF"
 #define BASE32_RFC4648_ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
 #define BASE32_CROCKFORD_ALPHABET "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 #define BASE58_BITCOIN_ALPHABET "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -90,6 +92,24 @@ static int validate_padding_character(const char *alphabet, char padding) {
         }
     }
     return 1; /* Valid */
+}
+
+/* Validate alphabet length is a multiple of 2 */
+static int validate_alphabet_length(size_t alphabet_len) {
+    return (alphabet_len % 2) == 0;
+}
+
+/* Validate alphabet has no duplicate characters */
+static int validate_no_duplicates(const char *alphabet, size_t alphabet_len) {
+    /* Use a simple O(n^2) check for duplicates */
+    for (size_t i = 0; i < alphabet_len; i++) {
+        for (size_t j = i + 1; j < alphabet_len; j++) {
+            if (alphabet[i] == alphabet[j]) {
+                return 0; /* Duplicate found */
+            }
+        }
+    }
+    return 1; /* No duplicates */
 }
 
 /* Create codec object */
@@ -154,6 +174,18 @@ static PHP_METHOD(Identifier_Encoding_Codec, __construct)
 
     if (ZSTR_LEN(alphabet) == 0) {
         zend_throw_exception(zend_ce_exception, "Alphabet cannot be empty", 0);
+        RETURN_THROWS();
+    }
+
+    /* Validate alphabet length is a multiple of 2 */
+    if (!validate_alphabet_length(ZSTR_LEN(alphabet))) {
+        zend_throw_exception(zend_ce_exception, "Alphabet length must be a multiple of 2", 0);
+        RETURN_THROWS();
+    }
+
+    /* Validate no duplicate characters in alphabet */
+    if (!validate_no_duplicates(ZSTR_VAL(alphabet), ZSTR_LEN(alphabet))) {
+        zend_throw_exception(zend_ce_exception, "Alphabet cannot contain duplicate characters", 0);
         RETURN_THROWS();
     }
 
@@ -703,6 +735,90 @@ static PHP_METHOD(Identifier_Encoding_Codec, base64Mime)
     intern->padding = padding_char;
 }
 
+/**
+ * Create a Binary codec
+ *
+ * Returns a codec configured for Binary encoding using the alphabet "01".
+ * This encoding represents data in base-2 format, the most fundamental
+ * numerical representation.
+ *
+ * @return Codec Binary codec instance
+ *
+ * @example
+ * $codec = Codec::binary();
+ * $encoded = $codec->encode("Hi");
+ * echo $encoded; // "0100100001101001"
+ *
+ * $decoded = $codec->decode("0100100001101001");
+ * echo $decoded; // "Hi"
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Encoding_Codec, binary)
+{
+    zend_string *padding = NULL;
+
+    ZEND_PARSE_PARAMETERS_START(0, 1)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_STR_OR_NULL(padding)
+    ZEND_PARSE_PARAMETERS_END();
+
+    char padding_char = (padding && ZSTR_LEN(padding) > 0) ? ZSTR_VAL(padding)[0] : 0; /* No padding by default */
+
+    /* Validate padding character */
+    if (!validate_padding_character(BINARY_ALPHABET, padding_char)) {
+        zend_throw_exception(zend_ce_exception, "Padding character cannot be present in alphabet", 0);
+        RETURN_THROWS();
+    }
+
+    object_init_ex(return_value, php_identifier_codec_ce);
+    php_identifier_codec_obj *intern = PHP_IDENTIFIER_CODEC_OBJ_P(return_value);
+    intern->alphabet = zend_string_init(BINARY_ALPHABET, strlen(BINARY_ALPHABET), 0);
+    intern->padding = padding_char;
+}
+
+/**
+ * Create a Hexadecimal codec
+ *
+ * Returns a codec configured for Hexadecimal (base-16) encoding using the
+ * alphabet "0123456789ABCDEF". This is one of the most common encodings
+ * for representing binary data in a human-readable format.
+ *
+ * @return Codec Hexadecimal codec instance
+ *
+ * @example
+ * $codec = Codec::hexadecimal();
+ * $encoded = $codec->encode("Hello");
+ * echo $encoded; // "48656C6C6F"
+ *
+ * $decoded = $codec->decode("48656C6C6F");
+ * echo $decoded; // "Hello"
+ *
+ * @since 1.0.0
+ */
+static PHP_METHOD(Identifier_Encoding_Codec, hexadecimal)
+{
+    zend_string *padding = NULL;
+
+    ZEND_PARSE_PARAMETERS_START(0, 1)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_STR_OR_NULL(padding)
+    ZEND_PARSE_PARAMETERS_END();
+
+    char padding_char = (padding && ZSTR_LEN(padding) > 0) ? ZSTR_VAL(padding)[0] : 0; /* No padding by default */
+
+    /* Validate padding character */
+    if (!validate_padding_character(HEXADECIMAL_ALPHABET, padding_char)) {
+        zend_throw_exception(zend_ce_exception, "Padding character cannot be present in alphabet", 0);
+        RETURN_THROWS();
+    }
+
+    object_init_ex(return_value, php_identifier_codec_ce);
+    php_identifier_codec_obj *intern = PHP_IDENTIFIER_CODEC_OBJ_P(return_value);
+    intern->alphabet = zend_string_init(HEXADECIMAL_ALPHABET, strlen(HEXADECIMAL_ALPHABET), 0);
+    intern->padding = padding_char;
+}
+
 
 
 /* Codec method entries */
@@ -710,6 +826,8 @@ static const zend_function_entry php_identifier_codec_methods[] = {
     PHP_ME(Identifier_Encoding_Codec, __construct, arginfo_codec_construct, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Encoding_Codec, encode, arginfo_codec_encode, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Encoding_Codec, decode, arginfo_codec_decode, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Encoding_Codec, binary, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Identifier_Encoding_Codec, hexadecimal, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Encoding_Codec, base32Rfc4648, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Encoding_Codec, base32Crockford, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Encoding_Codec, base58Bitcoin, arginfo_codec_factory, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -733,6 +851,10 @@ void php_identifier_codec_init(void)
     php_identifier_codec_ce->create_object = php_identifier_codec_create_object;
 
     /* Register alphabet constants */
+    /** Binary alphabet (0-1) for base-2 encoding */
+    zend_declare_class_constant_string(php_identifier_codec_ce, "BINARY", sizeof("BINARY")-1, BINARY_ALPHABET);
+    /** Hexadecimal alphabet (0-9, A-F) for base-16 encoding */
+    zend_declare_class_constant_string(php_identifier_codec_ce, "HEXADECIMAL", sizeof("HEXADECIMAL")-1, HEXADECIMAL_ALPHABET);
     /** Standard Base32 alphabet as defined in RFC 4648 (A-Z, 2-7) */
     zend_declare_class_constant_string(php_identifier_codec_ce, "BASE32_RFC4648", sizeof("BASE32_RFC4648")-1, BASE32_RFC4648_ALPHABET);
     /** Crockford Base32 alphabet (0-9, A-Z excluding I, L, O, U) - used by ULIDs */
