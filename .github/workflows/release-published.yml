@@ -66,8 +66,8 @@ jobs:
             dist/php_identifier-${{ steps.version.outputs.VERSION }}-src.tgz \
             dist/php_identifier-${{ steps.version.outputs.VERSION }}-src.zip
 
-  build-linux:
-    name: Build Linux (All Architectures)
+  build-binaries:
+    name: Build All Binary Artifacts
     runs-on: ubuntu-latest
 
     steps:
@@ -83,78 +83,11 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build for all PHP versions and architectures
-        run: |
-          for PHP_VERSION in 8.1 8.2 8.3 8.4; do
-            echo "Building for PHP $PHP_VERSION..."
-            ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}" linux "$PHP_VERSION"
-          done
+      - name: Build all platforms and architectures
+        run: ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}"
 
-      - name: Upload Linux artifacts to release
+      - name: Upload all binary artifacts to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ steps.version.outputs.VERSION }} dist/php_identifier-${{ steps.version.outputs.VERSION }}-*-linux-*.tar.gz
-
-  build-macos:
-    name: Build macOS (All Architectures)
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Zig
-        uses: goto-bus-stop/setup-zig@v2
-        with:
-          version: 0.15.2
-
-      - name: Get release version
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Build for all PHP versions and architectures
-        run: |
-          for PHP_VERSION in 8.1 8.2 8.3 8.4; do
-            echo "Building for PHP $PHP_VERSION..."
-            ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}" macos "$PHP_VERSION"
-          done
-
-      - name: Upload macOS artifacts to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload ${{ steps.version.outputs.VERSION }} dist/php_identifier-${{ steps.version.outputs.VERSION }}-*-macos-*.tar.gz
-
-  build-windows:
-    name: Build Windows (All Architectures)
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Zig
-        uses: goto-bus-stop/setup-zig@v2
-        with:
-          version: 0.15.2
-
-      - name: Get release version
-        id: version
-        shell: bash
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Build for all PHP versions and architectures
-        shell: bash
-        run: |
-          for PHP_VERSION in 8.1 8.2 8.3 8.4; do
-            echo "Building for PHP $PHP_VERSION..."
-            ./tools/build-release.sh "${{ steps.version.outputs.VERSION }}" windows "$PHP_VERSION"
-          done
-
-      - name: Upload Windows artifacts to release
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload ${{ steps.version.outputs.VERSION }} dist/*.zip
+          gh release upload ${{ steps.version.outputs.VERSION }} dist/*
