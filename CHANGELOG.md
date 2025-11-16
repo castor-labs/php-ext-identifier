@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/castor-labs/php-ext-identifier/compare/v1.0.1...v1.0.2) (2025-11-16)
+
+
+### Bug Fixes
+
+* add workflow_dispatch triggers for manual debugging ([4258404](https://github.com/castor-labs/php-ext-identifier/commit/425840474c33f9e5b15590ccfff981862ca3099b))
+
 ## [1.0.1](https://github.com/castor-labs/php-ext-identifier/compare/1.0.0...v1.0.1) (2025-11-16)
 
 
