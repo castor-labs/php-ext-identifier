@@ -77,29 +77,55 @@ jobs:
             dist/php_identifier-${{ steps.version.outputs.VERSION }}-src.zip
 
   build-binaries:
-    name: Build Binary - PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.arch }}
+    name: Build Binary - PHP ${{ matrix.php }} - ${{ matrix.os }}-${{ matrix.abi }} - ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Linux builds
+          # Linux glibc builds (Ubuntu/Debian/RHEL/CentOS)
           - php: '8.1'
             os: linux
             arch: x86_64
+            abi: gnu
             runner: ubuntu-latest
           - php: '8.2'
             os: linux
             arch: x86_64
+            abi: gnu
             runner: ubuntu-latest
           - php: '8.3'
             os: linux
             arch: x86_64
+            abi: gnu
             runner: ubuntu-latest
           - php: '8.4'
             os: linux
             arch: x86_64
+            abi: gnu
+            runner: ubuntu-latest
+
+          # Linux musl builds (Alpine Linux)
+          - php: '8.1'
+            os: linux
+            arch: x86_64
+            abi: musl
+            runner: ubuntu-latest
+          - php: '8.2'
+            os: linux
+            arch: x86_64
+            abi: musl
+            runner: ubuntu-latest
+          - php: '8.3'
+            os: linux
+            arch: x86_64
+            abi: musl
+            runner: ubuntu-latest
+          - php: '8.4'
+            os: linux
+            arch: x86_64
+            abi: musl
             runner: ubuntu-latest
 
     steps:
@@ -138,14 +164,14 @@ jobs:
           php-config --includes
 
       - name: Build extension
-        run: zig build
+        run: zig build -Doptimize=ReleaseFast -Dtarget=${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.abi }}
 
       - name: Create archive
         run: |
           mkdir -p dist
           mkdir -p "identifier-${{ steps.version.outputs.VERSION }}"
           cp modules/identifier.so "identifier-${{ steps.version.outputs.VERSION }}/"
-          tar -czf "dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php }}-nts-${{ matrix.os }}-${{ matrix.arch }}.tar.gz" "identifier-${{ steps.version.outputs.VERSION }}"
+          tar -czf "dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php }}-nts-${{ matrix.os }}-${{ matrix.abi }}-${{ matrix.arch }}.tar.gz" "identifier-${{ steps.version.outputs.VERSION }}"
           rm -rf "identifier-${{ steps.version.outputs.VERSION }}"
 
       - name: Upload artifact to release
@@ -153,4 +179,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ steps.version.outputs.VERSION }} \
-            dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php }}-nts-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+            dist/php_identifier-${{ steps.version.outputs.VERSION }}-${{ matrix.php }}-nts-${{ matrix.os }}-${{ matrix.abi }}-${{ matrix.arch }}.tar.gz
