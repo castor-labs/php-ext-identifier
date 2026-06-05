@@ -42,6 +42,7 @@ stubs/*_gen.stub.php
 # Generated packages
 *.tgz
 dist/
+.dev/docs-dist/
 
 # Dependencies
 vendor/
