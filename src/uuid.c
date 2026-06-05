@@ -4,6 +4,41 @@
 #include <ctype.h>
 #include <string.h>
 
+static const char uuid_hex_chars[] = "0123456789abcdef";
+
+static inline void uuid_write_hex_byte(char *out, unsigned char byte)
+{
+    out[0] = uuid_hex_chars[byte >> 4];
+    out[1] = uuid_hex_chars[byte & 0x0F];
+}
+
+static inline int uuid_hex_nibble(unsigned char c)
+{
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    }
+    if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    }
+    if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    }
+    return -1;
+}
+
+static inline int uuid_parse_hex_byte(const char *str, unsigned char *byte)
+{
+    int high = uuid_hex_nibble((unsigned char)str[0]);
+    int low = uuid_hex_nibble((unsigned char)str[1]);
+
+    if (high < 0 || low < 0) {
+        return 0;
+    }
+
+    *byte = (unsigned char)((high << 4) | low);
+    return 1;
+}
+
 /* Arginfo declarations */
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_uuid_getVersion, 0, 0, IS_LONG, 0)
 ZEND_END_ARG_INFO()
@@ -112,15 +147,30 @@ static PHP_METHOD(Identifier_Uuid, toString)
     
     zend_string *result = zend_string_alloc(36, 0);
     char *str = ZSTR_VAL(result);
-    
-    sprintf(str, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-        intern->data[0], intern->data[1], intern->data[2], intern->data[3],
-        intern->data[4], intern->data[5],
-        intern->data[6], intern->data[7],
-        intern->data[8], intern->data[9],
-        intern->data[10], intern->data[11], intern->data[12], intern->data[13], intern->data[14], intern->data[15]
-    );
-    
+    const unsigned char *b = intern->data;
+
+    uuid_write_hex_byte(str + 0, b[0]);
+    uuid_write_hex_byte(str + 2, b[1]);
+    uuid_write_hex_byte(str + 4, b[2]);
+    uuid_write_hex_byte(str + 6, b[3]);
+    str[8] = '-';
+    uuid_write_hex_byte(str + 9, b[4]);
+    uuid_write_hex_byte(str + 11, b[5]);
+    str[13] = '-';
+    uuid_write_hex_byte(str + 14, b[6]);
+    uuid_write_hex_byte(str + 16, b[7]);
+    str[18] = '-';
+    uuid_write_hex_byte(str + 19, b[8]);
+    uuid_write_hex_byte(str + 21, b[9]);
+    str[23] = '-';
+    uuid_write_hex_byte(str + 24, b[10]);
+    uuid_write_hex_byte(str + 26, b[11]);
+    uuid_write_hex_byte(str + 28, b[12]);
+    uuid_write_hex_byte(str + 30, b[13]);
+    uuid_write_hex_byte(str + 32, b[14]);
+    uuid_write_hex_byte(str + 34, b[15]);
+    str[36] = '\0';
+
     RETURN_STR(result);
 }
 
@@ -173,18 +223,10 @@ static PHP_METHOD(Identifier_Uuid, fromString)
             continue; /* Skip hyphens */
         }
 
-        char hex_char1 = str[i];
-        char hex_char2 = str[i + 1];
-
-        /* Validate hex characters */
-        if (!isxdigit(hex_char1) || !isxdigit(hex_char2)) {
+        if (!uuid_parse_hex_byte(str + i, &uuid_bytes[byte_index])) {
             zend_throw_exception(zend_ce_exception, "Invalid hex characters in UUID string", 0);
             RETURN_THROWS();
         }
-
-        /* Convert hex pair to byte */
-        char hex_pair[3] = {hex_char1, hex_char2, '\0'};
-        uuid_bytes[byte_index] = (unsigned char)strtol(hex_pair, NULL, 16);
         byte_index++;
         i++; /* Skip the second hex character */
     }
@@ -346,11 +388,11 @@ static PHP_METHOD(Identifier_Uuid, fromHex)
     for (size_t i = 0; i < hex_len && clean_len < 32; i++) {
         char c = hex_str[i];
         if (c != '-') {
-            if (!isxdigit(c)) {
+            if (uuid_hex_nibble((unsigned char)c) < 0) {
                 zend_throw_exception(zend_ce_exception, "Invalid hexadecimal character in UUID", 0);
                 RETURN_THROWS();
             }
-            clean_hex[clean_len++] = tolower(c);
+            clean_hex[clean_len++] = c;
         }
     }
 
@@ -363,8 +405,7 @@ static PHP_METHOD(Identifier_Uuid, fromHex)
 
     /* Convert hex string to bytes */
     for (int i = 0; i < 16; i++) {
-        char hex_byte[3] = {clean_hex[i*2], clean_hex[i*2+1], '\0'};
-        bytes[i] = (unsigned char)strtol(hex_byte, NULL, 16);
+        uuid_parse_hex_byte(clean_hex + (i * 2), &bytes[i]);
     }
 
     /* Extract version from byte 6 (upper nibble) */

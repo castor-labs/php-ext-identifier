@@ -46,7 +46,6 @@ extern zend_class_entry *php_identifier_uuid_version5_ce;
 extern zend_class_entry *php_identifier_uuid_version6_ce;
 extern zend_class_entry *php_identifier_uuid_version7_ce;
 extern zend_class_entry *php_identifier_ulid_ce;
-extern zend_class_entry *php_identifier_codec_ce;
 
 /* Object structures */
 typedef struct _php_identifier_bit128_obj {
@@ -96,8 +95,5 @@ void php_identifier_ulid_register_class(void);
 void php_identifier_generate_random_bytes(unsigned char *buffer, size_t length);
 uint64_t php_identifier_get_timestamp_ms(void);
 uint64_t php_identifier_get_gregorian_epoch_time(void);
-
-/* Codec initialization */
-void php_identifier_codec_init(void);
 
 #endif /* PHP_IDENTIFIER_H */

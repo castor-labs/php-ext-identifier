@@ -25,4 +25,4 @@ echo $eventId->toString();
 
 A generated object is not just a string wrapper. Every identifier keeps its 16-byte value, can be compared with another identifier, can be converted to a canonical string representation, and can be round-tripped through binary storage.
 
-If you are new to the extension, start with [getting started](docs/index.html). Once the basics are comfortable, the guides explain how to choose an identifier shape, how to parse and store values safely, how deterministic generation works in tests, and how the bundled codecs can help when you need another textual representation.
+If you are new to the extension, start with [getting started](docs/index.html). Once the basics are comfortable, the guides explain how to choose an identifier shape, how to parse and store values safely, and how deterministic generation works in tests.

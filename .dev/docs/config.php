@@ -15,6 +15,5 @@ return static function (Documentation $docs): void {
         'guides/choosing-identifiers.md',
         'guides/parsing-formatting-and-storage.md',
         'guides/deterministic-generation.md',
-        'guides/codecs.md',
     ]);
 };
