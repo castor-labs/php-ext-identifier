@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/castor-labs/php-ext-identifier/compare/v0.3.0...v0.4.0) (2026-06-05)
+
+
+### Features
+
+* remove codec abstraction and implement performance improvements ([#25](https://github.com/castor-labs/php-ext-identifier/issues/25)) ([104f6c7](https://github.com/castor-labs/php-ext-identifier/commit/104f6c70c003e007a0df4d468a192ebcb65b8e27))
+
 ## [0.3.0](https://github.com/castor-labs/php-ext-identifier/compare/v0.2.1...v0.3.0) (2026-06-05)
 
 
