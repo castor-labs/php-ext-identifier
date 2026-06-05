@@ -4,7 +4,7 @@
 extern zend_module_entry identifier_module_entry;
 #define phpext_identifier_ptr &identifier_module_entry
 
-#define PHP_IDENTIFIER_VERSION "0.2.1" /* x-release-please-version */
+#define PHP_IDENTIFIER_VERSION "0.3.0" /* x-release-please-version */
 
 #ifdef PHP_WIN32
 #	define PHP_IDENTIFIER_API __declspec(dllexport)

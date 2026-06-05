@@ -1,6 +1,6 @@
 {
   "name": "castor/ext-identifier",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "type": "php-ext",
   "description": "High-performance 128-bit identifier extension for PHP (UUIDs and ULIDs)",
   "keywords": [
