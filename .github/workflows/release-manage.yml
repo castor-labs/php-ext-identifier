@@ -101,16 +101,6 @@ jobs:
       matrix:
         include:
           # Linux glibc builds (Ubuntu/Debian/RHEL/CentOS)
-          - php: '8.1'
-            os: linux
-            arch: x86_64
-            abi: gnu
-            runner: ubuntu-latest
-          - php: '8.2'
-            os: linux
-            arch: x86_64
-            abi: gnu
-            runner: ubuntu-latest
           - php: '8.3'
             os: linux
             arch: x86_64
@@ -123,16 +113,6 @@ jobs:
             runner: ubuntu-latest
 
           # Linux musl builds (Alpine Linux)
-          - php: '8.1'
-            os: linux
-            arch: x86_64
-            abi: musl
-            runner: ubuntu-latest
-          - php: '8.2'
-            os: linux
-            arch: x86_64
-            abi: musl
-            runner: ubuntu-latest
           - php: '8.3'
             os: linux
             arch: x86_64

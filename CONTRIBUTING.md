@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the PHP Identifier Extension! Thi
 
 ### Prerequisites
 
-- PHP 8.1 or higher with development headers (`php-config` must be available)
+- PHP 8.3 or higher with development headers (`php-config` must be available)
 - Zig 0.15.2+ ([Download from ziglang.org](https://ziglang.org/download/))
 - Git
 

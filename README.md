@@ -16,7 +16,7 @@ A high-performance PHP extension for working with 128-bit identifiers including 
 
 ### Requirements
 
-- PHP 8.1 or higher
+- PHP 8.3 or higher
 - Zig 0.15.2+ ([Download from ziglang.org](https://ziglang.org/download/)) - *The amazing build system that makes this all possible*
 
 If you use [devenv](https://devenv.sh/), the repository includes a ready-to-use environment with PHP, PHP development headers (`php-config`), Composer, Zig, and ZLS:
