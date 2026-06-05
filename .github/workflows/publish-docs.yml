@@ -1,0 +1,47 @@
+name: Publish Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".dev/docs/**"
+      - "composer.json"
+      - "composer.lock"
+      - ".github/workflows/publish-docs.yml"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer:v2
+      - run: composer install --ansi --no-interaction --no-progress --ignore-platform-reqs
+      - run: composer docs:build
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .dev/docs-dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

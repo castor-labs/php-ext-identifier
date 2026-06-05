@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aef8e93de81130544c292eba6eb53e8b",
+    "content-hash": "8bae0c81f894568c95c2d31f3bbf26df",
     "packages": [],
     "packages-dev": [
         {
@@ -125,6 +125,138 @@
                 }
             ],
             "time": "2026-06-04T15:46:37+00:00"
+        },
+        {
+            "name": "castor-labs/docs",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:castor-labs/php-lib-docs.git",
+                "reference": "63683b3d4f200a6aa48967a685f2d77fa9b0ecf8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://castor-labs.github.io/php-packages/archive/castor-labs/docs/castor-labs-docs-63683b3d4f200a6aa48967a685f2d77fa9b0ecf8-zip-e2d765.zip",
+                "reference": "63683b3d4f200a6aa48967a685f2d77fa9b0ecf8",
+                "shasum": "5e35b9da011ac3508313354d6548214d9729278d"
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "carthage-software/mago": "^1.27.1",
+                "phpunit/phpunit": "^10.5",
+                "rector/rector": "^2.4"
+            },
+            "bin": [
+                "bin/castor-docs"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Castor\\Docs\\": "src"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Castor\\Docs\\Tests\\": "tests"
+                }
+            },
+            "scripts": {
+                "pr": [
+                    "@rector",
+                    "@mago:fmt",
+                    "@mago:lint",
+                    "@mago:analyze",
+                    "@test"
+                ],
+                "ci": [
+                    "@rector:check",
+                    "@mago:fmt:check",
+                    "@mago:lint",
+                    "@mago:analyze",
+                    "@test"
+                ],
+                "mago": [
+                    "@mago:fmt",
+                    "@mago:lint",
+                    "@mago:analyze"
+                ],
+                "rector": [
+                    "rector process"
+                ],
+                "rector:check": [
+                    "rector process --dry-run"
+                ],
+                "mago:fmt": [
+                    "mago fmt"
+                ],
+                "mago:fmt:check": [
+                    "mago fmt --dry-run"
+                ],
+                "mago:analyze": [
+                    "mago analyze --sort"
+                ],
+                "mago:lint": [
+                    "mago lint --sort"
+                ],
+                "mago:lint:baseline:fix": [
+                    "mago lint --sort --generate-baseline --backup-baseline"
+                ],
+                "mago:lint:baseline:check": [
+                    "mago lint --sort --verify-baseline"
+                ],
+                "mago:analyze:baseline:check": [
+                    "mago analyze --sort --verify-baseline"
+                ],
+                "mago:analyze:baseline:fix": [
+                    "mago analyze --sort --generate-baseline --backup-baseline"
+                ],
+                "test": [
+                    "phpunit --colors"
+                ],
+                "test:unit": [
+                    "phpunit --colors --exclude-group=integration,e2e,dbal,bundle"
+                ],
+                "test:e2e": [
+                    "phpunit --colors --group=e2e"
+                ],
+                "test:integration": [
+                    "phpunit --colors --group=integration,dbal,bundle"
+                ],
+                "docs:build": [
+                    "@php bin/castor-docs generate --source=.dev/docs --target=.dev/docs-dist"
+                ],
+                "docs:check": [
+                    "@docs:build",
+                    "test -f .dev/docs-dist/index.html"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matias Navarro Carter",
+                    "email": "mnavarrocarter@gmail.com",
+                    "role": "Lead Maintainer"
+                }
+            ],
+            "description": "Tooling to generate beautiful documentation for Castor packages",
+            "homepage": "https://castor-labs.github.io/php-lib-docs/",
+            "keywords": [
+                "castor",
+                "docs-generator",
+                "documentation",
+                "github-pages",
+                "php",
+                "static-site"
+            ],
+            "support": {
+                "source": "https://github.com/castor-labs/php-lib-docs/tree/0.1.1",
+                "issues": "https://github.com/castor-labs/php-lib-docs/issues"
+            },
+            "time": "2026-05-22T22:36:02+00:00"
         },
         {
             "name": "doctrine/annotations",

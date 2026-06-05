@@ -41,13 +41,30 @@
   },
   "scripts": {
     "bench": "phpbench run",
-    "test": "php -d extension=./modules/identifier.so vendor/bin/phpunit"
+    "test": "php -d extension=./modules/identifier.so vendor/bin/phpunit",
+    "docs:build": "vendor/bin/castor-docs generate --source=.dev/docs --target=.dev/docs-dist",
+    "docs:check": [
+      "@docs:build",
+      "test -f .dev/docs-dist/index.html"
+    ]
   },
   "require-dev": {
     "phpunit/phpunit": "^12.0",
     "carthage-software/mago": "^1.30",
     "phpbench/phpbench": "^1.6",
     "symfony/uid": "^8.1",
-    "ramsey/uuid": "^4.9"
+    "ramsey/uuid": "^4.9",
+    "castor-labs/docs": "^0.1.0"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://castor-labs.github.io/php-packages"
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+      "carthage-software/mago": true
+    }
   }
 }
