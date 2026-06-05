@@ -33,9 +33,9 @@ if test "$PHP_IDENTIFIER" != "no"; then
   identifier_sources="src/php_identifier.c \
     src/bit128.c \
     src/codec.c \
-    src/context.c \
-    src/context_fixed.c \
-    src/context_system.c \
+    src/state.c \
+    src/state_fixed.c \
+    src/state_system.c \
     src/ulid.c \
     src/uuid.c \
     src/uuid_version1.c \

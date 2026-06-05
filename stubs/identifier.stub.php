@@ -6,24 +6,24 @@
  * Generated from extension reflection with full C source documentation.
  * 
  * @version 0.1.0
- * @generated 2025-11-16 07:28:37
+ * @generated 2026-06-05 11:40:41
  */
 
 namespace Identifier
 {
     /**
-     * Context interface for identifier generation
+     * State interface for identifier generation
      * Defines the interface for controlling time and randomness sources during
-     * identifier generation. Contexts allow you to customize how timestamps and
+     * identifier generation. States allow you to customize how timestamps and
      * random bytes are generated, which is particularly useful for testing
      * with deterministic values or for using alternative time sources.
      * Two implementations are provided:
-     * - Context\System - Uses real system time and cryptographically secure randomness
-     * - Context\Fixed - Uses fixed/deterministic values for reproducible testing
+     * - State\System - Uses real system time and cryptographically secure randomness
+     * - State\Fixed - Uses fixed/deterministic values for reproducible testing
      * 
-     * @since 0.1.0
+     * @since 1.0.0
      */
-    interface Context
+    interface State
     {
         /**
          * Get the current timestamp in milliseconds
@@ -31,9 +31,9 @@ namespace Identifier
          * This is used for generating time-based identifiers like UUIDs v7 and ULIDs.
          * 
          * @return int Timestamp in milliseconds since Unix epoch
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public function getTimestampMs(): int {}
+        public function getTimestampMs(): int;
 
         /**
          * Get the current time as Gregorian epoch time
@@ -41,9 +41,9 @@ namespace Identifier
          * epoch (October 15, 1582). This is used for UUID v1 and v6 timestamps.
          * 
          * @return int Timestamp in 100-nanosecond intervals since Gregorian epoch
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public function getGregorianEpochTime(): int {}
+        public function getGregorianEpochTime(): int;
 
         /**
          * Generate random bytes
@@ -53,25 +53,25 @@ namespace Identifier
          * @param int $length Number of random bytes to generate (1-1024)
          * @return string Binary string of random bytes
          * @throws Exception If length is out of valid range
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public function getRandomBytes(int $length): string {}
+        public function getRandomBytes(int $length): string;
 
     }
 
     /**
      * Create a new 128-bit identifier from bytes
-     * Constructs a new Bit128 instance from exactly 16 bytes of binary data.
-     * This is the base class for all 128-bit identifiers in this extension.
+     * Initializes a 128-bit identifier from exactly 16 bytes of binary data.
+     * This constructor is protected and final; use static factory methods instead.
      * 
-     * @since 0.1.0
+     * @since 1.0.0
      */
     class Bit128 implements \Stringable
     {
         /**
          * Create a new 128-bit identifier from bytes
-         * Constructs a new Bit128 instance from exactly 16 bytes of binary data.
-         * This is the base class for all 128-bit identifiers in this extension.
+         * Initializes a 128-bit identifier from exactly 16 bytes of binary data.
+         * This constructor is protected and final; use static factory methods instead.
          * 
          * @param string $bytes Exactly 16 bytes of binary data
          * @throws Exception If bytes is not exactly 16 bytes long
@@ -79,11 +79,11 @@ namespace Identifier
          * @example
          * ```php
          * $bytes = random_bytes(16);
-         * $bit128 = new Bit128($bytes);
+         * $bit128 = Bit128::fromBytes($bytes);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public function __construct(string $bytes) {}
+        final protected function __construct(string $bytes) {}
 
         /**
          * Get the raw 16-byte binary representation
@@ -94,12 +94,12 @@ namespace Identifier
          * 
          * @example
          * ```php
-         * $id = new Bit128(random_bytes(16));
+         * $id = Bit128::fromBytes(random_bytes(16));
          * $bytes = $id->getBytes();
          * echo strlen($bytes); // 16
          * echo bin2hex($bytes); // hex representation
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getBytes(): string {}
 
@@ -112,12 +112,12 @@ namespace Identifier
          * 
          * @example
          * ```php
-         * $id = new Bit128(random_bytes(16));
+         * $id = Bit128::fromBytes(random_bytes(16));
          * $bytes1 = $id->getBytes();
          * $bytes2 = $id->toBytes();
          * var_dump($bytes1 === $bytes2); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function toBytes(): string {}
 
@@ -135,7 +135,7 @@ namespace Identifier
          * $id2 = Bit128::fromHex('550e8400e29b41d4a716446655440000');
          * var_dump($id1->equals($id2)); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function equals(\Identifier\Bit128 $other): bool {}
 
@@ -155,7 +155,7 @@ namespace Identifier
          * echo $id2->compare($id1); // 1 (id2 > id1)
          * echo $id1->compare($id1); // 0 (equal)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function compare(\Identifier\Bit128 $other): int {}
 
@@ -171,7 +171,7 @@ namespace Identifier
          * $id = Bit128::fromHex('550e8400e29b41d4a716446655440000');
          * echo $id->toHex(); // "550e8400e29b41d4a716446655440000"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function toHex(): string {}
 
@@ -181,7 +181,7 @@ namespace Identifier
          * and creates a new Bit128 instance. The hex string is case-insensitive.
          * 
          * @param string $hex 32-character hexadecimal string (case-insensitive)
-         * @return Bit128 New identifier instance
+         * @return static New identifier instance
          * @throws Exception If hex string is invalid or wrong length
          * 
          * @example
@@ -190,9 +190,9 @@ namespace Identifier
          * $same = Bit128::fromHex('550E8400-E29B-41D4-A716-446655440000');
          * var_dump($id->equals($same)); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function fromHex(string $hex): \Identifier\Bit128 {}
+        public static function fromHex(string $hex): static {}
 
         /**
          * Create a new identifier from binary data
@@ -200,7 +200,7 @@ namespace Identifier
          * This is useful when reading identifiers from binary storage or network protocols.
          * 
          * @param string $bytes Exactly 16 bytes of binary data
-         * @return Bit128 New identifier instance
+         * @return static New identifier instance
          * @throws Exception If bytes is not exactly 16 bytes long
          * 
          * @example
@@ -214,9 +214,9 @@ namespace Identifier
          * $id = Bit128::fromBytes($bytes);
          * echo $id->toHex(); // "550e8400e29b41d4a716446655440000"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function fromBytes(string $bytes): \Identifier\Bit128 {}
+        public static function fromBytes(string $bytes): static {}
 
         /**
          * Convert the identifier to a string representation
@@ -231,7 +231,7 @@ namespace Identifier
          * $bit128 = Bit128::fromHex('0123456789abcdef0123456789abcdef');
          * echo $bit128->toString(); // "0123456789abcdef0123456789abcdef"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function toString(): string {}
 
@@ -248,7 +248,7 @@ namespace Identifier
          * echo $uuid; // Automatically calls __toString()
          * echo "UUID: $uuid"; // String interpolation
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function __toString(): string {}
 
@@ -259,7 +259,7 @@ namespace Identifier
      * Returns the version number stored in bits 12-15 of the time_hi_and_version field.
      * This indicates which UUID generation algorithm was used.
      * 
-     * @since 0.1.0
+     * @since 1.0.0
      */
     class Uuid extends \Identifier\Bit128 implements \Stringable
     {
@@ -277,7 +277,7 @@ namespace Identifier
          * $uuid = Version1::generate();
          * echo $uuid->getVersion(); // 1
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getVersion(): int {}
 
@@ -293,7 +293,7 @@ namespace Identifier
          * $uuid = Version4::generate();
          * echo $uuid->getVariant(); // 2 (RFC 4122 variant)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getVariant(): int {}
 
@@ -311,7 +311,7 @@ namespace Identifier
          * // Can also use string casting
          * echo (string) $uuid; // Same result
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function toString(): string {}
 
@@ -331,52 +331,9 @@ namespace Identifier
          * echo $uuid->getVersion(); // 4
          * echo get_class($uuid); // Identifier\Uuid\Version4
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function fromString(string $uuid): \Identifier\Uuid {}
-
-        /**
-         * Create a UUID from binary bytes
-         * Creates a UUID from exactly 16 bytes of binary data. Automatically
-         * detects the UUID version from the bytes and returns the appropriate
-         * version-specific subclass.
-         * 
-         * @param string $bytes Exactly 16 bytes of binary data
-         * @return Uuid UUID instance of the appropriate version
-         * @throws Exception If bytes is not exactly 16 bytes
-         * 
-         * @example
-         * ```php
-         * $bytes = random_bytes(16);
-         * $bytes[6] = chr((ord($bytes[6]) & 0x0F) | 0x40); // Set version 4
-         * $bytes[8] = chr((ord($bytes[8]) & 0x3F) | 0x80); // Set variant
-         * $uuid = Uuid::fromBytes($bytes);
-         * echo $uuid->getVersion(); // 4
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromBytes(string $bytes): \Identifier\Uuid {}
-
-        /**
-         * Create a UUID from a hexadecimal string
-         * Parses a 32-character hexadecimal string (with or without hyphens) and
-         * creates a UUID. Automatically detects the version and returns the appropriate
-         * version-specific subclass. Case-insensitive.
-         * 
-         * @param string $hex 32-character hexadecimal string (with or without hyphens)
-         * @return Uuid UUID instance of the appropriate version
-         * @throws Exception If hex string is invalid
-         * 
-         * @example
-         * ```php
-         * $uuid = Uuid::fromHex('550e8400e29b41d4a716446655440000');
-         * echo $uuid->toString(); // "550e8400-e29b-41d4-a716-446655440000"
-         * // Also works with hyphens
-         * $uuid2 = Uuid::fromHex('550e8400-e29b-41d4-a716-446655440000');
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromHex(string $hex): \Identifier\Uuid {}
 
         /**
          * Check if this UUID is the nil UUID
@@ -392,7 +349,7 @@ namespace Identifier
          * $uuid = Version4::generate();
          * var_dump($uuid->isNil()); // bool(false)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function isNil(): bool {}
 
@@ -409,7 +366,7 @@ namespace Identifier
          * echo $nil->toString(); // "00000000-0000-0000-0000-000000000000"
          * var_dump($nil->isNil()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function nil(): \Identifier\Uuid {}
 
@@ -427,7 +384,7 @@ namespace Identifier
          * $uuid = Version4::generate();
          * var_dump($uuid->isMax()); // bool(false)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function isMax(): bool {}
 
@@ -444,7 +401,7 @@ namespace Identifier
          * echo $max->toString(); // "ffffffff-ffff-ffff-ffff-ffffffffffff"
          * var_dump($max->isMax()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function max(): \Identifier\Uuid {}
 
@@ -456,7 +413,7 @@ namespace Identifier
      * ULIDs are lexicographically sortable and encode a timestamp, making them
      * ideal for use as database primary keys and distributed system identifiers.
      * 
-     * @since 0.1.0
+     * @since 1.0.0
      */
     final class Ulid extends \Identifier\Bit128 implements \Stringable
     {
@@ -466,7 +423,7 @@ namespace Identifier
          * ULIDs are lexicographically sortable and encode a timestamp, making them
          * ideal for use as database primary keys and distributed system identifiers.
          * 
-         * @param Context|null $context Optional context for controlling time and randomness
+         * @param State|null $state Optional state for controlling time and randomness
          * @return Ulid A new ULID instance
          * @throws Exception If timestamp or random generation fails
          * 
@@ -475,13 +432,13 @@ namespace Identifier
          * // Generate with current timestamp
          * $ulid = Ulid::generate();
          * echo $ulid->toString(); // e.g., "01ARZ3NDEKTSV4RRFFQ69G5FAV"
-         * // Generate with fixed context for testing
-         * $context = new FixedContext();
-         * $ulid = Ulid::generate($context);
+         * // Generate with fixed state for testing
+         * $state = Fixed::create(1640995200000, 12345);
+         * $ulid = Ulid::generate($state);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Ulid {}
+        public static function generate(?\Identifier\State $state = NULL): \Identifier\Ulid {}
 
         /**
          * Convert ULID to string representation
@@ -497,7 +454,7 @@ namespace Identifier
          * // Can also use string casting
          * echo (string) $ulid; // Same result
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function toString(): string {}
 
@@ -518,53 +475,9 @@ namespace Identifier
          * // Case-insensitive parsing
          * $ulid = Ulid::fromString('01arz3ndektsv4rrffq69g5fav');
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function fromString(string $ulid): \Identifier\Ulid {}
-
-        /**
-         * Create a ULID from a hexadecimal string
-         * Parses a 32-character hexadecimal string (with or without dashes) and returns
-         * a ULID object. This is useful for working with ULIDs in their raw hex form.
-         * 
-         * @param string $hex Hexadecimal string (32 characters, optionally with dashes)
-         * @return Ulid ULID instance
-         * @throws Exception If the hex string is invalid or has incorrect length
-         * 
-         * @example
-         * ```php
-         * // Parse hex string without dashes
-         * $ulid = Ulid::fromHex('0188bac7b8de4c4aaa5f8c3e0cd5e5e3');
-         * // Parse hex string with dashes
-         * $ulid = Ulid::fromHex('0188bac7-b8de-4c4a-aa5f-8c3e0cd5e5e3');
-         * echo $ulid->toString(); // Crockford Base32 representation
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromHex(string $hex): \Identifier\Ulid {}
-
-        /**
-         * Create a ULID from raw bytes
-         * Creates a ULID from a 16-byte binary string. This is the most direct way
-         * to construct a ULID from its binary representation.
-         * 
-         * @param string $bytes Binary string of exactly 16 bytes
-         * @return Ulid ULID instance
-         * @throws Exception If the byte string is not exactly 16 bytes
-         * 
-         * @example
-         * ```php
-         * // Create from binary data
-         * $bytes = random_bytes(16);
-         * $ulid = Ulid::fromBytes($bytes);
-         * // Round-trip conversion
-         * $ulid1 = Ulid::generate();
-         * $ulid2 = Ulid::fromBytes($ulid1->getBytes());
-         * var_dump($ulid1->toString() === $ulid2->toString()); // bool(true)
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromBytes(string $bytes): \Identifier\Ulid {}
 
         /**
          * Get the timestamp component of the ULID
@@ -584,7 +497,7 @@ namespace Identifier
          * $ulid2 = Ulid::generate();
          * var_dump($ulid1->getTimestamp() < $ulid2->getTimestamp()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getTimestamp(): int {}
 
@@ -606,7 +519,7 @@ namespace Identifier
          * $ulid2 = Ulid::generate();
          * var_dump($ulid1->getRandomness() !== $ulid2->getRandomness()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getRandomness(): string {}
 
@@ -614,30 +527,30 @@ namespace Identifier
 
 }
 
-namespace Identifier\Context
+namespace Identifier\State
 {
-    class System implements \Identifier\Context
+    class System implements \Identifier\State
     {
         /**
-         * Get the singleton system context instance
-         * Returns the shared system context that uses real system time and
+         * Get the singleton system state instance
+         * Returns the shared system state that uses real system time and
          * cryptographically secure random number generation. This is the
-         * default context used when no context is specified.
+         * default state used when no state is specified.
          * 
-         * @return System The singleton system context instance
+         * @return System The singleton system state instance
          * 
          * @example
          * ```php
-         * $context = System::getInstance();
-         * $uuid = Version4::generate($context);
-         * $ulid = Ulid::generate($context);
+         * $state = System::getInstance();
+         * $uuid = Version4::generate($state);
+         * $ulid = Ulid::generate($state);
          * // Same instance every time
-         * $context2 = System::getInstance();
-         * var_dump($context === $context2); // bool(true)
+         * $state2 = System::getInstance();
+         * var_dump($state === $state2); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function getInstance(): \Identifier\Context\System {}
+        public static function getInstance(): \Identifier\State\System {}
 
         /**
          * Get the current system time in milliseconds
@@ -648,11 +561,11 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = System::getInstance();
-         * $timestamp = $context->getTimestampMs();
+         * $state = System::getInstance();
+         * $timestamp = $state->getTimestampMs();
          * echo date('Y-m-d H:i:s.', $timestamp / 1000) . ($timestamp % 1000);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getTimestampMs(): int {}
 
@@ -665,12 +578,12 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = System::getInstance();
-         * $gregorian = $context->getGregorianEpochTime();
+         * $state = System::getInstance();
+         * $gregorian = $state->getGregorianEpochTime();
          * // Convert back to Unix timestamp
          * $unix_ns = ($gregorian - 122192928000000000) * 100;
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getGregorianEpochTime(): int {}
 
@@ -686,45 +599,45 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = System::getInstance();
-         * $randomBytes = $context->getRandomBytes(16);
+         * $state = System::getInstance();
+         * $randomBytes = $state->getRandomBytes(16);
          * echo bin2hex($randomBytes); // 32-character hex string
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getRandomBytes(int $length): string {}
 
     }
 
-    class Fixed implements \Identifier\Context
+    class Fixed implements \Identifier\State
     {
         /**
-         * Create a new fixed context for testing
-         * Creates a context with fixed timestamp and deterministic random bytes.
+         * Create a new fixed state for testing
+         * Creates a state with fixed timestamp and deterministic random bytes.
          * This is primarily useful for testing and generating reproducible identifiers.
          * 
          * @param int $timestamp Fixed timestamp in milliseconds since Unix epoch
          * @param string $randomBytes Fixed random bytes (16 bytes for deterministic generation)
-         * @return Fixed A new fixed context instance
+         * @return Fixed A new fixed state instance
          * @throws Exception If randomBytes is not exactly 16 bytes
          * 
          * @example
          * ```php
-         * // Create fixed context for testing
+         * // Create fixed state for testing
          * $timestamp = 1640995200000; // 2022-01-01 00:00:00 UTC
          * $randomBytes = str_repeat("\x00", 16); // All zeros
-         * $context = Fixed::create($timestamp, $randomBytes);
+         * $state = Fixed::create($timestamp, $randomBytes);
          * // Generate reproducible identifiers
-         * $uuid1 = Version4::generate($context);
-         * $uuid2 = Version4::generate($context);
+         * $uuid1 = Version4::generate($state);
+         * $uuid2 = Version4::generate($state);
          * var_dump($uuid1->equals($uuid2)); // bool(true) - same every time
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function create(int $timestamp_ms, int $seed): \Identifier\Context\Fixed {}
+        public static function create(int $timestamp_ms, int $seed): \Identifier\State\Fixed {}
 
         /**
-         * Advance the context time by milliseconds
+         * Advance the state time by milliseconds
          * Increments the internal timestamp by the specified number of milliseconds.
          * This is useful for testing time-based identifiers and simulating the
          * passage of time.
@@ -734,19 +647,19 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = Fixed::create(1640995200000, 12345);
-         * $ulid1 = Ulid::generate($context);
+         * $state = Fixed::create(1640995200000, 12345);
+         * $ulid1 = Ulid::generate($state);
          * // Advance time by 1 second
-         * $context->advanceTime(1000);
-         * $ulid2 = Ulid::generate($context);
+         * $state->advanceTime(1000);
+         * $ulid2 = Ulid::generate($state);
          * var_dump($ulid1->getTimestamp() < $ulid2->getTimestamp()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function advanceTime(int $milliseconds): void {}
 
         /**
-         * Advance the context time by seconds
+         * Advance the state time by seconds
          * Increments the internal timestamp by the specified number of seconds.
          * This is a convenience method equivalent to calling advanceTime($seconds * 1000).
          * 
@@ -755,18 +668,18 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = Fixed::create(1640995200000, 12345);
+         * $state = Fixed::create(1640995200000, 12345);
          * // Advance time by 1 hour
-         * $context->advanceTimeSeconds(3600);
+         * $state->advanceTimeSeconds(3600);
          * // Method chaining
-         * $context->advanceTimeSeconds(60)->advanceTime(500);
+         * $state->advanceTimeSeconds(60)->advanceTime(500);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function advanceTimeSeconds(int $seconds): void {}
 
         /**
-         * Set the context timestamp to a specific value
+         * Set the state timestamp to a specific value
          * Sets the internal timestamp to an exact value in milliseconds since Unix epoch.
          * This allows jumping to any point in time for testing purposes.
          * 
@@ -775,13 +688,13 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = Fixed::create(1640995200000, 12345);
+         * $state = Fixed::create(1640995200000, 12345);
          * // Jump to a specific date (2023-01-01 00:00:00 UTC)
-         * $context->setTimestamp(1672531200000);
-         * $uuid = Version7::generate($context);
+         * $state->setTimestamp(1672531200000);
+         * $uuid = Version7::generate($state);
          * // UUID will have timestamp from 2023-01-01
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function setTimestamp(int $timestamp_ms): void {}
 
@@ -794,12 +707,12 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = Fixed::create(1640995200000, 12345);
-         * echo $context->getTimestampMs(); // 1640995200000
-         * $context->advanceTime(5000);
-         * echo $context->getTimestampMs(); // 1640995205000
+         * $state = Fixed::create(1640995200000, 12345);
+         * echo $state->getTimestampMs(); // 1640995200000
+         * $state->advanceTime(5000);
+         * echo $state->getTimestampMs(); // 1640995205000
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getTimestampMs(): int {}
 
@@ -812,11 +725,11 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = Fixed::create(1640995200000, 12345);
-         * $gregorian = $context->getGregorianEpochTime();
+         * $state = Fixed::create(1640995200000, 12345);
+         * $gregorian = $state->getGregorianEpochTime();
          * // Returns timestamp suitable for UUID v1/v6
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getGregorianEpochTime(): int {}
 
@@ -824,7 +737,7 @@ namespace Identifier\Context
          * Generate deterministic pseudo-random bytes
          * Returns a string of pseudo-random bytes using a seeded Mersenne Twister
          * generator. The output is deterministic based on the seed provided during
-         * context creation. This is useful for testing and generating reproducible identifiers.
+         * state creation. This is useful for testing and generating reproducible identifiers.
          * 
          * @param int $length Number of random bytes to generate (1-1024)
          * @return string Binary string of pseudo-random bytes
@@ -832,16 +745,16 @@ namespace Identifier\Context
          * 
          * @example
          * ```php
-         * $context = Fixed::create(1640995200000, 12345);
-         * $bytes1 = $context->getRandomBytes(16);
-         * $bytes2 = $context->getRandomBytes(16);
+         * $state = Fixed::create(1640995200000, 12345);
+         * $bytes1 = $state->getRandomBytes(16);
+         * $bytes2 = $state->getRandomBytes(16);
          * // bytes1 and bytes2 will be different but deterministic
          * // Same seed produces same sequence
-         * $context2 = Fixed::create(1640995200000, 12345);
-         * $bytes3 = $context2->getRandomBytes(16);
+         * $state2 = Fixed::create(1640995200000, 12345);
+         * $bytes3 = $state2->getRandomBytes(16);
          * var_dump($bytes1 === $bytes3); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getRandomBytes(int $length): string {}
 
@@ -859,7 +772,7 @@ namespace Identifier\Uuid
          * and node ID (MAC address). This provides temporal uniqueness and allows
          * for sorting by creation time.
          * 
-         * @param Context|null $context Optional context for controlling time and node
+         * @param State|null $state Optional state for controlling time and node
          * @return Version1 A new UUID version 1 instance
          * @throws Exception If timestamp or node generation fails
          * 
@@ -868,19 +781,15 @@ namespace Identifier\Uuid
          * // Generate with system time and MAC address
          * $uuid = Version1::generate();
          * echo $uuid->toString(); // "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-         * // Generate with fixed context for testing
-         * $context = new FixedContext();
-         * $uuid = Version1::generate($context);
+         * // Generate with fixed state for testing
+         * $state = Fixed::create(1640995200000, 12345);
+         * $uuid = Version1::generate($state);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version1 {}
+        public static function generate(?\Identifier\State $state = NULL): \Identifier\Uuid\Version1 {}
 
         public static function fromString(string $uuid): \Identifier\Uuid\Version1 {}
-
-        public static function fromBytes(string $bytes): \Identifier\Uuid\Version1 {}
-
-        public static function fromHex(string $hex): \Identifier\Uuid\Version1 {}
 
         /**
          * Get the timestamp from the UUID
@@ -895,7 +804,7 @@ namespace Identifier\Uuid
          * $timestamp = $uuid->getTimestamp();
          * echo date('Y-m-d H:i:s', $timestamp / 1000);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getTimestamp(): int {}
 
@@ -912,7 +821,7 @@ namespace Identifier\Uuid
          * $node = $uuid->getNode();
          * echo bin2hex($node); // e.g., "00c04fd430c8"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getNode(): string {}
 
@@ -930,7 +839,7 @@ namespace Identifier\Uuid
          * $clockSeq = $uuid->getClockSequence();
          * echo $clockSeq; // e.g., 12345
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getClockSequence(): int {}
 
@@ -959,15 +868,11 @@ namespace Identifier\Uuid
          * $uuid2 = Version3::generate($namespace, "example.com");
          * var_dump($uuid->equals($uuid2)); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function generate(string $namespace, string $name): \Identifier\Uuid\Version3 {}
 
         public static function fromString(string $uuid): \Identifier\Uuid\Version3 {}
-
-        public static function fromBytes(string $bytes): \Identifier\Uuid\Version3 {}
-
-        public static function fromHex(string $hex): \Identifier\Uuid\Version3 {}
 
     }
 
@@ -978,7 +883,7 @@ namespace Identifier\Uuid
          * Creates a new UUID version 4 using cryptographically secure random bytes.
          * Version 4 UUIDs are completely random except for the version and variant bits.
          * 
-         * @param Context|null $context Optional context for controlling randomness
+         * @param State|null $state Optional state for controlling randomness
          * @return Version4 A new UUID version 4 instance
          * @throws Exception If random byte generation fails
          * 
@@ -987,13 +892,13 @@ namespace Identifier\Uuid
          * // Generate with system randomness
          * $uuid = Version4::generate();
          * echo $uuid->toString(); // e.g., "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-         * // Generate with custom context
-         * $context = new FixedContext();
-         * $uuid = Version4::generate($context);
+         * // Generate with custom state
+         * $state = Fixed::create(1640995200000, 12345);
+         * $uuid = Version4::generate($state);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version4 {}
+        public static function generate(?\Identifier\State $state = NULL): \Identifier\Uuid\Version4 {}
 
         /**
          * Create a Version 4 UUID from a string representation
@@ -1009,50 +914,9 @@ namespace Identifier\Uuid
          * $uuid = Version4::fromString('f47ac10b-58cc-4372-a567-0e02b2c3d479');
          * echo $uuid->getVersion(); // 4
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function fromString(string $uuid): \Identifier\Uuid\Version4 {}
-
-        /**
-         * Create a Version 4 UUID from raw bytes
-         * Creates a Version 4 UUID from a 16-byte binary string. Validates that the
-         * bytes represent a valid Version 4 UUID.
-         * 
-         * @param string $bytes Binary string of exactly 16 bytes
-         * @return Version4 Version 4 UUID instance
-         * @throws Exception If the byte string is not exactly 16 bytes or not version 4
-         * 
-         * @example
-         * ```php
-         * $bytes = random_bytes(16);
-         * // Manually set version and variant bits
-         * $bytes[6] = chr((ord($bytes[6]) & 0x0F) | 0x40);
-         * $bytes[8] = chr((ord($bytes[8]) & 0x3F) | 0x80);
-         * $uuid = Version4::fromBytes($bytes);
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromBytes(string $bytes): \Identifier\Uuid\Version4 {}
-
-        /**
-         * Create a Version 4 UUID from a hexadecimal string
-         * Parses a 32-character hexadecimal string (with or without dashes) and validates
-         * that it represents a valid Version 4 UUID.
-         * 
-         * @param string $hex Hexadecimal string (32 characters, optionally with dashes)
-         * @return Version4 Version 4 UUID instance
-         * @throws Exception If the hex string is invalid or not version 4
-         * 
-         * @example
-         * ```php
-         * // Parse hex without dashes
-         * $uuid = Version4::fromHex('f47ac10b58cc4372a5670e02b2c3d479');
-         * // Parse hex with dashes
-         * $uuid = Version4::fromHex('f47ac10b-58cc-4372-a567-0e02b2c3d479');
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromHex(string $hex): \Identifier\Uuid\Version4 {}
 
         /**
          * Get the random bytes from this UUID
@@ -1067,7 +931,7 @@ namespace Identifier\Uuid
          * $bytes = $uuid->getRandomBytes();
          * echo strlen($bytes); // 16
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getRandomBytes(): string {}
 
@@ -1085,7 +949,7 @@ namespace Identifier\Uuid
          * $raw = $uuid->getRandomBytes();
          * // $pure has version/variant bits cleared, $raw has them set
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getPureRandomBytes(): string {}
 
@@ -1115,7 +979,7 @@ namespace Identifier\Uuid
          * $uuid5 = Version5::generate($namespace, "example.com");
          * // Different results due to different hash algorithms
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function generate(string $namespace, string $name): \Identifier\Uuid\Version5 {}
 
@@ -1134,46 +998,9 @@ namespace Identifier\Uuid
          * $uuid = Version5::fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
          * echo $uuid->getVersion(); // 5
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function fromString(string $uuid): \Identifier\Uuid\Version5 {}
-
-        /**
-         * Create UUID version 5 from binary data
-         * Creates a UUID version 5 instance from exactly 16 bytes of binary data.
-         * The binary data must represent a valid version 5 UUID.
-         * 
-         * @param string $bytes Exactly 16 bytes of binary data
-         * @return Version5 A new UUID version 5 instance
-         * @throws Exception If bytes is not exactly 16 bytes or not version 5
-         * 
-         * @example
-         * ```php
-         * $bytes = hex2bin("6ba7b8109dad11d180b400c04fd430c8");
-         * $uuid = Version5::fromBytes($bytes);
-         * echo $uuid->getVersion(); // 5
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromBytes(string $bytes): \Identifier\Uuid\Version5 {}
-
-        /**
-         * Create UUID version 5 from hexadecimal string
-         * Creates a UUID version 5 instance from a 32-character hexadecimal string.
-         * The hex string can be with or without hyphens and is case-insensitive.
-         * 
-         * @param string $hex 32-character hexadecimal string (with or without hyphens)
-         * @return Version5 A new UUID version 5 instance
-         * @throws Exception If hex string is invalid or not version 5
-         * 
-         * @example
-         * ```php
-         * $uuid = Version5::fromHex("6ba7b8109dad11d180b400c04fd430c8");
-         * echo $uuid->toString(); // "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromHex(string $hex): \Identifier\Uuid\Version5 {}
 
     }
 
@@ -1185,7 +1012,7 @@ namespace Identifier\Uuid
          * fields for better database sorting. The timestamp is in big-endian format
          * making UUIDs naturally sortable by creation time.
          * 
-         * @param Context|null $context Optional context for controlling time and node
+         * @param State|null $state Optional state for controlling time and node
          * @return Version6 A new UUID version 6 instance
          * @throws Exception If timestamp or node generation fails
          * 
@@ -1200,9 +1027,9 @@ namespace Identifier\Uuid
          * $uuid2 = Version6::generate();
          * var_dump($uuid1->toString() < $uuid2->toString()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version6 {}
+        public static function generate(?\Identifier\State $state = NULL): \Identifier\Uuid\Version6 {}
 
         /**
          * Create UUID version 6 from string representation
@@ -1219,46 +1046,9 @@ namespace Identifier\Uuid
          * $uuid = Version6::fromString("1ec9414c-232a-6b00-b3c8-9e6bdeced846");
          * echo $uuid->getVersion(); // 6
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function fromString(string $uuid): \Identifier\Uuid\Version6 {}
-
-        /**
-         * Create UUID version 6 from binary data
-         * Creates a UUID version 6 instance from exactly 16 bytes of binary data.
-         * The binary data must represent a valid version 6 UUID.
-         * 
-         * @param string $bytes Exactly 16 bytes of binary data
-         * @return Version6 A new UUID version 6 instance
-         * @throws Exception If bytes is not exactly 16 bytes or not version 6
-         * 
-         * @example
-         * ```php
-         * $bytes = hex2bin("1ec9414c232a6b00b3c89e6bdeced846");
-         * $uuid = Version6::fromBytes($bytes);
-         * echo $uuid->getVersion(); // 6
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromBytes(string $bytes): \Identifier\Uuid\Version6 {}
-
-        /**
-         * Create UUID version 6 from hexadecimal string
-         * Creates a UUID version 6 instance from a 32-character hexadecimal string.
-         * The hex string can be with or without hyphens and is case-insensitive.
-         * 
-         * @param string $hex 32-character hexadecimal string (with or without hyphens)
-         * @return Version6 A new UUID version 6 instance
-         * @throws Exception If hex string is invalid or not version 6
-         * 
-         * @example
-         * ```php
-         * $uuid = Version6::fromHex("1ec9414c232a6b00b3c89e6bdeced846");
-         * echo $uuid->toString(); // "1ec9414c-232a-6b00-b3c8-9e6bdeced846"
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromHex(string $hex): \Identifier\Uuid\Version6 {}
 
         /**
          * Get the timestamp from UUID version 6
@@ -1275,7 +1065,7 @@ namespace Identifier\Uuid
          * $unixTime = ($timestamp - 0x01b21dd213814000) / 10000000;
          * echo date('Y-m-d H:i:s', $unixTime);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getTimestamp(): int {}
 
@@ -1293,7 +1083,7 @@ namespace Identifier\Uuid
          * echo bin2hex($node); // e.g., "9e6bdeced846"
          * echo strlen($node); // 6
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getNode(): string {}
 
@@ -1310,7 +1100,7 @@ namespace Identifier\Uuid
          * $clockSeq = $uuid->getClockSequence();
          * echo $clockSeq; // e.g., 12345
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getClockSequence(): int {}
 
@@ -1324,7 +1114,7 @@ namespace Identifier\Uuid
          * random data. This provides natural sorting by creation time and is the
          * recommended UUID version for new applications.
          * 
-         * @param Context|null $context Optional context for controlling time and randomness
+         * @param State|null $state Optional state for controlling time and randomness
          * @return Version7 A new UUID version 7 instance
          * @throws Exception If timestamp or random generation fails
          * 
@@ -1339,9 +1129,9 @@ namespace Identifier\Uuid
          * $uuid2 = Version7::generate();
          * var_dump($uuid1->toString() < $uuid2->toString()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
-        public static function generate(?\Identifier\Context $context = NULL): \Identifier\Uuid\Version7 {}
+        public static function generate(?\Identifier\State $state = NULL): \Identifier\Uuid\Version7 {}
 
         /**
          * Create UUID version 7 from string representation
@@ -1358,46 +1148,9 @@ namespace Identifier\Uuid
          * $uuid = Version7::fromString("018c2e65-4b0a-7c3d-8f2e-1a4b5c6d7e8f");
          * echo $uuid->getVersion(); // 7
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function fromString(string $uuid): \Identifier\Uuid\Version7 {}
-
-        /**
-         * Create UUID version 7 from binary data
-         * Creates a UUID version 7 instance from exactly 16 bytes of binary data.
-         * The binary data must represent a valid version 7 UUID.
-         * 
-         * @param string $bytes Exactly 16 bytes of binary data
-         * @return Version7 A new UUID version 7 instance
-         * @throws Exception If bytes is not exactly 16 bytes or not version 7
-         * 
-         * @example
-         * ```php
-         * $bytes = hex2bin("018c2e654b0a7c3d8f2e1a4b5c6d7e8f");
-         * $uuid = Version7::fromBytes($bytes);
-         * echo $uuid->getVersion(); // 7
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromBytes(string $bytes): \Identifier\Uuid\Version7 {}
-
-        /**
-         * Create UUID version 7 from hexadecimal string
-         * Creates a UUID version 7 instance from a 32-character hexadecimal string.
-         * The hex string can be with or without hyphens and is case-insensitive.
-         * 
-         * @param string $hex 32-character hexadecimal string (with or without hyphens)
-         * @return Version7 A new UUID version 7 instance
-         * @throws Exception If hex string is invalid or not version 7
-         * 
-         * @example
-         * ```php
-         * $uuid = Version7::fromHex("018c2e654b0a7c3d8f2e1a4b5c6d7e8f");
-         * echo $uuid->toString(); // "018c2e65-4b0a-7c3d-8f2e-1a4b5c6d7e8f"
-         * ```
-         * @since 0.1.0
-         */
-        public static function fromHex(string $hex): \Identifier\Uuid\Version7 {}
 
         /**
          * Get the timestamp from UUID version 7
@@ -1417,7 +1170,7 @@ namespace Identifier\Uuid
          * $uuid2 = Version7::generate();
          * var_dump($uuid1->getTimestamp() < $uuid2->getTimestamp()); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getTimestamp(): int {}
 
@@ -1435,7 +1188,7 @@ namespace Identifier\Uuid
          * echo strlen($randomBytes); // 10
          * echo bin2hex($randomBytes); // e.g., "3d8f2e1a4b5c6d7e8f90"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getRandomBytes(): string {}
 
@@ -1452,7 +1205,7 @@ namespace Identifier\Uuid
          * $randA = $uuid->getRandomA();
          * echo $randA; // e.g., 3245 (0-4095)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getRandomA(): string {}
 
@@ -1470,7 +1223,7 @@ namespace Identifier\Uuid
          * echo strlen($randB); // 8
          * echo bin2hex($randB); // e.g., "8f2e1a4b5c6d7e8f"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function getRandomB(): string {}
 
@@ -1492,7 +1245,7 @@ namespace Encoding
      * - Base58 Bitcoin encoding (no 0, O, I, l to avoid confusion)
      * - Base64 variants (standard, URL-safe, MIME)
      * 
-     * @since 0.1.0
+     * @since 1.0.0
      */
     class Codec
     {
@@ -1536,7 +1289,7 @@ namespace Encoding
          * $codec = new Codec('0123456789ABCDEF', null); // Hex encoding
          * $hex = $codec->encode($binaryData);
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function __construct(string $alphabet, ?string $padding = NULL) {}
 
@@ -1559,7 +1312,7 @@ namespace Encoding
          * $decoded = $codec->decode($encoded);
          * var_dump($data === $decoded); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function encode(string $data): string {}
 
@@ -1586,7 +1339,7 @@ namespace Encoding
          * echo "Decoding failed: " . $e->getMessage();
          * }
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public function decode(string $encoded): string {}
 
@@ -1606,7 +1359,7 @@ namespace Encoding
          * $decoded = $codec->decode("0100100001101001");
          * echo $decoded; // "Hi"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function binary(?string $padding = NULL): \Encoding\Codec {}
 
@@ -1626,7 +1379,7 @@ namespace Encoding
          * $decoded = $codec->decode("48656C6C6F");
          * echo $decoded; // "Hello"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function hexadecimal(?string $padding = NULL): \Encoding\Codec {}
 
@@ -1646,7 +1399,7 @@ namespace Encoding
          * $decoded = $codec->decode("JBSWY3DPEBLW64TMMQQQ====");
          * echo $decoded; // "Hello World"
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function base32Rfc4648(?string $padding = NULL): \Encoding\Codec {}
 
@@ -1668,7 +1421,7 @@ namespace Encoding
          * $decoded2 = $codec->decode("91jprv3f5gg7evvg91imkm");
          * var_dump($decoded1 === $decoded2); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function base32Crockford(?string $padding = NULL): \Encoding\Codec {}
 
@@ -1690,7 +1443,7 @@ namespace Encoding
          * $encoded = $codec->encode($hash);
          * echo strlen($encoded); // Shorter than Base64
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function base58Bitcoin(?string $padding = NULL): \Encoding\Codec {}
 
@@ -1713,7 +1466,7 @@ namespace Encoding
          * $encoded2 = base64_encode($data);
          * var_dump($encoded1 === $encoded2); // bool(true)
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function base64Standard(?string $padding = NULL): \Encoding\Codec {}
 
@@ -1736,7 +1489,7 @@ namespace Encoding
          * $url = "https://example.com/data/" . $encoded;
          * // No need to URL-encode the result
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function base64UrlSafe(?string $padding = NULL): \Encoding\Codec {}
 
@@ -1760,7 +1513,7 @@ namespace Encoding
          * $mimeEncoded = $codec->encode($fileData);
          * // Can be safely included in email body
          * ```
-         * @since 0.1.0
+         * @since 1.0.0
          */
         public static function base64Mime(?string $padding = NULL): \Encoding\Codec {}
 

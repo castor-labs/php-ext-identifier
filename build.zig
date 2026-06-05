@@ -183,10 +183,10 @@ pub fn build(b: *std.Build) void {
     clean_step.dependOn(&clean_cmd.step);
 
     // Test step
-    const test_step = b.step("test", "Run PHP tests");
+    const test_step = b.step("test", "Run PHPUnit tests");
     const test_extension_arg = std.fmt.allocPrint(b.allocator, "extension=./{s}", .{output_file}) catch @panic("OOM");
     const test_cmd = b.addSystemCommand(&[_][]const u8{
-        "php", "tools/run-tests.php", "-d", test_extension_arg, "tests/",
+        "php", "-d", test_extension_arg, "vendor/bin/phpunit",
     });
     test_cmd.step.dependOn(build_step);
     test_step.dependOn(&test_cmd.step);

@@ -18,9 +18,9 @@
 #endif
 
 /* Class entries */
-zend_class_entry *php_identifier_context_ce;
-zend_class_entry *php_identifier_context_system_ce;
-zend_class_entry *php_identifier_context_fixed_ce;
+zend_class_entry *php_identifier_state_ce;
+zend_class_entry *php_identifier_state_system_ce;
+zend_class_entry *php_identifier_state_fixed_ce;
 zend_class_entry *php_identifier_bit128_ce;
 zend_class_entry *php_identifier_uuid_ce;
 zend_class_entry *php_identifier_uuid_version1_ce;
@@ -42,7 +42,7 @@ PHP_MINIT_FUNCTION(identifier)
     ZEND_INIT_MODULE_GLOBALS(identifier, php_identifier_init_globals, NULL);
 
     /* Register all classes */
-    php_identifier_context_register_classes();
+    php_identifier_state_register_classes();
     php_identifier_bit128_register_class();
     php_identifier_uuid_register_classes();
     php_identifier_ulid_register_class();

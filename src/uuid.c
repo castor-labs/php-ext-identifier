@@ -528,8 +528,6 @@ static const zend_function_entry php_identifier_uuid_methods[] = {
     PHP_ME(Identifier_Uuid, getVariant, arginfo_uuid_getVariant, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Uuid, toString, arginfo_uuid_toString, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Uuid, fromString, arginfo_uuid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid, fromBytes, arginfo_uuid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid, fromHex, arginfo_uuid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Uuid, isNil, arginfo_uuid_isNil, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Uuid, nil, arginfo_uuid_nil, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Uuid, isMax, arginfo_uuid_isMax, ZEND_ACC_PUBLIC)
