@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0](https://github.com/castor-labs/php-ext-identifier/compare/v0.2.1...v0.3.0) (2026-06-05)
+
+
+### Features
+
+* **bit128:** made \Identifier\Bit128 constructor final and private ([5f26eab](https://github.com/castor-labs/php-ext-identifier/commit/5f26eab553a6c38fcc6a504c19d153331df9bb52))
+* **bit128:** made static methods return static instead of self ([5f26eab](https://github.com/castor-labs/php-ext-identifier/commit/5f26eab553a6c38fcc6a504c19d153331df9bb52))
+* **deps:** drop support for PHP 8.1 and 8.2 ([5f26eab](https://github.com/castor-labs/php-ext-identifier/commit/5f26eab553a6c38fcc6a504c19d153331df9bb52))
+* renamed \Identifier\Context\* to \Identifier\State\ ([#22](https://github.com/castor-labs/php-ext-identifier/issues/22)) ([5f26eab](https://github.com/castor-labs/php-ext-identifier/commit/5f26eab553a6c38fcc6a504c19d153331df9bb52))
+
 ## [0.2.1](https://github.com/castor-labs/php-ext-identifier/compare/v0.2.0...v0.2.1) (2025-11-16)
 
 
