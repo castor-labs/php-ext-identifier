@@ -44,10 +44,9 @@
     "test": "php -d extension=./modules/identifier.so vendor/bin/phpunit"
   },
   "require-dev": {
-    "phpunit/phpunit": "^10.5",
-    "carthage-software/mago": "^1.16",
-    "phpbench/phpbench": "^1.6",
-    "symfony/uid": "^6.4",
+    "phpunit/phpunit": "^13.2",
+    "carthage-software/mago": "^1.30",
+    "symfony/uid": "^8.1",
     "ramsey/uuid": "^4.9"
   }
 }
