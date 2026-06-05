@@ -55,9 +55,9 @@ The codebase follows a **one-file-per-class** pattern:
 - `src/php_identifier.h` - Main header with all declarations
 - `src/php_identifier.c` - Extension initialization and utility functions
 - `src/bit128.c` - Base `Bit128` class implementation
-- `src/context.c` - Context interface registration
-- `src/context_system.c` - System context (uses real time/randomness)
-- `src/context_fixed.c` - Fixed context (deterministic for testing)
+- `src/state.c` - State interface registration
+- `src/state_system.c` - System state (uses real time/randomness)
+- `src/state_fixed.c` - Fixed state (deterministic for testing)
 - `src/uuid.c` - Base UUID class
 - `src/uuid_version{1,3,4,5,6,7}.c` - Individual UUID implementations
 - `src/ulid.c` - ULID implementation
@@ -66,9 +66,9 @@ The codebase follows a **one-file-per-class** pattern:
 ### Class Hierarchy
 
 ```
-Identifier\Context (interface)
-  ├── Identifier\Context\System
-  └── Identifier\Context\Fixed
+Identifier\State (interface)
+  ├── Identifier\State\System
+  └── Identifier\State\Fixed
 
 Identifier\Bit128 (implements Stringable)
   ├── Identifier\Uuid (abstract)
@@ -172,10 +172,10 @@ if (some_error_condition) {
 - Use `php_identifier_get_timestamp_ms()` for millisecond timestamps
 - Use `php_identifier_get_gregorian_epoch_time()` for UUID v1/v6
 
-**Context System**:
-- All generator methods should accept optional `Context` parameter
-- Use `Context\System` for real randomness
-- Use `Context\Fixed` for deterministic testing
+**State System**:
+- All generator methods should accept optional `State` parameter
+- Use `State\System` for real randomness
+- Use `State\Fixed` for deterministic testing
 
 ## Submitting Changes
 

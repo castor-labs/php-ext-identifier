@@ -6,7 +6,7 @@
 
 /* Arginfo declarations */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version6_generate, 0, 0, Identifier\\Uuid\\Version6, 0)
-    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, context, Identifier\\Context, 1, "null")
+    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, state, Identifier\\State, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version6_fromString, 0, 1, Identifier\\Uuid\\Version6, 0)
@@ -39,7 +39,7 @@ ZEND_END_ARG_INFO()
  * fields for better database sorting. The timestamp is in big-endian format
  * making UUIDs naturally sortable by creation time.
  *
- * @param Context|null $context Optional context for controlling time and node
+ * @param State|null $state Optional state for controlling time and node
  * @return Version6 A new UUID version 6 instance
  * @throws Exception If timestamp or node generation fails
  *
@@ -58,11 +58,11 @@ ZEND_END_ARG_INFO()
  */
 static PHP_METHOD(Identifier_Uuid_Version6, generate)
 {
-    zval *context = NULL;
+    zval *state = NULL;
 
     ZEND_PARSE_PARAMETERS_START(0, 1)
         Z_PARAM_OPTIONAL
-        Z_PARAM_OBJECT_OF_CLASS_OR_NULL(context, php_identifier_context_ce)
+        Z_PARAM_OBJECT_OF_CLASS_OR_NULL(state, php_identifier_state_ce)
     ZEND_PARSE_PARAMETERS_END();
 
     unsigned char uuid_bytes[16];
@@ -70,14 +70,14 @@ static PHP_METHOD(Identifier_Uuid_Version6, generate)
     uint16_t clock_seq;
     unsigned char node[6];
 
-    if (context != NULL) {
-        /* Get timestamp from context (convert ms to 100ns units) */
+    if (state != NULL) {
+        /* Get timestamp from state (convert ms to 100ns units) */
         zval function_name;
         zval timestamp_result;
 
         ZVAL_STRING(&function_name, "getTimestampMs");
 
-        if (call_user_function(NULL, context, &function_name, &timestamp_result, 0, NULL) == SUCCESS) {
+        if (call_user_function(NULL, state, &function_name, &timestamp_result, 0, NULL) == SUCCESS) {
             if (Z_TYPE(timestamp_result) == IS_LONG) {
                 /* Convert milliseconds to 100-nanosecond units since UUID epoch (1582-10-15) */
                 uint64_t timestamp_ms = (uint64_t)Z_LVAL(timestamp_result);
@@ -86,13 +86,13 @@ static PHP_METHOD(Identifier_Uuid_Version6, generate)
             } else {
                 zval_ptr_dtor(&function_name);
                 zval_ptr_dtor(&timestamp_result);
-                zend_throw_exception(zend_ce_exception, "Context getTimestampMs did not return a number", 0);
+                zend_throw_exception(zend_ce_exception, "State getTimestampMs did not return a number", 0);
                 RETURN_THROWS();
             }
             zval_ptr_dtor(&timestamp_result);
         } else {
             zval_ptr_dtor(&function_name);
-            zend_throw_exception(zend_ce_exception, "Failed to call getTimestampMs on context", 0);
+            zend_throw_exception(zend_ce_exception, "Failed to call getTimestampMs on state", 0);
             RETURN_THROWS();
         }
         zval_ptr_dtor(&function_name);
@@ -105,7 +105,7 @@ static PHP_METHOD(Identifier_Uuid_Version6, generate)
         ZVAL_STRING(&random_function, "getRandomBytes");
         ZVAL_LONG(&random_params[0], 8); /* 2 bytes for clock_seq + 6 bytes for node */
 
-        if (call_user_function(NULL, context, &random_function, &random_result, 1, random_params) == SUCCESS) {
+        if (call_user_function(NULL, state, &random_function, &random_result, 1, random_params) == SUCCESS) {
             if (Z_TYPE(random_result) == IS_STRING && Z_STRLEN(random_result) == 8) {
                 /* Extract clock sequence (14 bits) */
                 clock_seq = ((unsigned char)Z_STRVAL(random_result)[0] << 8) |
@@ -117,13 +117,13 @@ static PHP_METHOD(Identifier_Uuid_Version6, generate)
             } else {
                 zval_ptr_dtor(&random_function);
                 zval_ptr_dtor(&random_result);
-                zend_throw_exception(zend_ce_exception, "Context getRandomBytes did not return 8 bytes", 0);
+                zend_throw_exception(zend_ce_exception, "State getRandomBytes did not return 8 bytes", 0);
                 RETURN_THROWS();
             }
             zval_ptr_dtor(&random_result);
         } else {
             zval_ptr_dtor(&random_function);
-            zend_throw_exception(zend_ce_exception, "Failed to call getRandomBytes on context", 0);
+            zend_throw_exception(zend_ce_exception, "Failed to call getRandomBytes on state", 0);
             RETURN_THROWS();
         }
         zval_ptr_dtor(&random_function);
@@ -510,8 +510,6 @@ static PHP_METHOD(Identifier_Uuid_Version6, fromHex)
 static const zend_function_entry php_identifier_uuid_version6_methods[] = {
     PHP_ME(Identifier_Uuid_Version6, generate, arginfo_uuid_version6_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Uuid_Version6, fromString, arginfo_uuid_version6_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid_Version6, fromBytes, arginfo_uuid_version6_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid_Version6, fromHex, arginfo_uuid_version6_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Uuid_Version6, getTimestamp, arginfo_uuid_version6_getTimestamp, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Uuid_Version6, getNode, arginfo_uuid_version6_getNode, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Uuid_Version6, getClockSequence, arginfo_uuid_version6_getClockSequence, ZEND_ACC_PUBLIC)

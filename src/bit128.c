@@ -27,11 +27,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_toHex, 0, 0, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_bit128_fromHex, 0, 1, Identifier\\Bit128, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_fromHex, 0, 1, IS_STATIC, 0)
     ZEND_ARG_TYPE_INFO(0, hex, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_bit128_fromBytes, 0, 1, Identifier\\Bit128, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bit128_fromBytes, 0, 1, IS_STATIC, 0)
     ZEND_ARG_TYPE_INFO(0, bytes, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -41,20 +41,42 @@ ZEND_END_ARG_INFO()
 /* Bit128 object handlers */
 static zend_object_handlers php_identifier_bit128_object_handlers;
 
+static zend_class_entry *php_identifier_bit128_factory_scope(zend_execute_data *execute_data, const unsigned char *bytes)
+{
+    zend_class_entry *called_scope = zend_get_called_scope(execute_data);
+    if (called_scope == NULL) {
+        return php_identifier_bit128_ce;
+    }
+
+    if (called_scope == php_identifier_uuid_ce) {
+        switch ((bytes[6] >> 4) & 0x0F) {
+            case 1: return php_identifier_uuid_version1_ce;
+            case 3: return php_identifier_uuid_version3_ce;
+            case 4: return php_identifier_uuid_version4_ce;
+            case 5: return php_identifier_uuid_version5_ce;
+            case 6: return php_identifier_uuid_version6_ce;
+            case 7: return php_identifier_uuid_version7_ce;
+            default: return php_identifier_uuid_ce;
+        }
+    }
+
+    return called_scope;
+}
+
 /* Bit128 methods */
 
 /**
  * Create a new 128-bit identifier from bytes
  *
- * Constructs a new Bit128 instance from exactly 16 bytes of binary data.
- * This is the base class for all 128-bit identifiers in this extension.
+ * Initializes a 128-bit identifier from exactly 16 bytes of binary data.
+ * This constructor is protected and final; use static factory methods instead.
  *
  * @param string $bytes Exactly 16 bytes of binary data
  * @throws Exception If bytes is not exactly 16 bytes long
  *
  * @example
  * $bytes = random_bytes(16);
- * $bit128 = new Bit128($bytes);
+ * $bit128 = Bit128::fromBytes($bytes);
  *
  * @since 1.0.0
  */
@@ -84,7 +106,7 @@ static PHP_METHOD(Identifier_Bit128, __construct)
  * @return string The 16-byte binary representation
  *
  * @example
- * $id = new Bit128(random_bytes(16));
+ * $id = Bit128::fromBytes(random_bytes(16));
  * $bytes = $id->getBytes();
  * echo strlen($bytes); // 16
  * echo bin2hex($bytes); // hex representation
@@ -106,7 +128,7 @@ static PHP_METHOD(Identifier_Bit128, getBytes)
  * @return string The 16-byte binary representation
  *
  * @example
- * $id = new Bit128(random_bytes(16));
+ * $id = Bit128::fromBytes(random_bytes(16));
  * $bytes1 = $id->getBytes();
  * $bytes2 = $id->toBytes();
  * var_dump($bytes1 === $bytes2); // bool(true)
@@ -218,7 +240,7 @@ static PHP_METHOD(Identifier_Bit128, toHex)
  * and creates a new Bit128 instance. The hex string is case-insensitive.
  *
  * @param string $hex 32-character hexadecimal string (case-insensitive)
- * @return Bit128 New identifier instance
+ * @return static New identifier instance
  * @throws Exception If hex string is invalid or wrong length
  *
  * @example
@@ -236,30 +258,38 @@ static PHP_METHOD(Identifier_Bit128, fromHex)
         Z_PARAM_STR(hex)
     ZEND_PARSE_PARAMETERS_END();
 
-    /* Validate hex string length */
-    if (ZSTR_LEN(hex) != 32) {
-        zend_throw_exception(zend_ce_exception, "Hex string must be exactly 32 characters long", 0);
-        RETURN_THROWS();
-    }
-
-    /* Validate hex characters */
+    char clean_hex[33];
+    size_t clean_len = 0;
     const char *hex_str = ZSTR_VAL(hex);
-    for (int i = 0; i < 32; i++) {
-        if (!isxdigit(hex_str[i])) {
+
+    for (size_t i = 0; i < ZSTR_LEN(hex); i++) {
+        if (hex_str[i] == '-') {
+            continue;
+        }
+
+        if (clean_len >= 32 || !isxdigit((unsigned char) hex_str[i])) {
             zend_throw_exception(zend_ce_exception, "Invalid hex character in string", 0);
             RETURN_THROWS();
         }
+
+        clean_hex[clean_len++] = hex_str[i];
     }
+
+    if (clean_len != 32) {
+        zend_throw_exception(zend_ce_exception, "Hex string must be exactly 32 characters long", 0);
+        RETURN_THROWS();
+    }
+    clean_hex[32] = '\0';
 
     /* Parse hex string to bytes */
     unsigned char bytes[16];
     for (int i = 0; i < 16; i++) {
-        char hex_byte[3] = {hex_str[i * 2], hex_str[i * 2 + 1], '\0'};
+        char hex_byte[3] = {clean_hex[i * 2], clean_hex[i * 2 + 1], '\0'};
         bytes[i] = (unsigned char)strtol(hex_byte, NULL, 16);
     }
 
-    /* Create new Bit128 object */
-    object_init_ex(return_value, php_identifier_bit128_ce);
+    /* Create new object using late static binding */
+    object_init_ex(return_value, php_identifier_bit128_factory_scope(execute_data, bytes));
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
     memcpy(intern->data, bytes, 16);
 }
@@ -271,7 +301,7 @@ static PHP_METHOD(Identifier_Bit128, fromHex)
  * This is useful when reading identifiers from binary storage or network protocols.
  *
  * @param string $bytes Exactly 16 bytes of binary data
- * @return Bit128 New identifier instance
+ * @return static New identifier instance
  * @throws Exception If bytes is not exactly 16 bytes long
  *
  * @example
@@ -301,8 +331,8 @@ static PHP_METHOD(Identifier_Bit128, fromBytes)
         RETURN_THROWS();
     }
 
-    /* Create new Bit128 object */
-    object_init_ex(return_value, php_identifier_bit128_ce);
+    /* Create new object using late static binding */
+    object_init_ex(return_value, php_identifier_bit128_factory_scope(execute_data, (const unsigned char *) ZSTR_VAL(bytes)));
     php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(return_value);
     memcpy(intern->data, ZSTR_VAL(bytes), 16);
 }
@@ -356,7 +386,7 @@ static PHP_METHOD(Identifier_Bit128, __toString)
 
 /* Bit128 method entries */
 static const zend_function_entry php_identifier_bit128_methods[] = {
-    PHP_ME(Identifier_Bit128, __construct, arginfo_bit128_construct, ZEND_ACC_PUBLIC)
+    PHP_ME(Identifier_Bit128, __construct, arginfo_bit128_construct, ZEND_ACC_PROTECTED | ZEND_ACC_FINAL)
     PHP_ME(Identifier_Bit128, getBytes, arginfo_bit128_getBytes, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Bit128, toBytes, arginfo_bit128_toBytes, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Bit128, equals, arginfo_bit128_equals, ZEND_ACC_PUBLIC)
@@ -397,4 +427,5 @@ void php_identifier_bit128_register_class(void)
 
     /* Set up object handlers */
     memcpy(&php_identifier_bit128_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    php_identifier_bit128_object_handlers.offset = XtOffsetOf(php_identifier_bit128_obj, std);
 }

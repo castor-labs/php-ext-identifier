@@ -26,6 +26,7 @@ tests/*.log
 tests/*.sh
 tests/*.exp
 tmp-php.ini
+.phpunit.cache/
 
 # Temporary files
 tmp/
@@ -41,3 +42,11 @@ stubs/*_gen.stub.php
 # Generated packages
 *.tgz
 dist/
+
+# Dependencies
+vendor/
+
+# Tool caches
+.phpunit.cache/
+
+.devenv

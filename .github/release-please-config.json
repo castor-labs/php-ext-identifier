@@ -11,6 +11,11 @@
           "type": "generic",
           "path": "src/php_identifier.h",
           "glob": false
+        },
+        {
+          "type": "json",
+          "path": "composer.json",
+          "jsonpath": "$.version"
         }
       ]
     }

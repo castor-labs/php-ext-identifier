@@ -6,7 +6,7 @@
 
 /* Arginfo declarations */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_ulid_generate, 0, 0, Identifier\\Ulid, 0)
-    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, context, Identifier\\Context, 1, "null")
+    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, state, Identifier\\State, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ulid_toString, 0, 0, IS_STRING, 0)
@@ -121,7 +121,7 @@ static int increment_randomness(unsigned char *randomness)
  * ULIDs are lexicographically sortable and encode a timestamp, making them
  * ideal for use as database primary keys and distributed system identifiers.
  *
- * @param Context|null $context Optional context for controlling time and randomness
+ * @param State|null $state Optional state for controlling time and randomness
  * @return Ulid A new ULID instance
  * @throws Exception If timestamp or random generation fails
  *
@@ -130,27 +130,27 @@ static int increment_randomness(unsigned char *randomness)
  * $ulid = Ulid::generate();
  * echo $ulid->toString(); // e.g., "01ARZ3NDEKTSV4RRFFQ69G5FAV"
  *
- * // Generate with fixed context for testing
- * $context = new FixedContext();
- * $ulid = Ulid::generate($context);
+ * // Generate with fixed state for testing
+ * $state = Fixed::create(1640995200000, 12345);
+ * $ulid = Ulid::generate($state);
  *
  * @since 1.0.0
  */
 static PHP_METHOD(Identifier_Ulid, generate)
 {
-    zval *context = NULL;
+    zval *state = NULL;
 
     ZEND_PARSE_PARAMETERS_START(0, 1)
         Z_PARAM_OPTIONAL
-        Z_PARAM_OBJECT_OF_CLASS_OR_NULL(context, php_identifier_context_ce)
+        Z_PARAM_OBJECT_OF_CLASS_OR_NULL(state, php_identifier_state_ce)
     ZEND_PARSE_PARAMETERS_END();
 
-    /* Get timestamp from context or system */
+    /* Get timestamp from state or system */
     uint64_t current_timestamp;
-    if (context) {
-        /* Call getTimestampMs on context */
+    if (state) {
+        /* Call getTimestampMs on state */
         zval ts_result;
-        zend_call_method(Z_OBJ_P(context), Z_OBJCE_P(context), NULL, "gettimestampms", 14, &ts_result, 0, NULL, NULL);
+        zend_call_method(Z_OBJ_P(state), Z_OBJCE_P(state), NULL, "gettimestampms", 14, &ts_result, 0, NULL, NULL);
         if (Z_TYPE(ts_result) == IS_LONG) {
             current_timestamp = Z_LVAL(ts_result);
         } else {
@@ -179,12 +179,12 @@ static PHP_METHOD(Identifier_Ulid, generate)
         }
     } else {
         /* New timestamp - generate fresh randomness */
-        if (context) {
-            /* Call getRandomBytes on context */
+        if (state) {
+            /* Call getRandomBytes on state */
             zval rand_result;
             zval rand_param;
             ZVAL_LONG(&rand_param, ULID_RANDOMNESS_BYTES);
-            zend_call_method(Z_OBJ_P(context), Z_OBJCE_P(context), NULL, "getrandombytes", 14, &rand_result, 1, &rand_param, NULL);
+            zend_call_method(Z_OBJ_P(state), Z_OBJCE_P(state), NULL, "getrandombytes", 14, &rand_result, 1, &rand_param, NULL);
 
             if (Z_TYPE(rand_result) == IS_STRING && Z_STRLEN(rand_result) == ULID_RANDOMNESS_BYTES) {
                 memcpy(randomness, Z_STRVAL(rand_result), ULID_RANDOMNESS_BYTES);
@@ -615,8 +615,6 @@ static const zend_function_entry php_identifier_ulid_methods[] = {
     PHP_ME(Identifier_Ulid, generate, arginfo_ulid_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Ulid, toString, arginfo_ulid_toString, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Ulid, fromString, arginfo_ulid_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Ulid, fromHex, arginfo_ulid_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Ulid, fromBytes, arginfo_ulid_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Ulid, getTimestamp, arginfo_ulid_getTimestamp, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Ulid, getRandomness, arginfo_ulid_getRandomness, ZEND_ACC_PUBLIC)
     PHP_FE_END

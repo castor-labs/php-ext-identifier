@@ -42,7 +42,7 @@ class CSourceDocParser {
                 $docComment = $this->parseDocComment($match[1]);
                 $namespace = $match[2];
                 $className = $match[3];
-                // Build full class name like "Identifier\Context"
+                // Build full class name like "Identifier\State"
                 $fullName = $namespace ? $namespace . '\\' . $className : $className;
                 $this->classDocs[$fullName] = $docComment;
             }
@@ -89,7 +89,7 @@ class CSourceDocParser {
         if (preg_match_all($pattern2, $content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $docComment = $this->parseDocComment($match[1]);
-                // Convert Identifier_Context to Identifier\Context
+                // Convert Identifier_State to Identifier\State
                 $className = str_replace('_', '\\', $match[2]);
                 $methodName = trim($match[3]);
 
@@ -279,6 +279,20 @@ function generateEnhancedClassStub(ReflectionClass $class, CSourceDocParser $doc
     return $output;
 }
 
+function formatReflectionType(ReflectionNamedType $type): string {
+    $typeName = $type->getName();
+
+    if (!$type->isBuiltin() && !in_array(strtolower($typeName), ['self', 'parent', 'static'], true)) {
+        $typeName = '\\' . $typeName;
+    }
+
+    if ($type->allowsNull() && $typeName !== 'mixed') {
+        $typeName = '?' . $typeName;
+    }
+
+    return $typeName;
+}
+
 function generateEnhancedMethodStub(ReflectionMethod $method, CSourceDocParser $docParser, int $indent = 0): string {
     $indentStr = str_repeat('    ', $indent);
     $output = '';
@@ -333,6 +347,13 @@ function generateEnhancedMethodStub(ReflectionMethod $method, CSourceDocParser $
     // Method signature (same as before)
     $signature = $indentStr;
     
+    // Final/abstract
+    if ($method->isFinal()) {
+        $signature .= 'final ';
+    } elseif ($method->isAbstract() && !$method->getDeclaringClass()->isInterface()) {
+        $signature .= 'abstract ';
+    }
+
     // Visibility
     if ($method->isPublic()) {
         $signature .= 'public ';
@@ -359,14 +380,7 @@ function generateEnhancedMethodStub(ReflectionMethod $method, CSourceDocParser $
         if ($param->hasType()) {
             $type = $param->getType();
             if ($type instanceof ReflectionNamedType) {
-                $typeName = $type->getName();
-                if (!$type->isBuiltin()) {
-                    $typeName = '\\' . $typeName;
-                }
-                if ($type->allowsNull() && $typeName !== 'mixed') {
-                    $typeName = '?' . $typeName;
-                }
-                $paramStr .= $typeName . ' ';
+                $paramStr .= formatReflectionType($type) . ' ';
             }
         }
         
@@ -400,18 +414,11 @@ function generateEnhancedMethodStub(ReflectionMethod $method, CSourceDocParser $
     if ($method->hasReturnType()) {
         $returnType = $method->getReturnType();
         if ($returnType instanceof ReflectionNamedType) {
-            $typeName = $returnType->getName();
-            if (!$returnType->isBuiltin()) {
-                $typeName = '\\' . $typeName;
-            }
-            if ($returnType->allowsNull() && $typeName !== 'mixed') {
-                $typeName = '?' . $typeName;
-            }
-            $signature .= ': ' . $typeName;
+            $signature .= ': ' . formatReflectionType($returnType);
         }
     }
     
-    $signature .= ' {}';
+    $signature .= $method->getDeclaringClass()->isInterface() || $method->isAbstract() ? ';' : ' {}';
     
     $output .= $signature . "\n\n";
     

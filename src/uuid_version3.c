@@ -288,8 +288,6 @@ static PHP_METHOD(Identifier_Uuid_Version3, fromHex)
 static const zend_function_entry php_identifier_uuid_version3_methods[] = {
     PHP_ME(Identifier_Uuid_Version3, generate, arginfo_uuid_version3_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Uuid_Version3, fromString, arginfo_uuid_version3_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid_Version3, fromBytes, arginfo_uuid_version3_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid_Version3, fromHex, arginfo_uuid_version3_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
 

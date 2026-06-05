@@ -5,7 +5,7 @@
 
 /* Arginfo declarations */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version4_generate, 0, 0, Identifier\\Uuid\\Version4, 0)
-    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, context, Identifier\\Context, 1, "null")
+    ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, state, Identifier\\State, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_uuid_version4_fromString, 0, 1, Identifier\\Uuid\\Version4, 0)
@@ -34,7 +34,7 @@ ZEND_END_ARG_INFO()
  * Creates a new UUID version 4 using cryptographically secure random bytes.
  * Version 4 UUIDs are completely random except for the version and variant bits.
  *
- * @param Context|null $context Optional context for controlling randomness
+ * @param State|null $state Optional state for controlling randomness
  * @return Version4 A new UUID version 4 instance
  * @throws Exception If random byte generation fails
  *
@@ -43,26 +43,26 @@ ZEND_END_ARG_INFO()
  * $uuid = Version4::generate();
  * echo $uuid->toString(); // e.g., "f47ac10b-58cc-4372-a567-0e02b2c3d479"
  *
- * // Generate with custom context
- * $context = new FixedContext();
- * $uuid = Version4::generate($context);
+ * // Generate with custom state
+ * $state = Fixed::create(1640995200000, 12345);
+ * $uuid = Version4::generate($state);
  *
  * @since 1.0.0
  */
 static PHP_METHOD(Identifier_Uuid_Version4, generate)
 {
-    zval *context = NULL;
+    zval *state = NULL;
 
     ZEND_PARSE_PARAMETERS_START(0, 1)
         Z_PARAM_OPTIONAL
-        Z_PARAM_OBJECT_OF_CLASS_OR_NULL(context, php_identifier_context_ce)
+        Z_PARAM_OBJECT_OF_CLASS_OR_NULL(state, php_identifier_state_ce)
     ZEND_PARSE_PARAMETERS_END();
 
     /* Generate 16 random bytes */
     unsigned char uuid_bytes[16];
 
-    if (context != NULL) {
-        /* Use provided context for random bytes */
+    if (state != NULL) {
+        /* Use provided state for random bytes */
         zval function_name;
         zval params[1];
         zval random_result;
@@ -70,19 +70,19 @@ static PHP_METHOD(Identifier_Uuid_Version4, generate)
         ZVAL_STRING(&function_name, "getRandomBytes");
         ZVAL_LONG(&params[0], 16);
 
-        if (call_user_function(NULL, context, &function_name, &random_result, 1, params) == SUCCESS) {
+        if (call_user_function(NULL, state, &function_name, &random_result, 1, params) == SUCCESS) {
             if (Z_TYPE(random_result) == IS_STRING && Z_STRLEN(random_result) == 16) {
                 memcpy(uuid_bytes, Z_STRVAL(random_result), 16);
             } else {
                 zval_ptr_dtor(&function_name);
                 zval_ptr_dtor(&random_result);
-                zend_throw_exception(zend_ce_exception, "Context getRandomBytes did not return 16 bytes", 0);
+                zend_throw_exception(zend_ce_exception, "State getRandomBytes did not return 16 bytes", 0);
                 RETURN_THROWS();
             }
             zval_ptr_dtor(&random_result);
         } else {
             zval_ptr_dtor(&function_name);
-            zend_throw_exception(zend_ce_exception, "Failed to call getRandomBytes on context", 0);
+            zend_throw_exception(zend_ce_exception, "Failed to call getRandomBytes on state", 0);
             RETURN_THROWS();
         }
         zval_ptr_dtor(&function_name);
@@ -386,8 +386,6 @@ static PHP_METHOD(Identifier_Uuid_Version4, getPureRandomBytes)
 static const zend_function_entry php_identifier_uuid_version4_methods[] = {
     PHP_ME(Identifier_Uuid_Version4, generate, arginfo_uuid_version4_generate, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Uuid_Version4, fromString, arginfo_uuid_version4_fromString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid_Version4, fromBytes, arginfo_uuid_version4_fromBytes, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Identifier_Uuid_Version4, fromHex, arginfo_uuid_version4_fromHex, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Identifier_Uuid_Version4, getRandomBytes, arginfo_uuid_version4_getRandomBytes, ZEND_ACC_PUBLIC)
     PHP_ME(Identifier_Uuid_Version4, getPureRandomBytes, arginfo_uuid_version4_getPureRandomBytes, ZEND_ACC_PUBLIC)
     PHP_FE_END
