@@ -31,7 +31,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: none
+          extensions: mbstring
           ini-values: error_reporting=E_ALL
           coverage: none
 
