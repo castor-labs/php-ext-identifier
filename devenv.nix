@@ -1,7 +1,8 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, inputs, ... }:
 
 let
-  php = pkgs.php;
+  phpPkgs = import inputs.nixpkgs-php81 { inherit (pkgs) system; };
+  php = phpPkgs.php81;
   zig = pkgs.zig_0_15 or pkgs.zig;
   zls = pkgs.zls_0_15 or pkgs.zls;
 in
