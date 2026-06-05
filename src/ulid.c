@@ -38,65 +38,6 @@ ZEND_END_ARG_INFO()
 
 /* Thread-safe monotonic state is now stored in module globals (see php_identifier.h) */
 
-/* Forward declarations */
-extern zend_class_entry *php_identifier_codec_ce;
-
-/* Helper function to call Codec::base32Crockford() */
-static zend_string* get_crockford_alphabet(void)
-{
-    zval result;
-    zend_call_method(NULL, php_identifier_codec_ce, NULL, "base32Crockford", 15, &result, 0, NULL, NULL);
-
-    if (Z_TYPE(result) == IS_STRING) {
-        return Z_STR(result);
-    }
-
-    /* Fallback to hardcoded alphabet */
-    return zend_string_init("0123456789ABCDEFGHJKMNPQRSTVWXYZ", 32, 0);
-}
-
-/* Helper function to call Codec::encode() */
-static zend_string* codec_encode(const unsigned char *data, size_t data_len, zend_string *alphabet)
-{
-    zval result;
-    zval data_zval, alphabet_zval;
-
-    ZVAL_STRINGL(&data_zval, (char*)data, data_len);
-    ZVAL_STR(&alphabet_zval, alphabet);
-
-    zval params[2] = { data_zval, alphabet_zval };
-
-    zend_call_method(NULL, php_identifier_codec_ce, NULL, "encode", 6, &result, 2, &params[0], &params[1]);
-
-    zval_dtor(&data_zval);
-
-    if (Z_TYPE(result) == IS_STRING) {
-        return Z_STR(result);
-    }
-
-    return zend_string_init("", 0, 0);
-}
-
-/* Helper function to call Codec::decode() */
-static zend_string* codec_decode(zend_string *encoded, zend_string *alphabet)
-{
-    zval result;
-    zval encoded_zval, alphabet_zval;
-
-    ZVAL_STR(&encoded_zval, encoded);
-    ZVAL_STR(&alphabet_zval, alphabet);
-
-    zval params[2] = { encoded_zval, alphabet_zval };
-
-    zend_call_method(NULL, php_identifier_codec_ce, NULL, "decode", 6, &result, 2, &params[0], &params[1]);
-
-    if (Z_TYPE(result) == IS_STRING) {
-        return Z_STR(result);
-    }
-
-    return zend_string_init("", 0, 0);
-}
-
 /* Increment randomness for monotonic generation */
 /* Returns 1 on success, 0 on overflow */
 static int increment_randomness(unsigned char *randomness)
@@ -285,47 +226,34 @@ static void ulid_encode_base32(const unsigned char *bytes, char *output)
  */
 static PHP_METHOD(Identifier_Ulid, toString)
 {
-    /* Get the bytes from parent Bit128 class */
-    zval bytes_result;
-    zval *this_ptr = getThis();
-    zend_call_method(Z_OBJ_P(this_ptr), php_identifier_bit128_ce, NULL, "getbytes", 8, &bytes_result, 0, NULL, NULL);
+    php_identifier_bit128_obj *intern = PHP_IDENTIFIER_BIT128_OBJ_P(getThis());
 
-    if (Z_TYPE(bytes_result) != IS_STRING || Z_STRLEN(bytes_result) != ULID_TOTAL_BYTES) {
-        zval_dtor(&bytes_result);
-        RETURN_EMPTY_STRING();
-    }
+    zend_string *result = zend_string_alloc(ULID_STRING_LENGTH, 0);
+    ulid_encode_base32(intern->data, ZSTR_VAL(result));
+    ZSTR_VAL(result)[ULID_STRING_LENGTH] = '\0';
 
-    /* Encode using manual ULID Base32 encoding */
-    char ulid_str[ULID_STRING_LENGTH + 1];
-    ulid_encode_base32((unsigned char*)Z_STRVAL(bytes_result), ulid_str);
-
-    zval_dtor(&bytes_result);
-
-    RETURN_STRINGL(ulid_str, ULID_STRING_LENGTH);
+    RETURN_STR(result);
 }
 
 /* Manual Base32 Crockford decoding for ULID */
 static int ulid_decode_base32(const char *input, unsigned char *bytes)
 {
-    /* Create lookup table */
-    int lookup[256];
-    const char *alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-
-    for (int i = 0; i < 256; i++) {
-        lookup[i] = -1;
-    }
-    for (int i = 0; i < 32; i++) {
-        lookup[(unsigned char)alphabet[i]] = i;
-    }
+    static const int lookup[256] = {
+        ['0'] = 1, ['1'] = 2, ['2'] = 3, ['3'] = 4, ['4'] = 5, ['5'] = 6, ['6'] = 7, ['7'] = 8,
+        ['8'] = 9, ['9'] = 10, ['A'] = 11, ['B'] = 12, ['C'] = 13, ['D'] = 14, ['E'] = 15, ['F'] = 16,
+        ['G'] = 17, ['H'] = 18, ['J'] = 19, ['K'] = 20, ['M'] = 21, ['N'] = 22, ['P'] = 23, ['Q'] = 24,
+        ['R'] = 25, ['S'] = 26, ['T'] = 27, ['V'] = 28, ['W'] = 29, ['X'] = 30, ['Y'] = 31, ['Z'] = 32
+    };
 
     /* Validate and decode */
     uint64_t high = 0, low = 0;
 
     for (int i = 0; i < 26; i++) {
         int value = lookup[(unsigned char)input[i]];
-        if (value == -1) {
+        if (value == 0) {
             return 0; /* Invalid character */
         }
+        value--;
 
         int bit_pos = (25 - i) * 5;
 

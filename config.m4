@@ -32,7 +32,6 @@ if test "$PHP_IDENTIFIER" != "no"; then
   dnl Source files to compile
   identifier_sources="src/php_identifier.c \
     src/bit128.c \
-    src/codec.c \
     src/state.c \
     src/state_fixed.c \
     src/state_system.c \

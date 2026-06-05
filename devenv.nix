@@ -8,8 +8,8 @@ in
 {
   packages = [
     php
-    php.unwrapped.dev # provides php-config and PHP development headers
-    pkgs.phpPackages.composer
+    (lib.lowPrio php.unwrapped.dev) # provides php-config and PHP development headers
+    pkgs.php83Packages.composer
     zig
     zls
   ];

@@ -12,7 +12,6 @@ if (PHP_IDENTIFIER != "no") {
   EXTENSION("identifier",
     "src\\php_identifier.c " +
     "src\\bit128.c " +
-    "src\\codec.c " +
     "src\\state.c " +
     "src\\state_fixed.c " +
     "src\\state_system.c " +

@@ -30,7 +30,6 @@ zend_class_entry *php_identifier_uuid_version5_ce;
 zend_class_entry *php_identifier_uuid_version6_ce;
 zend_class_entry *php_identifier_uuid_version7_ce;
 zend_class_entry *php_identifier_ulid_ce;
-zend_class_entry *php_identifier_codec_ce;
 
 /* Forward declaration for globals initialization */
 static void php_identifier_init_globals(zend_identifier_globals *identifier_globals);
@@ -46,7 +45,6 @@ PHP_MINIT_FUNCTION(identifier)
     php_identifier_bit128_register_class();
     php_identifier_uuid_register_classes();
     php_identifier_ulid_register_class();
-    php_identifier_codec_init();
 
     return SUCCESS;
 }

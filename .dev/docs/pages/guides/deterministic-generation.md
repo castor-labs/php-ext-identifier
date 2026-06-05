@@ -75,5 +75,3 @@ $id = Version7::generate();
 ```
 
 If you are building an abstraction around identifier generation, accepting an optional `Identifier\State` is often enough. Production code can omit it, while tests can pass `Fixed` and avoid global mocking.
-
-For cases where you need textual encodings beyond UUID and ULID canonical strings, read the [codecs guide](codecs.html).
